@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The project is in the planning stage. The first deliverable is a clearly defined MVP (Minimum Viable Product) before development begins.
+The MVP scope and architecture are documented, and the Next.js frontend foundation has been created. The next development step is to replace the starter page with a small TeamFit user interface.
 
 ## MVP goal
 
@@ -37,3 +37,14 @@ TeamFit/
 ```
 
 > This project is under active development. Each major working change will be committed separately with a meaningful Git message.
+
+## Run the frontend locally
+
+From the repository root, run:
+
+```powershell
+cd teamfit-frontend
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000) in a browser. Stop the local development server with `Ctrl + C` when you are finished.
