@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The MVP scope and architecture are documented, and the Next.js frontend foundation has been created. The next development step is to replace the starter page with a small TeamFit user interface.
+The MVP scope and architecture are documented, and the frontend now includes a static TeamFit landing page. The next development milestone is to create the ASP.NET Core Web API and test it with Swagger.
 
 ## MVP goal
 
