@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The MVP scope and architecture are documented. The frontend includes a static TeamFit landing page, and the .NET 8 backend is connected to SQL Server through Entity Framework Core. The first `Students` table is versioned through an EF Core migration. The next development milestone is student profile CRUD endpoints.
+The MVP scope and architecture are documented. The frontend includes a static TeamFit landing page, and the .NET 8 backend is connected to SQL Server through Entity Framework Core. Student profile CRUD endpoints are available and tested through the API. The next development milestone is to connect the frontend to these endpoints.
 
 ## MVP goal
 
@@ -59,6 +59,18 @@ dotnet run
 ```
 
 Then open [Swagger UI](http://localhost:5273/swagger) to test the API. The first endpoint is `GET /api/health`, which confirms that the TeamFit API is running.
+
+## Student profile API
+
+The current backend supports these student profile endpoints:
+
+```text
+GET    /api/students       List student profiles
+GET    /api/students/{id}  View one student profile
+POST   /api/students       Create a student profile
+PUT    /api/students/{id}  Update a student profile
+DELETE /api/students/{id}  Delete a student profile
+```
 
 ## Database development
 
