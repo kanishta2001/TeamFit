@@ -1,4 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using TeamFit.Api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
+
+// Register EF Core and configure it to use the local SQL Server database.
+builder.Services.AddDbContext<TeamFitDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Register controller support so API requests can be handled by controller classes.
 builder.Services.AddControllers();

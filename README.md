@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The MVP scope and architecture are documented. The frontend includes a static TeamFit landing page, and the .NET 8 backend provides its first Swagger-tested API endpoint. The next development milestone is to connect the API to SQL Server through Entity Framework Core.
+The MVP scope and architecture are documented. The frontend includes a static TeamFit landing page, and the .NET 8 backend is connected to SQL Server through Entity Framework Core. The first `Students` table is versioned through an EF Core migration. The next development milestone is student profile CRUD endpoints.
 
 ## MVP goal
 
@@ -59,3 +59,14 @@ dotnet run
 ```
 
 Then open [Swagger UI](http://localhost:5273/swagger) to test the API. The first endpoint is `GET /api/health`, which confirms that the TeamFit API is running.
+
+## Database development
+
+The backend uses the local default SQL Server instance with Windows Authentication. EF Core manages the `TeamFitDb` database schema through migrations.
+
+From the `backend` folder, restore the repository-local EF tool and apply pending migrations with:
+
+```powershell
+dotnet tool restore
+dotnet tool run dotnet-ef database update
+```
