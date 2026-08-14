@@ -1,3 +1,5 @@
+import StudentDirectory from "@/components/student-directory";
+
 const features = [
   {
     number: "01",
@@ -144,6 +146,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <StudentDirectory />
 
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-8">
         <div className="rounded-3xl bg-indigo-600 px-6 py-12 text-white shadow-xl shadow-indigo-200 sm:px-10 lg:flex lg:items-center lg:justify-between">

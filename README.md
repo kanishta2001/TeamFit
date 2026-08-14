@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The MVP scope and architecture are documented. The frontend includes a static TeamFit landing page, and the .NET 8 backend is connected to SQL Server through Entity Framework Core. Student profile CRUD endpoints are available and tested through the API. The next development milestone is to connect the frontend to these endpoints.
+The MVP scope and architecture are documented. The Next.js frontend displays live student profiles from the ASP.NET Core API, and the .NET 8 backend is connected to SQL Server through Entity Framework Core. Student profile CRUD endpoints are available and tested through Swagger. The next development milestone is to let users create profiles through the frontend.
 
 ## MVP goal
 
@@ -32,7 +32,7 @@ The MVP scope, architecture, matching approach, and initial delivery plan are do
 TeamFit/
 ├── docs/
 ├── frontend/
-├── TeamFit.API/
+├── backend/
 └── README.md
 ```
 
@@ -44,10 +44,13 @@ From the repository root, run:
 
 ```powershell
 cd frontend
+Copy-Item .env.example .env.local
 npm run dev
 ```
 
 Then open [http://localhost:3000](http://localhost:3000) in a browser. Stop the local development server with `Ctrl + C` when you are finished.
+
+`TEAMFIT_API_URL` in `.env.local` tells the Next.js server where the local ASP.NET Core API is running. `.env.local` is ignored by Git; `.env.example` is the safe template committed to the repository.
 
 ## Run the backend locally
 
