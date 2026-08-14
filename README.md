@@ -31,7 +31,7 @@ The MVP scope, architecture, matching approach, and initial delivery plan are do
 ```text
 TeamFit/
 ├── docs/
-├── teamfit-frontend/
+├── frontend/
 ├── TeamFit.API/
 └── README.md
 ```
@@ -43,7 +43,7 @@ TeamFit/
 From the repository root, run:
 
 ```powershell
-cd teamfit-frontend
+cd frontend
 npm run dev
 ```
 
