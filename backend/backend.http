@@ -1,0 +1,6 @@
+@backend_HostAddress = http://localhost:5273
+
+GET {{backend_HostAddress}}/api/health
+Accept: application/json
+
+###

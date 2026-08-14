@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The MVP scope and architecture are documented, and the frontend now includes a static TeamFit landing page. The next development milestone is to create the ASP.NET Core Web API and test it with Swagger.
+The MVP scope and architecture are documented. The frontend includes a static TeamFit landing page, and the .NET 8 backend provides its first Swagger-tested API endpoint. The next development milestone is to connect the API to SQL Server through Entity Framework Core.
 
 ## MVP goal
 
@@ -48,3 +48,14 @@ npm run dev
 ```
 
 Then open [http://localhost:3000](http://localhost:3000) in a browser. Stop the local development server with `Ctrl + C` when you are finished.
+
+## Run the backend locally
+
+From the repository root, run:
+
+```powershell
+cd backend
+dotnet run
+```
+
+Then open [Swagger UI](http://localhost:5273/swagger) to test the API. The first endpoint is `GET /api/health`, which confirms that the TeamFit API is running.
