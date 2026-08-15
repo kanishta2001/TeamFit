@@ -1,5 +1,19 @@
 @backend_HostAddress = http://localhost:5273
 
+GET {{backend_HostAddress}}/api/skills
+Accept: application/json
+
+###
+
+POST {{backend_HostAddress}}/api/skills
+Content-Type: application/json
+
+{
+  "name": "React"
+}
+
+###
+
 GET {{backend_HostAddress}}/api/students
 Accept: application/json
 
