@@ -1,0 +1,32 @@
+@backend_HostAddress = http://localhost:5273
+
+GET {{backend_HostAddress}}/api/students
+Accept: application/json
+
+###
+
+POST {{backend_HostAddress}}/api/students
+Content-Type: application/json
+
+{
+  "fullName": "Nimal Perera",
+  "universityEmail": "nimal.perera@nsbm.ac.lk",
+  "bio": "Interested in modern web development and UI design.",
+  "preferredRole": "Frontend Developer"
+}
+
+###
+
+PUT {{backend_HostAddress}}/api/students/1
+Content-Type: application/json
+
+{
+  "fullName": "Nimal Perera",
+  "universityEmail": "nimal.perera@nsbm.ac.lk",
+  "bio": "Interested in modern web development, UI design, and TypeScript.",
+  "preferredRole": "UI/UX Designer"
+}
+
+###
+
+DELETE {{backend_HostAddress}}/api/students/1
