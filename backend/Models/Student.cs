@@ -23,4 +23,7 @@ public class Student
     public string PreferredRole { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // One student can have many skills through the join table.
+    public ICollection<StudentSkill> StudentSkills { get; set; } = new List<StudentSkill>();
 }

@@ -39,7 +39,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("FrontendDevelopment");
 app.UseAuthorization();
 
-// Map attribute-routed controllers, for example: GET /api/health.
+// Map attribute-routed controllers, for example: GET /api/students.
 app.MapControllers();
 
 app.Run();
