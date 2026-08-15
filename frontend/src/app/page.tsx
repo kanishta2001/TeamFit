@@ -1,4 +1,5 @@
 import StudentDirectory from "@/components/student-directory";
+import StudentProfileForm from "@/components/student-profile-form";
 
 const features = [
   {
@@ -47,7 +48,7 @@ export default function Home() {
           </a>
           <a
             className="rounded-lg bg-slate-900 px-4 py-2.5 text-white transition hover:bg-indigo-600"
-            href="#get-started"
+            href="#create-profile"
           >
             Get started
           </a>
@@ -70,12 +71,12 @@ export default function Home() {
             TeamFit helps university students discover teammates with complementary skills, suitable roles, and shared availability.
           </p>
 
-          <div id="get-started" className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a className="rounded-xl bg-indigo-600 px-5 py-3 text-center font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700" href="#how-it-works">
-              Explore how it works
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a className="rounded-xl bg-indigo-600 px-5 py-3 text-center font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700" href="#create-profile">
+              Create your profile
             </a>
-            <a className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center font-semibold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700" href="#matching">
-              View sample match
+            <a className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center font-semibold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700" href="#students">
+              View student profiles
             </a>
           </div>
 
@@ -146,6 +147,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <StudentProfileForm />
 
       <StudentDirectory />
 
