@@ -61,7 +61,7 @@ cd backend
 dotnet run
 ```
 
-Then open [Swagger UI](http://localhost:5273/swagger) to test the API. The first endpoint is `GET /api/health`, which confirms that the TeamFit API is running.
+Then open [Swagger UI](http://localhost:5273/swagger) to test the student profile API.
 
 ## Student profile API
 
