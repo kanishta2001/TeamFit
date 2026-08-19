@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeamFit.Api.Data;
 using TeamFit.Api.DTOs.Students;
+using TeamFit.Api.DTOs.Skills;
+using TeamFit.Api.DTOs.StudentSkills;
 using TeamFit.Api.Models;
 
 namespace TeamFit.Api.Controllers;
@@ -99,6 +101,106 @@ public class StudentsController : ControllerBase
 
         await _context.SaveChangesAsync();
         return Ok(ToResponse(student));
+    }
+    [HttpGet("{studentId:int}/skills")]
+    [ProducesResponseType(typeof(IEnumerable<SkillResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<SkillResponse>>> GetSkills(int studentId)
+    {
+        var studentExists = await _context.Students
+            .AnyAsync(student => student.Id == studentId);
+
+        if (!studentExists)
+        {
+            return NotFound(new { message = "Student profile was not found." });
+        }
+
+        // Read the skills linked to this student through the StudentSkills join table.
+        var skills = await _context.StudentSkills
+            .AsNoTracking()
+            .Where(studentSkill => studentSkill.StudentId == studentId)
+            .OrderBy(studentSkill => studentSkill.Skill.Name)
+            .Select(studentSkill => new SkillResponse
+            {
+                Id = studentSkill.Skill.Id,
+                Name = studentSkill.Skill.Name
+            })
+            .ToListAsync();
+
+        return Ok(skills);
+    }
+
+    [HttpPost("{studentId:int}/skills")]
+    [ProducesResponseType(typeof(SkillResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<SkillResponse>> AssignSkill(
+        int studentId,
+        AssignSkillRequest request)
+    {
+        var studentExists = await _context.Students
+            .AnyAsync(student => student.Id == studentId);
+
+        if (!studentExists)
+        {
+            return NotFound(new { message = "Student profile was not found." });
+        }
+
+        var skill = await _context.Skills.FindAsync(request.SkillId);
+
+        if (skill is null)
+        {
+            return NotFound(new { message = "Skill was not found." });
+        }
+
+        var assignmentExists = await _context.StudentSkills
+            .AnyAsync(studentSkill =>
+                studentSkill.StudentId == studentId &&
+                studentSkill.SkillId == request.SkillId);
+
+        if (assignmentExists)
+        {
+            return Conflict(new { message = "This skill is already assigned to the student." });
+        }
+
+        var studentSkill = new StudentSkill
+        {
+            StudentId = studentId,
+            SkillId = request.SkillId
+        };
+
+        _context.StudentSkills.Add(studentSkill);
+        await _context.SaveChangesAsync();
+
+        var response = new SkillResponse
+        {
+            Id = skill.Id,
+            Name = skill.Name
+        };
+
+        return CreatedAtAction(nameof(GetSkills), new { studentId }, response);
+    }
+
+    [HttpDelete("{studentId:int}/skills/{skillId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveSkill(int studentId, int skillId)
+    {
+        var studentSkill = await _context.StudentSkills
+            .FirstOrDefaultAsync(assignment =>
+                assignment.StudentId == studentId &&
+                assignment.SkillId == skillId);
+
+        if (studentSkill is null)
+        {
+            return NotFound(new { message = "This skill assignment was not found." });
+        }
+
+        _context.StudentSkills.Remove(studentSkill);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     [HttpDelete("{id:int}")]
