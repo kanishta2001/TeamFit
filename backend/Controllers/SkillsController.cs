@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TeamFit.Api.Data;
 using TeamFit.Api.DTOs.Skills;
@@ -6,7 +7,7 @@ using TeamFit.Api.Models;
 
 namespace TeamFit.Api.Controllers;
 
-[ApiController]
+[Authorize, ApiController]
 [Route("api/[controller]")]
 public class SkillsController : ControllerBase
 {

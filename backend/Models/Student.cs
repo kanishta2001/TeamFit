@@ -6,6 +6,10 @@ public class Student
 {
     public int Id { get; set; }
 
+    // Older demo profiles remain readable but cannot be claimed by another user.
+    public int? UserId { get; set; }
+    public ApplicationUser? User { get; set; }
+
     [Required]
     [MaxLength(100)]
     public string FullName { get; set; } = string.Empty;
@@ -26,4 +30,5 @@ public class Student
 
     // One student can have many skills through the join table.
     public ICollection<StudentSkill> StudentSkills { get; set; } = new List<StudentSkill>();
+    public ICollection<StudentAvailability> Availability { get; set; } = new List<StudentAvailability>();
 }

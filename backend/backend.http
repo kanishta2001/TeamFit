@@ -1,46 +1,124 @@
-@backend_HostAddress = http://localhost:5273
+@host = http://localhost:5273
+# Replace placeholders locally. Never commit an actual password or session token.
+@token = PASTE_YOUR_TEST_TOKEN
+@studentId = 1
+@projectId = 1
+@skillId = 1
+@invitationId = 1
 
-GET {{backend_HostAddress}}/api/skills
-Accept: application/json
+### Public options
+GET {{host}}/api/options
 
-###
+### Register a NEW test account (replace the password before sending)
+POST {{host}}/api/auth/register
+Content-Type: application/json
 
-POST {{backend_HostAddress}}/api/skills
+{
+  "email": "your-new-test-account@example.test",
+  "password": "REPLACE_WITH_A_TEST_PASSWORD"
+}
+
+### Login; copy response.token into a local, uncommitted variable
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "your-new-test-account@example.test",
+  "password": "REPLACE_WITH_A_TEST_PASSWORD"
+}
+
+### My account
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Create your own profile; email must match your login account
+POST {{host}}/api/students
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Test Student",
+  "universityEmail": "your-new-test-account@example.test",
+  "bio": "Learning full-stack development.",
+  "preferredRole": "Frontend Developer",
+  "skillIds": [],
+  "availability": ["Weekday Evening"]
+}
+
+### Student directory
+GET {{host}}/api/students
+Authorization: Bearer {{token}}
+
+### My saved profile
+GET {{host}}/api/students/me
+Authorization: Bearer {{token}}
+
+### Shared skill catalog
+GET {{host}}/api/skills
+Authorization: Bearer {{token}}
+
+### Add a catalog skill
+POST {{host}}/api/skills
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "name": "React"
 }
 
-###
-
-GET {{backend_HostAddress}}/api/students
-Accept: application/json
-
-###
-
-POST {{backend_HostAddress}}/api/students
+### Assign an existing skill to your own profile (set IDs above)
+POST {{host}}/api/students/{{studentId}}/skills
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "fullName": "Nimal Perera",
-  "universityEmail": "nimal.perera@nsbm.ac.lk",
-  "bio": "Interested in modern web development and UI design.",
-  "preferredRole": "Frontend Developer"
+  "skillId": {{skillId}}
 }
 
-###
-
-PUT {{backend_HostAddress}}/api/students/1
+### Create a project and its team
+POST {{host}}/api/projects
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "fullName": "Nimal Perera",
-  "universityEmail": "nimal.perera@nsbm.ac.lk",
-  "bio": "Interested in modern web development, UI design, and TypeScript.",
-  "preferredRole": "UI/UX Designer"
+  "title": "Campus events",
+  "description": "Build an event platform for students.",
+  "teamSize": 4,
+  "requiredSkillIds": [{{skillId}}],
+  "desiredRoles": ["Frontend Developer"],
+  "availability": ["Weekday Evening"]
 }
 
-###
+### Explainable recommendations (project owner only)
+GET {{host}}/api/projects/{{projectId}}/recommendations
+Authorization: Bearer {{token}}
 
-DELETE {{backend_HostAddress}}/api/students/1
+### Invite ANOTHER student's profile (set studentId to the candidate)
+POST {{host}}/api/projects/{{projectId}}/invitations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "studentId": {{studentId}}
+}
+
+### Invitation inbox (use the recipient's login)
+GET {{host}}/api/invitations
+Authorization: Bearer {{token}}
+
+### Accept an invitation as its recipient
+PUT {{host}}/api/invitations/{{invitationId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Accepted"
+}
+
+### View the team
+GET {{host}}/api/projects/{{projectId}}/members
+Authorization: Bearer {{token}}
+
+### Sign out and revoke this account's sessions
+POST {{host}}/api/auth/logout
+Authorization: Bearer {{token}}

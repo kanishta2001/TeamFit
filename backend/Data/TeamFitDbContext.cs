@@ -3,48 +3,59 @@ using TeamFit.Api.Models;
 
 namespace TeamFit.Api.Data;
 
-public class TeamFitDbContext : DbContext
+public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbContext(options)
 {
-    public TeamFitDbContext(DbContextOptions<TeamFitDbContext> options)
-        : base(options)
-    {
-    }
-
-    // DbSet<Student> represents the Students table that EF Core will create in SQL Server.
     public DbSet<Student> Students => Set<Student>();
-
-    // These DbSets become the Skills and StudentSkills tables in SQL Server.
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<StudentSkill> StudentSkills => Set<StudentSkill>();
+    public DbSet<StudentAvailability> StudentAvailability => Set<StudentAvailability>();
+    public DbSet<ProjectRequest> Projects => Set<ProjectRequest>();
+    public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
+    public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<TeamInvitation> Invitations => Set<TeamInvitation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Student>().HasIndex(x => x.UniversityEmail).IsUnique();
+        modelBuilder.Entity<Skill>().HasIndex(x => x.Name).IsUnique();
+        modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.Email).IsUnique();
+        modelBuilder.Entity<Student>().HasIndex(x => x.UserId).IsUnique().HasFilter("[UserId] IS NOT NULL");
+        modelBuilder.Entity<Student>().HasOne(x => x.User).WithOne().HasForeignKey<Student>(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // A university email should belong to only one student profile.
-        modelBuilder.Entity<Student>()
-            .HasIndex(student => student.UniversityEmail)
-            .IsUnique();
+        modelBuilder.Entity<StudentSkill>().HasKey(x => new { x.StudentId, x.SkillId });
+        modelBuilder.Entity<StudentSkill>().HasOne(x => x.Student).WithMany(x => x.StudentSkills)
+            .HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<StudentSkill>().HasOne(x => x.Skill).WithMany(x => x.StudentSkills)
+            .HasForeignKey(x => x.SkillId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<StudentAvailability>().HasKey(x => new { x.StudentId, x.Slot });
+        modelBuilder.Entity<StudentAvailability>().HasOne(x => x.Student).WithMany(x => x.Availability)
+            .HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
 
-                // A skill name should appear only once in the shared skills catalog.
-        modelBuilder.Entity<Skill>()
-            .HasIndex(skill => skill.Name)
-            .IsUnique();
+        modelBuilder.Entity<ProjectRequest>().HasOne(x => x.Owner).WithMany()
+            .HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ProjectRequiredSkill>().HasKey(x => new { x.ProjectRequestId, x.SkillId });
+        modelBuilder.Entity<ProjectRequiredSkill>().HasOne(x => x.ProjectRequest).WithMany(x => x.RequiredSkills)
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectRequiredSkill>().HasOne(x => x.Skill).WithMany()
+            .HasForeignKey(x => x.SkillId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ProjectRole>().HasKey(x => new { x.ProjectRequestId, x.Role });
+        modelBuilder.Entity<ProjectRole>().HasOne(x => x.ProjectRequest).WithMany(x => x.DesiredRoles)
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectAvailability>().HasKey(x => new { x.ProjectRequestId, x.Slot });
+        modelBuilder.Entity<ProjectAvailability>().HasOne(x => x.ProjectRequest).WithMany(x => x.Availability)
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
 
-        // A student cannot have the same skill more than once.
-        modelBuilder.Entity<StudentSkill>()
-            .HasKey(studentSkill => new { studentSkill.StudentId, studentSkill.SkillId });
-
-        modelBuilder.Entity<StudentSkill>()
-            .HasOne(studentSkill => studentSkill.Student)
-            .WithMany(student => student.StudentSkills)
-            .HasForeignKey(studentSkill => studentSkill.StudentId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<StudentSkill>()
-            .HasOne(studentSkill => studentSkill.Skill)
-            .WithMany(skill => skill.StudentSkills)
-            .HasForeignKey(studentSkill => studentSkill.SkillId)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<TeamMember>().HasKey(x => new { x.ProjectRequestId, x.StudentId });
+        modelBuilder.Entity<TeamMember>().HasOne(x => x.ProjectRequest).WithMany(x => x.Members)
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<TeamMember>().HasOne(x => x.Student).WithMany()
+            .HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<TeamInvitation>().HasIndex(x => new { x.ProjectRequestId, x.StudentId }).IsUnique();
+        modelBuilder.Entity<TeamInvitation>().HasOne(x => x.ProjectRequest).WithMany()
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<TeamInvitation>().HasOne(x => x.Student).WithMany()
+            .HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
     }
 }
