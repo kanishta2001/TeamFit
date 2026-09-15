@@ -1,5 +1,7 @@
 # TeamFit MVP and Architecture Plan
 
+> Historical planning document. The scope has since expanded to authenticated accounts, owned projects, invitations, and team management. See the root README and delivery report for the implemented release.
+
 ## 1. Project purpose
 
 TeamFit helps university students form more suitable project or assignment teams. It uses each student's skills, preferred role, and availability to recommend people who fit a project request.

@@ -15,3 +15,9 @@
 .env
 .env.*
 !.env.example
+
+# Local automated-test output (may contain session details)
+**/test-results/
+**/playwright-report/
+*.tsbuildinfo
+artifacts/
