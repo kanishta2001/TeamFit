@@ -6,7 +6,7 @@ This repository is being built step by step as an individual full-stack learning
 
 ## Current stage
 
-The MVP scope and architecture are documented, and the Next.js frontend foundation has been created. The next development step is to replace the starter page with a small TeamFit user interface.
+The MVP scope and architecture are documented. The Next.js frontend can create and display live student profiles through the ASP.NET Core API, and the .NET 8 backend is connected to SQL Server through Entity Framework Core. Student profile CRUD endpoints are available through Swagger and the profile creation form. The next development milestone is to add skills to student profiles.
 
 ## MVP goal
 
@@ -31,8 +31,8 @@ The MVP scope, architecture, matching approach, and initial delivery plan are do
 ```text
 TeamFit/
 ├── docs/
-├── teamfit-frontend/
-├── TeamFit.API/
+├── frontend/
+├── backend/
 └── README.md
 ```
 
@@ -43,8 +43,45 @@ TeamFit/
 From the repository root, run:
 
 ```powershell
-cd teamfit-frontend
+cd frontend
+Copy-Item .env.example .env.local
 npm run dev
 ```
 
 Then open [http://localhost:3000](http://localhost:3000) in a browser. Stop the local development server with `Ctrl + C` when you are finished.
+
+`TEAMFIT_API_URL` in `.env.local` tells the Next.js server where the local ASP.NET Core API is running. `NEXT_PUBLIC_API_URL` is the same public API address used by browser-side features, such as the profile creation form. `.env.local` is ignored by Git; `.env.example` is the safe template committed to the repository.
+
+## Run the backend locally
+
+From the repository root, run:
+
+```powershell
+cd backend
+dotnet run
+```
+
+Then open [Swagger UI](http://localhost:5273/swagger) to test the student profile API.
+
+## Student profile API
+
+The current backend supports these student profile endpoints:
+
+```text
+GET    /api/students       List student profiles
+GET    /api/students/{id}  View one student profile
+POST   /api/students       Create a student profile
+PUT    /api/students/{id}  Update a student profile
+DELETE /api/students/{id}  Delete a student profile
+```
+
+## Database development
+
+The backend uses the local default SQL Server instance with Windows Authentication. EF Core manages the `TeamFitDb` database schema through migrations.
+
+From the `backend` folder, restore the repository-local EF tool and apply pending migrations with:
+
+```powershell
+dotnet tool restore
+dotnet tool run dotnet-ef database update
+```
