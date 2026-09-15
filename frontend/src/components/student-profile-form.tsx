@@ -1,178 +1,86 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { api, message } from "@/lib/api";
+import type { Options, Skill, Student, User } from "@/lib/types";
+import { buttonStyle, Choices, Field, inputStyle, Notice, panelStyle, secondaryStyle } from "./form-controls";
 
-type StudentProfileFormData = {
-  fullName: string;
-  universityEmail: string;
-  preferredRole: string;
-  bio: string;
-};
+export default function StudentProfileForm({ user, student, skills, options, onSaved }: {
+  user: User; student: Student | null; skills: Skill[]; options: Options; onSaved: () => Promise<void>;
+}) {
+  const [selectedSkills, setSkills] = useState(student?.skills.map(skill => String(skill.id)) ?? []);
+  const [availability, setAvailability] = useState(student?.availability ?? []);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [skillName, setSkillName] = useState("");
 
-type FormStatus =
-  | { type: "success"; message: string }
-  | { type: "error"; message: string }
-  | null;
-
-const emptyForm: StudentProfileFormData = {
-  fullName: "",
-  universityEmail: "",
-  preferredRole: "",
-  bio: "",
-};
-
-// Browser code can only read environment variables that begin with NEXT_PUBLIC_.
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5273";
-
-async function getApiErrorMessage(response: Response): Promise<string> {
-  try {
-    const errorData: { message?: string } = await response.json();
-    return errorData.message ?? "Please check the information and try again.";
-  } catch {
-    return "Please check the information and try again.";
-  }
-}
-
-export default function StudentProfileForm() {
-  const router = useRouter();
-  const [formData, setFormData] = useState<StudentProfileFormData>(emptyForm);
-  const [formStatus, setFormStatus] = useState<FormStatus>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const updateField = (field: keyof StudentProfileFormData, value: string) => {
-    setFormData((currentForm) => ({ ...currentForm, [field]: value }));
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setFormStatus(null);
-
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setBusy(true); setError(""); setNotice("");
+    const form = new FormData(event.currentTarget);
     try {
-      // Send the same fields required by the ASP.NET Core CreateStudentRequest DTO.
-      const response = await fetch(`${apiBaseUrl}/api/students`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      await api(student ? `students/${student.id}` : "students", student ? "PUT" : "POST", {
+        fullName: String(form.get("fullName")).trim(), universityEmail: user.email,
+        bio: String(form.get("bio")).trim(), preferredRole: form.get("preferredRole"),
+        skillIds: selectedSkills.map(Number), availability,
       });
+      await onSaved(); setNotice("Your profile has been saved.");
+    } catch (reason) { setError(message(reason)); }
+    finally { setBusy(false); }
+  }
 
-      if (!response.ok) {
-        throw new Error(await getApiErrorMessage(response));
-      }
+  async function addSkill() {
+    if (!skillName.trim()) return;
+    setBusy(true); setError(""); setNotice("");
+    try {
+      const skill = await api<Skill>("skills", "POST", { name: skillName.trim() });
+      setSkills(values => [...values, String(skill.id)]);
+      setSkillName(""); await onSaved(); setNotice("Skill added and selected. Save your profile to keep this selection.");
+    } catch (reason) { setError(message(reason)); }
+    finally { setBusy(false); }
+  }
 
-      setFormData(emptyForm);
-      setFormStatus({
-        type: "success",
-        message: "Your student profile was created successfully.",
-      });
+  async function remove() {
+    if (!student || !window.confirm("Delete your student profile? Leave joined teams and delete owned projects first. Your login account will remain.")) return;
+    setBusy(true); setError("");
+    try { await api(`students/${student.id}`, "DELETE"); await onSaved(); }
+    catch (reason) { setError(message(reason)); }
+    finally { setBusy(false); }
+  }
 
-      // Re-render Server Components so the directory immediately receives fresh database data.
-      router.refresh();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-      setFormStatus({ type: "error", message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <section id="create-profile" className="bg-slate-100">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:px-8">
-        <div className="lg:pt-6">
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-indigo-600">Student profile</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-            Start with your strengths.
-          </h2>
-          <p className="mt-4 max-w-lg text-lg leading-8 text-slate-600">
-            Add a simple profile so TeamFit can display your preferred project role. Skills and availability will be added in the next stages.
-          </p>
-          <div className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-5 text-sm leading-6 text-indigo-950">
-            <p className="font-bold">What happens when you submit?</p>
-            <p className="mt-2">The form sends a POST request to the TeamFit API, which validates and saves your profile in SQL Server.</p>
-          </div>
+  return <section className={panelStyle}>
+    <h2 className="text-2xl font-bold">{student ? "Edit my profile" : "Create my profile"}</h2>
+    <p className="mt-2 text-sm text-slate-600">Skills and availability help project owners understand where you fit. You can edit only your own profile.</p>
+    <form onSubmit={save} className="mt-6 space-y-5">
+      <fieldset disabled={busy} className="space-y-5">
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field label="Full name"><input name="fullName" required maxLength={100} defaultValue={student?.fullName} className={inputStyle} /></Field>
+          <Field label="Account email"><input value={user.email} readOnly className={inputStyle} /></Field>
         </div>
-
-        <form className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 sm:p-8" onSubmit={handleSubmit}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="block sm:col-span-2">
-              <span className="text-sm font-bold text-slate-800">Full name</span>
-              <input
-                className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                type="text"
-                value={formData.fullName}
-                onChange={(event) => updateField("fullName", event.target.value)}
-                placeholder="e.g. Nimal Perera"
-                maxLength={100}
-                required
-              />
-            </label>
-
-            <label className="block sm:col-span-2">
-              <span className="text-sm font-bold text-slate-800">University email</span>
-              <input
-                className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                type="email"
-                value={formData.universityEmail}
-                onChange={(event) => updateField("universityEmail", event.target.value)}
-                placeholder="e.g. name@nsbm.ac.lk"
-                maxLength={150}
-                required
-              />
-              <span className="mt-2 block text-xs leading-5 text-slate-500">Each email can be used for only one profile.</span>
-            </label>
-
-            <label className="block sm:col-span-2">
-              <span className="text-sm font-bold text-slate-800">Preferred project role</span>
-              <input
-                className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                type="text"
-                value={formData.preferredRole}
-                onChange={(event) => updateField("preferredRole", event.target.value)}
-                placeholder="e.g. Frontend Developer"
-                maxLength={50}
-                required
-              />
-            </label>
-
-            <label className="block sm:col-span-2">
-              <span className="text-sm font-bold text-slate-800">Short bio <span className="font-normal text-slate-500">(optional)</span></span>
-              <textarea
-                className="mt-2 min-h-28 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                value={formData.bio}
-                onChange={(event) => updateField("bio", event.target.value)}
-                placeholder="Tell teammates a little about your interests or experience."
-                maxLength={500}
-              />
-            </label>
+        <Field label="About you"><textarea name="bio" maxLength={500} rows={3} defaultValue={student?.bio ?? ""} className={inputStyle} /></Field>
+        <Field label="Preferred project role">
+          <select name="preferredRole" required defaultValue={student?.preferredRole ?? ""} className={inputStyle}>
+            <option value="" disabled>Choose a role</option>
+            {options.roles.map(role => <option key={role}>{role}</option>)}
+          </select>
+        </Field>
+        <Choices label="Your skills (up to 30)" options={skills.map(skill => ({ value: String(skill.id), label: skill.name }))}
+          selected={selectedSkills} onChange={setSkills} />
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-60 flex-1">
+            <Field label="Missing a skill? Add it to the shared catalog">
+              <input value={skillName} onChange={event => setSkillName(event.target.value)} maxLength={80} className={inputStyle} placeholder="e.g. React" />
+            </Field>
           </div>
-
-          {formStatus ? (
-            <div
-              className={`mt-6 rounded-xl border p-4 text-sm leading-6 ${
-                formStatus.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : "border-rose-200 bg-rose-50 text-rose-800"
-              }`}
-              role="status"
-              aria-live="polite"
-            >
-              {formStatus.message}
-            </div>
-          ) : null}
-
-          <button
-            className="mt-6 w-full rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-400"
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Creating profile..." : "Create student profile"}
-          </button>
-        </form>
-      </div>
-    </section>
-  );
+          <button type="button" className={secondaryStyle} disabled={!skillName.trim()} onClick={addSkill}>Add skill</button>
+        </div>
+        <Choices label="Availability" options={options.availabilitySlots.map(slot => ({ value: slot, label: slot }))}
+          selected={availability} onChange={setAvailability} />
+        <p className="text-sm text-slate-500">Availability uses Sri Lanka local time. Choose general meeting periods that work for you.</p>
+        <button className={buttonStyle} type="submit">{busy ? "Saving…" : "Save profile"}</button>
+        {student && <button className="ml-4 text-sm font-semibold text-rose-700" type="button" onClick={remove}>Delete profile</button>}
+      </fieldset>
+      <Notice text={error} error /><Notice text={notice} />
+    </form>
+  </section>;
 }

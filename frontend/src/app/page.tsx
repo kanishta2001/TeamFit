@@ -1,5 +1,4 @@
-import StudentDirectory from "@/components/student-directory";
-import StudentProfileForm from "@/components/student-profile-form";
+import Link from "next/link";
 
 const features = [
   {
@@ -23,7 +22,7 @@ const features = [
 ];
 
 const scoreReasons = [
-  { label: "Required skills", value: "+48", detail: "React, TypeScript, UI Design" },
+  { label: "Required skills", value: "+45", detail: "3 of 4: React, TypeScript, UI Design" },
   { label: "Preferred role", value: "+25", detail: "Frontend Developer" },
   { label: "Availability", value: "+15", detail: "Weekday evenings" },
 ];
@@ -48,7 +47,7 @@ export default function Home() {
           </a>
           <a
             className="rounded-lg bg-slate-900 px-4 py-2.5 text-white transition hover:bg-indigo-600"
-            href="#create-profile"
+            href="/workspace"
           >
             Get started
           </a>
@@ -72,12 +71,12 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a className="rounded-xl bg-indigo-600 px-5 py-3 text-center font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700" href="#create-profile">
+            <Link className="rounded-xl bg-indigo-600 px-5 py-3 text-center font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700" href="/workspace">
               Create your profile
-            </a>
-            <a className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center font-semibold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700" href="#students">
-              View student profiles
-            </a>
+            </Link>
+            <Link className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center font-semibold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700" href="/workspace">
+              Open workspace
+            </Link>
           </div>
 
           <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-600">
@@ -90,12 +89,12 @@ export default function Home() {
         <div id="matching" className="relative z-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl shadow-indigo-100/70 sm:p-7">
           <div className="flex items-start justify-between border-b border-slate-100 pb-5">
             <div>
-              <p className="text-sm font-medium text-slate-500">Recommended teammate</p>
+              <p className="text-sm font-medium text-slate-500">Example recommendation</p>
               <h2 className="mt-1 text-xl font-bold">Kavindu Perera</h2>
               <p className="mt-1 text-sm text-indigo-600">Frontend Developer</p>
             </div>
             <div className="grid h-16 w-16 place-items-center rounded-2xl bg-emerald-50 text-center">
-              <span className="text-xl font-bold text-emerald-600">88%</span>
+              <span className="text-xl font-bold text-emerald-600">85%</span>
               <span className="-mt-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-600">match</span>
             </div>
           </div>
@@ -106,7 +105,7 @@ export default function Home() {
             <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">UI Design</span>
           </div>
 
-          {/* Static score data previews how the future matching result will be explained. */}
+          {/* This illustrative example is not a real student or live API result. */}
           <div className="mt-6 space-y-3">
             {scoreReasons.map((reason) => (
               <div key={reason.label} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
@@ -148,17 +147,13 @@ export default function Home() {
         </div>
       </section>
 
-      <StudentProfileForm />
-
-      <StudentDirectory />
-
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-8">
         <div className="rounded-3xl bg-indigo-600 px-6 py-12 text-white shadow-xl shadow-indigo-200 sm:px-10 lg:flex lg:items-center lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-indigo-200">TeamFit MVP</p>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-indigo-200">Your next team starts here</p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight">From scattered skills to balanced student teams.</h2>
             <p className="mt-4 leading-7 text-indigo-100">
-              This interface is the first step. Student profiles, project requests, and live recommendations will be added gradually.
+              Create your account, share your skills, and invite students who match your project. Manage your team from one workspace.
             </p>
           </div>
           <a className="mt-7 inline-flex rounded-xl bg-white px-5 py-3 font-semibold text-indigo-700 transition hover:bg-indigo-50 lg:mt-0" href="#top">
