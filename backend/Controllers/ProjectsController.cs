@@ -16,7 +16,15 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
 {
     private IQueryable<ProjectRequest> Projects() => context.Projects
         .Include(x => x.RequiredSkills).ThenInclude(x => x.Skill)
-        .Include(x => x.DesiredRoles).Include(x => x.Availability).Include(x => x.Members).AsSplitQuery();
+        .Include(x => x.DesiredRoles).Include(x => x.Availability)
+        .Include(x => x.Members).ThenInclude(x => x.Student).Include(x => x.Tasks).AsSplitQuery();
+
+    private TeamFit.Api.DTOs.Projects.ProjectResponse ToResponse(ProjectRequest project)
+    {
+        var response = ResponseMapper.Project(project);
+        response.IsMember = project.Members.Any(x => x.Student.UserId == CurrentUser.Id(User));
+        return response;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll(bool mine = false)
@@ -24,14 +32,14 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
         var query = Projects().AsNoTracking();
         if (mine) query = query.Where(x => x.OwnerId == CurrentUser.Id(User) ||
             x.Members.Any(m => m.Student.UserId == CurrentUser.Id(User)));
-        return Ok((await query.OrderByDescending(x => x.CreatedAt).ToListAsync()).Select(ResponseMapper.Project));
+        return Ok((await query.OrderByDescending(x => x.CreatedAt).ToListAsync()).Select(ToResponse));
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
         var project = await Projects().AsNoTracking().SingleOrDefaultAsync(x => x.Id == id);
-        return project is null ? NotFound() : Ok(ResponseMapper.Project(project));
+        return project is null ? NotFound() : Ok(ToResponse(project));
     }
 
     [HttpPost]
@@ -47,7 +55,7 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
         return CreatedAtAction(nameof(GetById), new { id = project.Id },
-            ResponseMapper.Project(await Projects().SingleAsync(x => x.Id == project.Id)));
+            ToResponse(await Projects().SingleAsync(x => x.Id == project.Id)));
     }
 
     [HttpPut("{id:int}")]
@@ -66,7 +74,7 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
         context.ChangeTracker.Clear();
-        return Ok(ResponseMapper.Project(await Projects().SingleAsync(x => x.Id == id)));
+        return Ok(ToResponse(await Projects().SingleAsync(x => x.Id == id)));
     }
 
     [HttpDelete("{id:int}")]
@@ -124,6 +132,11 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
             return Conflict(new { message = "The project owner cannot leave their own team. Delete the project instead." });
         if (project.OwnerId != CurrentUser.Id(User) && member.Student.UserId != CurrentUser.Id(User))
             return Forbid();
+        // Retain work history while preventing former members from updating tasks.
+        await context.ProjectTasks.Where(x => x.ProjectRequestId == id && x.AssignedStudentId == studentId)
+            .ExecuteUpdateAsync(update => update
+                .SetProperty(x => x.AssignedStudentId, (int?)null)
+                .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
         context.TeamMembers.Remove(member);
         await context.SaveChangesAsync();
         await transaction.CommitAsync();

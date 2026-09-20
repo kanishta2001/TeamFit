@@ -5,8 +5,9 @@ import { api, message } from "@/lib/api";
 import type { Options, Skill, Student, User } from "@/lib/types";
 import { buttonStyle, Choices, Field, inputStyle, Notice, panelStyle, secondaryStyle } from "./form-controls";
 
-export default function StudentProfileForm({ user, student, skills, options, onSaved }: {
+export default function StudentProfileForm({ user, student, skills, options, onSaved, onCatalogChanged }: {
   user: User; student: Student | null; skills: Skill[]; options: Options; onSaved: () => Promise<void>;
+  onCatalogChanged: () => Promise<void>;
 }) {
   const [selectedSkills, setSkills] = useState(student?.skills.map(skill => String(skill.id)) ?? []);
   const [availability, setAvailability] = useState(student?.availability ?? []);
@@ -35,7 +36,7 @@ export default function StudentProfileForm({ user, student, skills, options, onS
     try {
       const skill = await api<Skill>("skills", "POST", { name: skillName.trim() });
       setSkills(values => [...values, String(skill.id)]);
-      setSkillName(""); await onSaved(); setNotice("Skill added and selected. Save your profile to keep this selection.");
+      setSkillName(""); await onCatalogChanged(); setNotice("Skill added and selected. Save your profile to keep this selection.");
     } catch (reason) { setError(message(reason)); }
     finally { setBusy(false); }
   }

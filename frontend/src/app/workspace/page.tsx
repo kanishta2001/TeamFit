@@ -1,5 +1,6 @@
-import Workspace from "@/components/workspace";
+import { redirect } from "next/navigation";
 
 export default function WorkspacePage() {
-  return <Workspace />;
+  // Preserve bookmarks for the old single-page workspace.
+  redirect("/dashboard");
 }

@@ -23,6 +23,10 @@ public static class ResponseMapper
         Id = project.Id, OwnerId = project.OwnerId, Status = project.Status,
         MemberCount = project.Members.Count, Title = project.Title, Description = project.Description,
         TeamSize = project.TeamSize, CreatedAt = project.CreatedAt,
+        TaskCount = project.Tasks.Count,
+        CompletedTaskCount = project.Tasks.Count(task => task.Status == "Done"),
+        ProgressPercent = project.Tasks.Count == 0 ? 0 :
+            (int)Math.Round(100m * project.Tasks.Count(task => task.Status == "Done") / project.Tasks.Count),
         RequiredSkills = project.RequiredSkills.OrderBy(link => link.Skill.Name)
             .Select(link => new SkillResponse { Id = link.SkillId, Name = link.Skill.Name }).ToList(),
         DesiredRoles = project.DesiredRoles.Select(item => item.Role).Order().ToList(),

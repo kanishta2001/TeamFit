@@ -19,4 +19,5 @@ public class ProjectRequest
     public ICollection<ProjectRole> DesiredRoles { get; set; } = new List<ProjectRole>();
     public ICollection<ProjectAvailability> Availability { get; set; } = new List<ProjectAvailability>();
     public ICollection<TeamMember> Members { get; set; } = new List<TeamMember>();
+    public ICollection<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 }

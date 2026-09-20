@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { api, message } from "@/lib/api";
-import type { Member, Options, Project, Recommendation, SentInvitation, Skill, Student, User } from "@/lib/types";
-import ProjectForm from "./project-form";
+import type { Member, Project, Recommendation, SentInvitation, Student, User } from "@/lib/types";
+import ProjectTasks from "./project-tasks";
 import { buttonStyle, Notice, panelStyle, secondaryStyle, Tags } from "./form-controls";
 
 type Detail = { members: Member[]; recommendations: Recommendation[]; invitations: SentInvitation[] };
 
-export default function ProjectDetail({ project, user, skills, options, students, onBack, onChanged, onDeleted }: {
-  project: Project; user: User; skills: Skill[]; options: Options; students: Student[];
-  onBack: () => void; onChanged: () => Promise<void>; onDeleted: () => Promise<void>;
+export default function ProjectDetail({ project, user, students, onBack, onEdit, onChanged, onDeleted }: {
+  project: Project; user: User; students: Student[];
+  onBack: () => void; onEdit: () => void; onChanged: () => Promise<void>; onDeleted: () => Promise<void>;
 }) {
   const owner = project.ownerId === user.id;
   const [detail, setDetail] = useState<Detail | null>(null);
-  const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -38,15 +37,13 @@ export default function ProjectDetail({ project, user, skills, options, students
     finally { setBusy(false); }
   }
   async function removeProject() {
-    if (!window.confirm("Delete this project, its team, and all its invitations? This cannot be undone.")) return;
+    if (!window.confirm("Delete this project, its team, tasks, and all its invitations? This cannot be undone.")) return;
     setBusy(true); setError("");
     try { await api(`projects/${project.id}`, "DELETE"); await onDeleted(); }
     catch (reason) { setError(message(reason)); }
     finally { setBusy(false); }
   }
 
-  if (editing) return <ProjectForm project={project} skills={skills} options={options} onCancel={() => setEditing(false)}
-    onSaved={async () => { await onChanged(); setEditing(false); }} />;
   const memberStudents = students.filter(student => detail?.members.some(member => member.studentId === student.id));
   const covered = new Set(memberStudents.flatMap(student => student.skills.map(skill => skill.id)));
   const full = project.memberCount >= project.teamSize;
@@ -57,7 +54,7 @@ export default function ProjectDetail({ project, user, skills, options, students
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h2 className="text-2xl font-bold">{project.title}</h2>
           <p className="mt-2 text-sm text-indigo-700">{project.status} · {project.memberCount}/{project.teamSize} team members</p></div>
-        {owner && <div className="flex gap-3"><button className={secondaryStyle} disabled={busy} onClick={() => setEditing(true)}>Edit project</button>
+        {owner && <div className="flex gap-3"><button className={secondaryStyle} disabled={busy} onClick={onEdit}>Edit project</button>
           <button className="text-sm font-semibold text-rose-700" disabled={busy} onClick={removeProject}>Delete project</button></div>}
       </div>
       <p className="whitespace-pre-wrap break-words text-slate-600">{project.description}</p>
@@ -67,6 +64,7 @@ export default function ProjectDetail({ project, user, skills, options, students
     </article>
     {!detail ? <div className={panelStyle}><p role="status">{error ? "Could not load team details." : "Loading team details…"}</p>
       {error && <button className={secondaryStyle} onClick={() => setRevision(value => value + 1)}>Retry</button>}</div> : <>
+      {(owner || project.isMember) && <ProjectTasks project={project} user={user} members={detail.members} onChanged={onChanged} />}
       <article className={panelStyle + " space-y-4"}>
         <h3 className="text-xl font-bold">Team members</h3>
         {detail.members.map(member => <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3" key={member.studentId}>

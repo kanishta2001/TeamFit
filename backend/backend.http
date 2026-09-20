@@ -5,6 +5,7 @@
 @projectId = 1
 @skillId = 1
 @invitationId = 1
+@taskId = 1
 
 ### Public options
 GET {{host}}/api/options
@@ -117,6 +118,47 @@ Content-Type: application/json
 
 ### View the team
 GET {{host}}/api/projects/{{projectId}}/members
+Authorization: Bearer {{token}}
+
+### View tasks (owner or current team member only)
+GET {{host}}/api/projects/{{projectId}}/tasks
+Authorization: Bearer {{token}}
+
+### Create a task (owner only; choose a current team member)
+POST {{host}}/api/projects/{{projectId}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Build the student directory",
+  "description": "Implement search and filters.",
+  "assignedStudentId": {{studentId}},
+  "status": "Todo"
+}
+
+### Change task status (assignee or owner)
+PATCH {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Done"
+}
+
+### Edit or unassign a task (owner only)
+PUT {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Review the student directory",
+  "description": "Check mobile layout and validation.",
+  "assignedStudentId": null,
+  "status": "InProgress"
+}
+
+### Delete a task (owner only; cannot be undone)
+DELETE {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}
 Authorization: Bearer {{token}}
 
 ### Sign out and revoke this account's sessions

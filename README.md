@@ -2,7 +2,7 @@
 
 A student project-team formation platform built with **Next.js, ASP.NET Core, and SQL Server**. Students create profiles, describe project requirements, compare explainable recommendations, and form teams through invitations.
 
-This is a working individual full-stack learning project, not an AI/ML matching service. The functional application is available at **/workspace**; the landing page contains a clearly labelled illustrative example.
+This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**, register or log in, then use **/dashboard**. The application structure follows the TeamFit draw.io page map; **/workspace** redirects to the dashboard for existing bookmarks. Public home examples are clearly labelled illustrations.
 
 ## Features
 
@@ -16,6 +16,9 @@ This is a working individual full-stack learning project, not an AI/ML matching 
 - Project owners automatically join their team; members can leave; owners can remove members.
 - Capacity checks protected against concurrent invitation acceptance.
 - Team skill-coverage summary and dashboard counts.
+- Separate owned/joined project pages, profile onboarding, and shareable project URLs.
+- Owners create, assign, edit, and delete tasks; assignees update their own task status.
+- Saved task progress; leaving/removing a member unassigns their tasks without deleting the work.
 - Server-side validation, ownership authorization, error messages, and responsive screens.
 
 ## Screenshots
@@ -48,7 +51,7 @@ The browser never connects directly to SQL Server. Database entities are mapped 
 ```text
 TeamFit/
   frontend/
-    src/app/             Landing page and /workspace
+    src/app/             Home, auth pages, and protected (workspace) routes
     src/components/      Forms, directory, projects, invitations
     src/lib/             API client and TypeScript types
     tests/               Playwright browser workflow
@@ -113,7 +116,7 @@ cd frontend
 npm run dev
 ```
 
-Open [TeamFit](http://localhost:3000/workspace). Swagger is available at [localhost:5273/swagger](http://localhost:5273/swagger). Use `localhost` consistently, not a mixture of `localhost` and `127.0.0.1`.
+Open [TeamFit](http://localhost:3000). Swagger is available at [localhost:5273/swagger](http://localhost:5273/swagger). Use `localhost` consistently, not a mixture of `localhost` and `127.0.0.1`.
 
 Keep both terminals running. Use **Ctrl+C** to stop them. Do not start a second copy on the same port.
 
@@ -126,7 +129,9 @@ Keep both terminals running. Use **Ctrl+C** to stop them. Do not start a second 
 5. Open the project; inspect the recommendation scores and invite the second student.
 6. As the second student, use **Refresh → Invitations → Accept**.
 7. Refresh the owner's workspace; the team now includes both students.
-8. Edit the project status as work progresses.
+8. On the project details page, create a task and assign it to the second student.
+9. The second student opens **Projects → Joined projects → View project** and updates their task to **Done**.
+10. Task progress updates from saved tasks. The owner changes the overall project status separately.
 
 Different tabs in the **same browser profile share the same login cookie**. Use separate browser profiles/incognito sessions when demonstrating multiple users.
 
@@ -159,10 +164,13 @@ Except for options, registration, and login, endpoints require authentication.
 | Projects | GET/POST /api/projects; GET/PUT/DELETE /api/projects/{id} |
 | Matching | GET /api/projects/{id}/recommendations |
 | Teams | GET /api/projects/{id}/members; DELETE /api/projects/{id}/members/{studentId} |
+| Tasks | GET/POST /api/projects/{id}/tasks; PUT/DELETE /api/projects/{id}/tasks/{taskId}; PATCH /api/projects/{id}/tasks/{taskId}/status |
 | Owner invitations | GET/POST /api/projects/{id}/invitations |
 | Inbox | GET /api/invitations; PUT /api/invitations/{id}; DELETE /api/invitations/{id} |
 
 `GET /api/projects?mine=true` returns owned and joined teams. Student list supports `search`, `role`, `skillId`, and `availability` query parameters.
+
+Project responses include isMember, taskCount, completedTaskCount, and progressPercent. Task contents are visible only to the owner/current members. A task may be unassigned or assigned to one current member. Progress is the rounded percentage of tasks with status **Done** (zero when no tasks exist); it is not a measure of effort or overall software quality. Task updates do not automatically change the project's Open / InProgress / Completed status.
 
 Swagger: register/login, copy the response token, click **Authorize**, and paste the token without adding another `Bearer` prefix. Do not commit real tokens in `.http` files.
 
@@ -213,4 +221,4 @@ GitHub Actions runs frontend lint/build/audit, backend build, and matching check
 
 The application can run locally end-to-end. **A public deployment has not been created.** See [deployment requirements](docs/deployment.md) for environment settings, HTTPS/cookie considerations, database migration, and the choices needed to publish it.
 
-See [delivery report](docs/delivery-report-si.md) for progress, test results, and suggested commits. UI redesign remains a separate next phase.
+See [the structure upgrade guide](docs/structure-upgrade-si.md) for the page map, permissions, and a step-by-step walkthrough. The earlier [delivery report](docs/delivery-report-si.md) describes the previous single-workspace release. A larger visual redesign remains separate from this navigation/functional upgrade.

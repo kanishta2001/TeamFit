@@ -13,10 +13,15 @@ public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbCo
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<TeamInvitation> Invitations => Set<TeamInvitation>();
+    public DbSet<ProjectTask> ProjectTasks => Set<ProjectTask>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ProjectTask>().HasOne(x => x.ProjectRequest).WithMany(x => x.Tasks)
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectTask>().HasOne(x => x.AssignedStudent).WithMany()
+            .HasForeignKey(x => x.AssignedStudentId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<Student>().HasIndex(x => x.UniversityEmail).IsUnique();
         modelBuilder.Entity<Skill>().HasIndex(x => x.Name).IsUnique();
         modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.Email).IsUnique();

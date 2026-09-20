@@ -7,7 +7,8 @@ export type Student = {
 };
 export type Project = {
   id: number; ownerId: number; title: string; description: string; teamSize: number;
-  memberCount: number; status: "Open" | "InProgress" | "Completed";
+  memberCount: number; isMember: boolean; taskCount: number; completedTaskCount: number;
+  progressPercent: number; status: "Open" | "InProgress" | "Completed";
   requiredSkills: Skill[]; desiredRoles: string[]; availability: string[];
 };
 export type Recommendation = {
@@ -23,3 +24,7 @@ export type Invitation = {
   status: string; createdAt: string;
 };
 export type SentInvitation = { id: number; studentId: number; fullName: string; status: string };
+export type ProjectTask = {
+  id: number; title: string; description: string | null; assignedStudentId: number | null;
+  assignedStudentName: string | null; status: "Todo" | "InProgress" | "Done";
+};

@@ -11,13 +11,19 @@ test("two students form a team entirely through the browser", async ({ browser }
   const member = await memberContext.newPage();
   for (const page of [owner, member]) page.on("pageerror", error => errors.push(error.message));
 
+  await owner.goto("/");
+  await expect(owner.getByRole("heading", { name: "Sample projects", exact: true })).toBeVisible();
+  await owner.getByRole("link", { name: "Browse projects", exact: true }).click();
+  await expect(owner).toHaveURL(/\/login\?next=%2Fprojects$/);
+  await expect(owner.getByRole("heading", { name: "Welcome back to TeamFit" })).toBeVisible();
+
   async function register(page: Page, email: string) {
-    await page.goto("/workspace");
-    await page.getByRole("button", { name: "New here? Create an account" }).click();
+    await page.goto("/register");
     await page.getByLabel("Email", { exact: true }).fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByRole("button", { name: "Register", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Create my profile" })).toBeVisible();
+    await expect(page).toHaveURL(/\/profile\/create$/);
   }
   await register(owner, "browser-owner-" + suffix + "@example.test");
   await owner.getByLabel("Full name", { exact: true }).fill("Browser Owner");
@@ -25,9 +31,19 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.getByLabel("Missing a skill?").fill("Browser React " + suffix);
   await owner.getByRole("button", { name: "Add skill", exact: true }).click();
   await expect(owner.getByRole("checkbox", { name: "Browser React " + suffix, exact: true })).toBeChecked();
+  await expect(owner).toHaveURL(/\/profile\/create$/);
   await owner.getByRole("checkbox", { name: "Weekday Evening", exact: true }).check();
   await owner.getByRole("button", { name: "Save profile" }).click();
-  await expect(owner.getByRole("heading", { name: "Edit my profile" })).toBeVisible();
+  await expect(owner).toHaveURL(/\/dashboard$/);
+  await expect(owner.getByRole("heading", { name: "Welcome, Browser Owner" })).toBeVisible();
+  await owner.getByRole("link", { name: "My profile", exact: true }).click();
+  await owner.getByRole("link", { name: "Edit my profile", exact: true }).click();
+  await expect(owner).toHaveURL(/\/profile\/edit$/);
+  await owner.getByLabel("About you").fill("Frontend student and project owner.");
+  await owner.getByRole("button", { name: "Save profile" }).click();
+  await expect(owner).toHaveURL(/\/profile$/);
+  await owner.reload();
+  await expect(owner.getByText("Frontend student and project owner.", { exact: true })).toBeVisible();
 
   await register(member, "browser-member-" + suffix + "@example.test");
   await member.getByLabel("Full name", { exact: true }).fill("Browser Member");
@@ -35,13 +51,14 @@ test("two students form a team entirely through the browser", async ({ browser }
   await member.getByRole("checkbox", { name: "Browser React " + suffix, exact: true }).check();
   await member.getByRole("checkbox", { name: "Weekday Evening", exact: true }).check();
   await member.getByRole("button", { name: "Save profile" }).click();
-  await expect(member.getByRole("heading", { name: "Edit my profile" })).toBeVisible();
+  await expect(member).toHaveURL(/\/dashboard$/);
   await owner.getByRole("button", { name: "Refresh", exact: true }).click();
-  await owner.getByRole("button", { name: "Students", exact: true }).click();
+  await owner.getByRole("link", { name: "Students", exact: true }).click();
   await owner.getByLabel("Search by name").fill("Browser Member");
   await expect(owner.getByRole("heading", { name: "Browser Member" })).toBeVisible();
-  await owner.getByRole("button", { name: "Projects", exact: true }).click();
-  await owner.getByRole("button", { name: "Create project", exact: true }).click();
+  await owner.getByRole("link", { name: "Projects", exact: true }).click();
+  await owner.getByRole("link", { name: "Create project", exact: true }).click();
+  await expect(owner).toHaveURL(/\/projects\/new$/);
   await owner.getByLabel("Project title").fill("Browser Team " + suffix);
   await owner.getByLabel("Description", { exact: true }).fill("A complete browser-tested student team.");
   await owner.getByLabel("Team size").fill("2");
@@ -50,35 +67,73 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.getByRole("checkbox", { name: "Weekday Evening", exact: true }).check();
   await owner.getByRole("button", { name: "Save project" }).click();
   await expect(owner.getByText("100/100", { exact: true })).toBeVisible();
+  await expect(owner).toHaveURL(/\/projects\/\d+$/);
+  const projectUrl = owner.url();
   await owner.screenshot({ path: "test-results/matching-desktop.png", fullPage: true });
   await owner.getByRole("button", { name: "Invite student", exact: true }).click();
   await expect(owner.getByRole("button", { name: "Invitation pending" })).toBeDisabled();
   await member.getByRole("button", { name: "Refresh", exact: true }).click();
-  await member.getByRole("button", { name: /^Invitations/ }).click();
+  await member.getByRole("link", { name: /^Invitations/ }).click();
   await member.getByRole("button", { name: "Accept", exact: true }).click();
   await expect(member.getByText("You joined the team.", { exact: false })).toBeVisible();
   await owner.getByRole("button", { name: "Refresh", exact: true }).click();
   await expect(owner.getByText("Open · 2/2 team members")).toBeVisible();
   await expect(owner.getByText("Browser Member", { exact: true }).first()).toBeVisible();
 
+  // Tasks persist across page navigation; only the assignee or owner can change status.
+  await owner.getByLabel("Task title", { exact: true }).fill("Build homepage");
+  await owner.getByLabel("Task description", { exact: true }).fill("Create the public landing page.");
+  await owner.getByLabel("Assign to", { exact: true }).selectOption({ label: "Browser Member" });
+  await owner.getByRole("button", { name: "Create task", exact: true }).click();
+  await expect(owner.getByRole("heading", { name: "Build homepage", exact: true })).toBeVisible();
+  await member.getByRole("link", { name: "Projects", exact: true }).click();
+  await member.getByRole("link", { name: "My projects", exact: true }).click();
+  await expect(member.getByRole("link", { name: "View project", exact: true })).toHaveCount(0);
+  await member.getByRole("link", { name: "Joined projects", exact: true }).click();
+  await member.getByRole("link", { name: "View project", exact: true }).click();
+  await expect(member).toHaveURL(projectUrl);
+  await expect(member.getByRole("checkbox", { name: "My assigned tasks only" })).toBeChecked();
+  await expect(member.getByRole("button", { name: "Create task", exact: true })).toHaveCount(0);
+  await member.getByLabel("Status for Build homepage", { exact: true }).selectOption("Done");
+  await expect(member.getByText("1/1 tasks done · 100%", { exact: true })).toBeVisible();
+  await member.reload();
+  await expect(member.getByLabel("Status for Build homepage", { exact: true })).toHaveValue("Done");
+  await owner.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(owner.getByText("1/1 tasks done · 100%", { exact: true })).toBeVisible();
+
   // Check the completed state and mobile width without changing the visual design.
   await owner.getByRole("button", { name: "Edit project" }).click();
+  await expect(owner).toHaveURL(/\/projects\/\d+\/edit$/);
   await owner.getByLabel("Project status").selectOption("Completed");
   await owner.getByRole("button", { name: "Save project" }).click();
+  await expect(owner.getByText("Completed · 2/2 team members")).toBeVisible();
+  await owner.reload();
+  await expect(owner).toHaveURL(projectUrl);
   await expect(owner.getByText("Completed · 2/2 team members")).toBeVisible();
   await owner.screenshot({ path: "test-results/team-desktop.png", fullPage: true });
   await owner.setViewportSize({ width: 390, height: 844 });
   expect(await owner.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
   await owner.screenshot({ path: "test-results/team-mobile.png", fullPage: true });
 
+  member.once("dialog", dialog => dialog.accept());
+  await member.getByRole("button", { name: "Leave team", exact: true }).click();
+  await expect(member.getByRole("region", { name: "Project tasks" })).toHaveCount(0);
+  await owner.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(owner.getByText("Assigned to: Unassigned", { exact: true })).toBeVisible();
+
   await owner.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(owner.getByRole("heading", { name: "Welcome back to TeamFit" })).toBeVisible();
   await owner.getByLabel("Email", { exact: true }).fill("browser-owner-" + suffix + "@example.test");
   await owner.getByLabel("Password", { exact: true }).fill(password);
   await owner.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(owner.getByRole("heading", { name: "Edit my profile" })).toBeVisible();
+  await expect(owner).toHaveURL(/\/dashboard$/);
   await owner.reload();
-  await expect(owner.getByRole("heading", { name: "Edit my profile" })).toBeVisible();
+  await expect(owner.getByRole("heading", { name: "Welcome, Browser Owner" })).toBeVisible();
+  await owner.screenshot({ path: "test-results/dashboard-mobile.png", fullPage: true });
+  await owner.goto("/workspace");
+  await expect(owner).toHaveURL(/\/dashboard$/);
+  await owner.goto("/login?next=https://untrusted.example");
+  await expect(owner).toHaveURL(/\/dashboard$/);
   assertNoErrors();
   await ownerContext.close();
   await memberContext.close();

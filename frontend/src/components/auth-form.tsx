@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { api, message } from "@/lib/api";
 import type { User } from "@/lib/types";
 import { buttonStyle, Field, inputStyle, Notice, panelStyle } from "./form-controls";
 
-export default function AuthForm({ onSignedIn }: { onSignedIn: (user: User) => Promise<void> }) {
-  const [register, setRegister] = useState(false);
+export default function AuthForm({ onSignedIn, mode, next }: {
+  onSignedIn: (user: User) => Promise<void>; mode: "login" | "register"; next: string;
+}) {
+  const register = mode === "register";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -31,9 +34,9 @@ export default function AuthForm({ onSignedIn }: { onSignedIn: (user: User) => P
       <Notice text={error} error />
       <button className={buttonStyle} disabled={busy}>{busy ? "Please wait..." : register ? "Register" : "Sign in"}</button>
     </form>
-    <button type="button" disabled={busy} className="mt-5 text-sm font-semibold text-indigo-700"
-      onClick={() => { setRegister(!register); setError(""); }}>
+    <Link className="mt-5 inline-block text-sm font-semibold text-indigo-700"
+      href={`${register ? "/login" : "/register"}?next=${encodeURIComponent(next)}`}>
       {register ? "Already have an account? Sign in" : "New here? Create an account"}
-    </button>
+    </Link>
   </section>;
 }

@@ -30,7 +30,7 @@ const scoreReasons = [
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-slate-50 text-slate-900">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5 lg:px-8">
+      <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-5 px-6 py-5 lg:px-8">
         <a className="flex items-center gap-3" href="#top" aria-label="TeamFit home">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-lg font-bold text-white shadow-lg shadow-indigo-200">
             T
@@ -38,19 +38,15 @@ export default function Home() {
           <span className="text-xl font-bold tracking-tight">TeamFit</span>
         </a>
 
-        <nav className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex" aria-label="Main navigation">
+        <nav className="flex flex-wrap items-center gap-5 text-sm font-medium text-slate-600" aria-label="Main navigation">
           <a className="transition hover:text-indigo-600" href="#how-it-works">
             How it works
           </a>
-          <a className="transition hover:text-indigo-600" href="#matching">
-            Matching
+          <a className="transition hover:text-indigo-600" href="#sample-projects">
+            Sample projects
           </a>
-          <a
-            className="rounded-lg bg-slate-900 px-4 py-2.5 text-white transition hover:bg-indigo-600"
-            href="/workspace"
-          >
-            Get started
-          </a>
+          <Link href="/login" className="hover:text-indigo-600">Login</Link>
+          <Link href="/register" className="rounded-lg bg-slate-900 px-4 py-2.5 text-white hover:bg-indigo-600">Register</Link>
         </nav>
       </header>
 
@@ -71,11 +67,11 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link className="rounded-xl bg-indigo-600 px-5 py-3 text-center font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700" href="/workspace">
+            <Link className="rounded-xl bg-indigo-600 px-5 py-3 text-center font-semibold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700" href="/register">
               Create your profile
             </Link>
-            <Link className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center font-semibold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700" href="/workspace">
-              Open workspace
+            <Link className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center font-semibold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700" href="/projects">
+              Browse projects
             </Link>
           </div>
 
@@ -121,6 +117,23 @@ export default function Home() {
           <div className="mt-6 rounded-xl bg-slate-900 px-4 py-3 text-sm text-slate-200">
             <span className="font-semibold text-white">Project:</span> Campus event platform
           </div>
+        </div>
+      </section>
+
+      <section id="sample-projects" className="mx-auto max-w-6xl px-6 pb-20 lg:px-8">
+        <h2 className="text-3xl font-bold">Sample projects</h2>
+        <p className="mt-3 text-slate-600">Illustrative ideas, not live listings. Sign in to browse real student projects.</p>
+        <div className="mt-7 grid gap-5 md:grid-cols-3">
+          {[
+            { title: "Campus event platform", description: "Help students discover and organize campus events.", skills: "React · C# · SQL" },
+            { title: "Study planner", description: "Bring assignments, study sessions, and deadlines together.", skills: "UI Design · TypeScript · Testing" },
+            { title: "Library booking system", description: "Make study room reservations simple for students.", skills: "ASP.NET Core · SQL · Frontend" },
+          ].map(project => <article key={project.title} className="rounded-2xl border border-slate-200 bg-white p-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">Example only</p>
+            <h3 className="mt-3 text-xl font-bold">{project.title}</h3>
+            <p className="mt-3 text-slate-600">{project.description}</p>
+            <p className="mt-4 text-sm font-semibold text-indigo-700">{project.skills}</p>
+          </article>)}
         </div>
       </section>
 

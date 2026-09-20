@@ -8,6 +8,10 @@ public class ProjectResponse
     public int OwnerId { get; set; }
     public string Status { get; set; } = "Open";
     public int MemberCount { get; set; }
+    public bool IsMember { get; set; }
+    public int TaskCount { get; set; }
+    public int CompletedTaskCount { get; set; }
+    public int ProgressPercent { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int TeamSize { get; set; }
