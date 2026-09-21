@@ -52,7 +52,6 @@ export default function ProjectShowcase() {
           <div><dt>Difficulty</dt><dd>{project.difficulty}</dd></div>
         </dl>
         <div className="example-roles"><h3>Roles needed</h3><ul>{project.roles.map(role => <li key={role}><span aria-hidden="true">↗</span>{role}</li>)}</ul></div>
-        <p className="example-disclaimer">An idea to show what a balanced team could look like.<br />Not a real project or an open invitation.</p>
       </article>
     </div>
   </section>;
