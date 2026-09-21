@@ -2,7 +2,7 @@
 
 A student project-team formation platform built with **Next.js, ASP.NET Core, and SQL Server**. Students create profiles, describe project requirements, compare explainable recommendations, and form teams through invitations.
 
-This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students see their display name, workspace navigation, My profile, and Browse projects. Normal login returns to this signed-in home; protected deep links keep their destination. **/workspace** redirects to the dashboard for existing bookmarks.
+This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students see their display name, My profile, and Browse projects. Both homepages use a compact viewport-fit layout and link to How It Works below the hero buttons. The full workspace navigation remains on authenticated workspace pages, not the homepage. Normal login returns to this signed-in home; protected deep links keep their destination. **/workspace** redirects to the dashboard for existing bookmarks.
 
 ## Features
 

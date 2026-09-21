@@ -13,9 +13,11 @@ npm run dev
 
 The API must also be running on localhost:5273. Set NEXT_PUBLIC_API_URL in .env.local if needed, then restart/rebuild Next.js. Never place secrets in NEXT_PUBLIC_ variables.
 
-Public routes: / (hero, fictional project-card showcase, short feature list), /how-it-works, /login, /register.
+Public routes: / (compact hero and automatically rotating project-card showcase), /how-it-works, /login, /register.
 
-The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users see their first-name display username, Log out, the workspace navigation, My profile, and Browse projects. Normal login returns here; a protected deep link still returns to the requested route.
+The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users see their first-name display username, Log out, My profile, and Browse projects. The workspace navigation is omitted only on the homepage. How It Works sits below the hero buttons instead of in the homepage header. Normal login returns here; a protected deep link still returns to the requested route.
+
+The fictional cards rotate every 10 seconds without arrows, dots, or a slide counter. Rotation pauses on hover/focus, in hidden tabs, and when reduced motion is requested. A small disclaimer remains so the examples are not mistaken for real projects. Home-only spacing uses viewport height as well as width; no content is hidden with overflow rules. Extremely small windows or enlarged text may still scroll so information remains accessible.
 
 The display name is computed from the saved profile by src/lib/display-name.ts. It is not a unique account identifier; before profile setup it displays Student. Header email addresses have been removed; profile/account email fields are unchanged.
 

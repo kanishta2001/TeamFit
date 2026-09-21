@@ -59,6 +59,7 @@ test("guest home matches the simplified public experience and fictional cards", 
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   const requests = await sessionApi(page);
+  await page.clock.install();
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.getByRole("link", { name: "Register", exact: true })).toBeVisible();
@@ -68,14 +69,18 @@ test("guest home matches the simplified public experience and fictional cards", 
   await expect(page.getByRole("heading", { name: "Sample projects", exact: true })).toHaveCount(0);
   await expect(page.getByText("Your next team starts here")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Campus Connect" })).toBeVisible();
-  await expect(page.getByText("Fictional example", { exact: true })).toBeVisible();
+  await expect(page.getByText("Fictional example", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("01 / 03", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Example projects, rotating automatically" }).getByRole("button")).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("link", { name: "How it works", exact: true })).toHaveCount(0);
+  await expect(page.getByText("Clear matching reasons", { exact: true })).toHaveCount(0);
   for (const label of ["Required skills", "Team size", "Roles needed", "Difficulty"])
     await expect(page.getByText(label, { exact: true })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: "test-results/guest-home-desktop.png", fullPage: true });
-  await page.getByRole("button", { name: "Next example project" }).click();
+  await page.clock.fastForward(10000);
   await expect(page.getByRole("heading", { name: "Study Circle" })).toBeVisible();
-  await page.getByRole("button", { name: "Show Green Campus" }).click();
+  await page.clock.fastForward(10000);
   await expect(page.getByRole("heading", { name: "Green Campus" })).toBeVisible();
   await page.getByRole("link", { name: "How it works", exact: true }).click();
   await expect(page).toHaveURL(/\/how-it-works$/);
@@ -85,7 +90,7 @@ test("guest home matches the simplified public experience and fictional cards", 
   expect(errors).toEqual([]);
 });
 
-test("signed-in home has a username, workspace links, and reversible logout", async ({ page }) => {
+test("signed-in home hides workspace navigation but keeps profile access and logout", async ({ page }) => {
   await sessionApi(page, "member");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
@@ -95,11 +100,12 @@ test("signed-in home has a username, workspace links, and reversible logout", as
   await expect(page.getByRole("link", { name: "Create your profile" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Browse projects", exact: true })).toBeVisible();
   const navigation = page.getByRole("navigation", { name: "Workspace navigation" });
-  for (const label of ["Dashboard", "My Profile", "Students", "Projects", "Invitations"])
-    await expect(navigation.getByRole("link", { name: label, exact: true })).toBeVisible();
+  await expect(navigation).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("link", { name: "How it works", exact: true })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: "test-results/member-home-desktop.png", fullPage: true });
-  await navigation.getByRole("link", { name: "Dashboard", exact: true }).click();
+  await page.getByRole("main").getByRole("link", { name: "My profile", exact: true }).click();
+  await expect(navigation.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
   await expect(page.getByRole("banner")).toContainText("nimal");
   await expect(page.getByRole("banner")).not.toContainText("private@example.test");
   await page.getByRole("link", { name: "TeamFit home" }).click();
@@ -142,6 +148,27 @@ test("profile creation and edits generate the header name; login opens signed-in
 });
 
 for (const state of ["guest", "member"] as const) {
+  test(state + " home fits the viewport vertically across desktop and laptop sizes", async ({ page }) => {
+    await sessionApi(page, state);
+    await page.clock.install();
+    for (const [width, height] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 720], [1024, 600], [888, 429], [390, 844]]) {
+      await page.setViewportSize({ width, height });
+      await page.goto("/");
+      await expect(page.getByText("Checking session…")).toHaveCount(0);
+      await page.evaluate(() => document.fonts.ready);
+      // Verify all three automatic slides, not just the shortest card.
+      for (let slide = 0; slide < 3; slide++) {
+        const bounds = await page.evaluate(() => ({
+          width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight,
+          cardBottom: document.querySelector(".example-project")!.getBoundingClientRect().bottom,
+        }));
+        expect(bounds.width, `horizontal overflow at ${width}x${height}`).toBeLessThanOrEqual(width);
+        expect(bounds.height, `vertical overflow at ${width}x${height}, slide ${slide}`).toBeLessThanOrEqual(height);
+        expect(bounds.cardBottom, "Do not clip the bottom of the card").toBeLessThanOrEqual(height);
+        await page.clock.fastForward(10000);
+      }
+    }
+  });
   test(state + " layout fits mobile and tablet without horizontal scrolling", async ({ page }) => {
     await sessionApi(page, state);
     for (const width of [390, 320, 768]) {
@@ -170,6 +197,31 @@ test("a failed session check preserves the public page and offers retry", async 
   unavailable = false;
   await page.getByRole("button", { name: "Retry connection" }).click();
   await expect(page.getByRole("alert", { name: "Session connection error" })).toHaveCount(0);
+});
+
+test("automatic cards loop and pause while reading or when reduced motion is requested", async ({ page }) => {
+  await sessionApi(page);
+  await page.clock.install();
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
+  const showcase = page.getByRole("region", { name: "Example projects, rotating automatically" });
+  await showcase.hover();
+  await page.clock.fastForward(10000);
+  await expect(page.getByRole("heading", { name: "Campus Connect" })).toBeVisible();
+  await page.mouse.move(0, 0);
+  await page.clock.fastForward(10000);
+  await expect(page.getByRole("heading", { name: "Study Circle" })).toBeVisible();
+  await showcase.focus();
+  await page.clock.fastForward(10000);
+  await expect(page.getByRole("heading", { name: "Study Circle" })).toBeVisible();
+  await page.getByRole("link", { name: "Login", exact: true }).focus();
+  await page.clock.fastForward(10000);
+  await expect(page.getByRole("heading", { name: "Green Campus" })).toBeVisible();
+  await page.clock.fastForward(10000);
+  await expect(page.getByRole("heading", { name: "Campus Connect" })).toBeVisible();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.clock.fastForward(20000);
+  await expect(page.getByRole("heading", { name: "Campus Connect" })).toBeVisible();
 });
 
 test("private routes still require login and preserve the requested destination", async ({ page }) => {

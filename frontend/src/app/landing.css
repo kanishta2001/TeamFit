@@ -52,19 +52,14 @@ button:not(:disabled), a { cursor: pointer; }
 .brand-button-primary:hover { background: #102f58; }
 .brand-button-secondary { background: #fff; color: var(--brand-navy); box-shadow: 0 8px 13px #17233d25; }
 .hero-session-placeholder { display: block; min-height: 56px; width: 200px; }
-.hero-benefits { display: flex; flex-wrap: wrap; gap: 14px 22px; color: #434d60; font-size: 13px; margin-top: 34px; padding-left: 7px; }
-.hero-benefits li { display: flex; align-items: center; gap: 8px; }
-.hero-benefits li::before { content: ""; height: 9px; width: 9px; flex-shrink: 0; border-radius: 50%; background: var(--brand-navy); }
+.hero-how-link { display: inline-flex; align-items: center; gap: 9px; margin: 17px 0 0 16px; padding: 8px 10px; color: var(--brand-ink); font-size: 14px; }
+.hero-how-link:hover { color: var(--brand-navy); text-decoration: underline; text-underline-offset: 5px; }
 .project-showcase { min-width: 0; padding-inline: 8px 20px; }
 .project-stack { position: relative; isolation: isolate; }
 .stack-sheet { position: absolute; inset: 0; border-radius: 27px; border: 1px solid #dce2eb; background: #ffffffbc; z-index: -1; }
 .stack-sheet-back { transform: rotate(7deg) translate(17px, 8px); box-shadow: 18px 25px 50px #283e6020; }
 .stack-sheet-middle { transform: rotate(3.5deg) translate(8px, -5px); }
 .example-project { border: 1px solid #e2e6ed; border-radius: 25px; background: #fffffff2; padding: clamp(24px, 2.4vw, 42px); box-shadow: 0 8px 30px #2c42600a; }
-.example-topline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
-.fictional-label { display: inline-flex; align-items: center; gap: 7px; font-size: 10px; text-transform: uppercase; letter-spacing: .13em; font-weight: 700; color: #5b6780; }
-.fictional-label > span { width: 6px; height: 6px; border-radius: 50%; background: #6d8aac; }
-.example-number { color: #8894a6; font-size: 11px; letter-spacing: .08em; }
 .example-heading { padding-block: 30px 25px; }
 .project-category { color: var(--brand-navy); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .example-heading h2 { margin-top: 9px; color: var(--brand-navy); font-size: clamp(25px, 2.2vw, 36px); font-weight: 750; letter-spacing: -.045em; line-height: 1.2; }
@@ -81,13 +76,6 @@ button:not(:disabled), a { cursor: pointer; }
 .example-roles li { font-size: 11px; color: #455773; display: flex; align-items: baseline; gap: 6px; }
 .example-roles li span { color: #6682a2; font-size: 14px; }
 .example-disclaimer { font-size: 10px; color: #7b8594; line-height: 1.65; margin-top: 25px; padding-top: 18px; border-top: 1px dashed #e3e7ef; }
-.showcase-controls { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 29px; }
-.showcase-controls > button { color: var(--brand-navy); height: 35px; width: 35px; font-size: 21px; border-radius: 50%; }
-.showcase-controls > button:hover { background: #ffffff9c; }
-.showcase-dots { display: flex; gap: 4px; align-items: center; }
-.showcase-dots button { position: relative; width: 24px; height: 30px; }
-.showcase-dots button::after { content: ""; display: block; margin: auto; width: 6px; height: 6px; border-radius: 6px; background: #9baabd; }
-.showcase-dots button.selected::after { width: 19px; background: var(--brand-navy); }
 .how-page { width: min(1000px, calc(100% - 48px)); margin: 28px auto 0; padding-bottom: 80px; }
 .back-home { display: inline-block; font-size: 13px; color: var(--brand-navy); margin-bottom: 45px; }
 .page-eyebrow { font-size: 11px; letter-spacing: .15em; color: var(--brand-navy); font-weight: 700; text-transform: uppercase; }
@@ -111,7 +99,6 @@ button:not(:disabled), a { cursor: pointer; }
   .hero-description { font-size: 14px; }
   .hero-actions { gap: 13px; }
   .brand-button { min-width: 145px; font-size: 13px; padding: 15px 18px; }
-  .hero-benefits { font-size: 11px; gap: 13px; }
   .example-project { padding: 25px; }
   .example-roles ul { grid-template-columns: 1fr; min-height: 90px; }
   .public-workspace-nav { width: calc(100% - 64px); }
@@ -128,8 +115,6 @@ button:not(:disabled), a { cursor: pointer; }
   .hero-build { font-size: clamp(104px, 28vw, 185px); }
   .hero-line { font-size: clamp(35px, 9.4vw, 64px); }
   .hero-description { font-size: 14px; line-height: 1.8; margin-top: 20px; }
-  .hero-benefits { margin-top: 26px; font-size: 11px; gap: 11px 18px; padding: 0; }
-  .hero-benefits li::before { height: 6px; width: 6px; }
   .brand-button { min-width: 145px; font-size: 13px; padding: 16px 18px; }
   .project-showcase { max-width: 480px; width: 100%; margin-inline: auto; padding-inline: 0 15px; }
   .example-project { padding: 26px; border-radius: 22px; }
@@ -154,4 +139,104 @@ button:not(:disabled), a { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .brand-button { transition: none; }
   .brand-button:hover { transform: none; }
+}
+
+/* Home-only sizing: use both viewport dimensions, without hiding/cropping content.
+   Workspace pages and the longer How It Works guide keep their normal scrolling. */
+.landing-home { --home-header: clamp(52px, 10svh, 92px); }
+.landing-home .site-header-inner {
+  width: min(1560px, 82%); min-height: var(--home-header); padding-block: 8px;
+}
+.landing-home .brand-mark { width: clamp(120px, 13vw, 178px); }
+.landing-home .landing-hero {
+  width: min(1420px, 76%); min-height: calc(100svh - var(--home-header));
+  grid-template-columns: 1fr 1fr; gap: clamp(40px, 8vw, 125px);
+  padding-block: min(3svh, 24px) min(5svh, 42px);
+}
+.landing-home .hero-build { font-size: clamp(70px, min(12vw, 23svh), 206px); margin-bottom: 5px; }
+.landing-home .hero-line { font-size: clamp(29px, min(4.35vw, 8.3svh), 74px); }
+.landing-home .hero-description {
+  font-size: clamp(12px, min(1.13vw, 2.05svh), 18px); line-height: 1.65;
+  margin-top: clamp(8px, 2svh, 19px); padding-top: clamp(7px, 1.3svh, 12px); border-top-width: 3px;
+}
+.landing-home .hero-actions { margin-top: clamp(12px, 2.7svh, 23px); min-height: 0; gap: 18px; }
+.landing-home .brand-button {
+  min-width: clamp(125px, 12.5vw, 182px); padding: clamp(10px, 1.7svh, 15px) 19px;
+  font-size: clamp(12px, 1.12vw, 16px); border-radius: 12px;
+}
+.landing-home .hero-session-placeholder { min-height: 44px; }
+.landing-home .hero-how-link { margin-top: clamp(8px, 1.7svh, 16px); font-size: clamp(12px, 1.1vw, 15px); }
+.landing-home .project-showcase { padding-inline: 0 14px; max-width: 560px; width: 100%; justify-self: end; }
+.landing-home .stack-sheet-back { transform: rotate(5deg) translate(11px, 5px); }
+.landing-home .stack-sheet-middle { transform: rotate(2.5deg) translate(5px, -4px); }
+.landing-home .example-project { padding: clamp(18px, 3.2svh, 34px); }
+.landing-home .example-heading { padding-block: 0 clamp(10px, 2.3svh, 22px); }
+.landing-home .example-heading h2 { font-size: clamp(24px, min(2.45vw, 4.5svh), 35px); margin-top: 6px; }
+.landing-home .example-heading p {
+  font-size: clamp(12px, min(1.03vw, 1.9svh), 14px); line-height: 1.6;
+  margin-top: 10px; min-height: 4.8em;
+}
+.landing-home .example-skills ul { margin-top: 9px; gap: 6px; }
+.landing-home .example-skills li { padding: 6px 10px; font-size: 11px; }
+.landing-home .example-facts { margin-top: clamp(12px, 2.4svh, 23px); padding-block: clamp(10px, 2svh, 18px); }
+.landing-home .example-facts dd { margin-top: 7px; font-size: 12px; }
+.landing-home .example-roles { margin-top: clamp(12px, 2.3svh, 21px); }
+.landing-home .example-roles ul { grid-template-columns: 1fr 1fr; gap: 7px 12px; margin-top: 9px; min-height: 42px; }
+.landing-home .example-roles li { font-size: 11px; }
+.landing-home .example-disclaimer { margin-top: clamp(11px, 2.3svh, 20px); padding-top: clamp(9px, 1.6svh, 14px); }
+
+@media (min-width: 761px) and (max-height: 600px) {
+  .landing-home .stack-sheet-back { transform: rotate(3deg) translate(6px, 3px); }
+  .landing-home .stack-sheet-middle { transform: rotate(1.5deg) translate(3px, -3px); }
+  .landing-home .site-header-inner { min-height: 50px; padding-block: 0; }
+  .landing-home { --home-header: 50px; }
+  .landing-home .landing-hero { width: 78%; gap: 7vw; padding-block: 6px 16px; }
+  .landing-home .example-project { padding: 14px 22px; border-radius: 19px; }
+  .landing-home .project-category { font-size: 10px; }
+  .landing-home .example-heading { padding-bottom: 6px; }
+  .landing-home .example-heading h2 { font-size: 23px; }
+  .landing-home .example-heading p { font-size: 11px; line-height: 1.5; margin-top: 6px; min-height: 3em; }
+  .landing-home .example-skills ul { margin-top: 6px; }
+  .landing-home .example-skills li { font-size: 10px; padding: 3px 8px; }
+  .landing-home .example-facts { margin-top: 8px; padding-block: 7px; }
+  .landing-home .example-facts dd { font-size: 11px; margin-top: 5px; }
+  .landing-home .example-roles { margin-top: 9px; }
+  .landing-home .example-roles ul { margin-top: 5px; min-height: 32px; gap: 3px 7px; }
+  .landing-home .example-roles li { font-size: 10px; line-height: 1.3; }
+  .landing-home .example-roles li span { font-size: 11px; line-height: 1; }
+  .landing-home .example-disclaimer { margin-top: 7px; padding-top: 6px; font-size: 9px; line-height: 1.4; }
+  .landing-home .hero-how-link { margin-top: 6px; }
+}
+
+@media (max-width: 760px) {
+  .landing-home { --home-header: 54px; }
+  .landing-home .site-header-inner { width: calc(100% - 40px); min-height: 54px; flex-wrap: nowrap; justify-content: space-between; gap: 16px; }
+  .landing-home .account-navigation { gap: 14px; }
+  .landing-home .landing-hero {
+    width: min(460px, calc(100% - 44px)); grid-template-columns: 1fr;
+    align-content: center; gap: clamp(14px, 2.2svh, 24px); padding-block: 8px 19px;
+  }
+  .landing-home .hero-build { font-size: clamp(59px, 9.1svh, 93px); line-height: .97; margin-bottom: 2px; }
+  .landing-home .hero-line { font-size: clamp(25px, 3.8svh, 36px); line-height: 1.02; }
+  .landing-home .hero-description { font-size: 12px; line-height: 1.45; margin-top: 8px; padding-top: 7px; border-top-width: 2px; }
+  .landing-home .hero-actions { margin-top: 10px; gap: 12px; }
+  .landing-home .brand-button { min-width: 0; flex: 0 1 auto; font-size: 12px; padding: 10px 17px; border-radius: 9px; }
+  .landing-home .hero-how-link { margin: 5px 0 0 8px; padding-block: 6px; font-size: 12px; }
+  .landing-home .project-showcase { padding-inline: 0 6px; }
+  .landing-home .stack-sheet-back { transform: rotate(2deg) translate(4px, 3px); }
+  .landing-home .stack-sheet-middle { transform: rotate(1deg) translate(2px, -3px); }
+  .landing-home .example-project { padding: 16px 19px; border-radius: 18px; }
+  .landing-home .project-category { font-size: 9px; }
+  .landing-home .example-heading { padding-bottom: 9px; }
+  .landing-home .example-heading h2 { font-size: 23px; margin-top: 3px; }
+  .landing-home .example-heading p { font-size: 11px; line-height: 1.5; min-height: 3em; margin-top: 6px; }
+  .landing-home .example-project h3, .landing-home .example-facts dt { font-size: 9px; }
+  .landing-home .example-skills ul { margin-top: 6px; }
+  .landing-home .example-skills li { font-size: 10px; padding: 4px 8px; }
+  .landing-home .example-facts { margin-top: 9px; padding-block: 9px; }
+  .landing-home .example-facts dd { font-size: 11px; margin-top: 4px; }
+  .landing-home .example-roles { margin-top: 9px; }
+  .landing-home .example-roles ul { margin-top: 5px; gap: 3px 10px; min-height: 32px; }
+  .landing-home .example-roles li { font-size: 10px; }
+  .landing-home .example-disclaimer { font-size: 9px; margin-top: 9px; padding-top: 8px; }
 }

@@ -21,9 +21,7 @@ function Hero() {
             <Link className="brand-button brand-button-secondary" href="/projects">Browse projects</Link>
           </> : <Link className="brand-button brand-button-primary" href="/register">Create your profile</Link>}
       </div>
-      <ul className="hero-benefits" aria-label="TeamFit features">
-        <li>Clear matching reasons</li><li>Skills and roles</li><li>Shared availability</li>
-      </ul>
+      <Link href="/how-it-works" className="hero-how-link">How it works <span aria-hidden="true">→</span></Link>
     </section>
     <ProjectShowcase />
   </main>;

@@ -6,16 +6,16 @@
 
 ### Guest view
 
-- Top navigation: How it works, Login, Register.
+- Top navigation: Login, Register.
 - Hero: Build student teams that fit the project.
 - Create your profile button → Register.
-- Fictional project cards සහ කෙටි feature bullets පමණක් පෙන්වයි.
+- Project cards ස්වයංක්‍රීයව මාරු වෙයි. Feature bullets වෙනුවට hero buttons යට How it works → link එක පෙන්වයි.
 - Browse projects button, workspace navigation සහ user-specific data නොපෙන්වයි.
 
 ### Signed-in view
 
 - Top-right: profile නමෙන් ගත් username සහ Log out.
-- Dashboard, My Profile, Students, Projects, Invitations navigation.
+- Homepage එකේ Dashboard, My Profile, Students, Projects, Invitations navigation row එක නැත. Workspace pages තුළ එය තවමත් තිබේ.
 - Hero actions: My profile සහ Browse projects.
 - Create your profile සහ Login/Register buttons නොපෙන්වයි.
 - සාමාන්‍ය Login එකෙන් signed-in homepage එකට යයි. Protected page එකකට යමින් login කළොත් එම page එකටම නැවත යයි.
@@ -37,7 +37,9 @@ Profile නම වෙනස් කළොත් header username එකත් ව�
 
 Homepage එකේ real project API එකෙන් data ලබාගන්නේ නැත. Campus Connect, Study Circle, Green Campus යන static fictional examples පෙන්වයි.
 
-සෑම card එකකම title, description, required skills, team size, roles needed සහ difficulty තිබේ. Arrow buttons හෝ dots මඟින් examples මාරු කළ හැක. ඒවා real invitations නොවන බව card එකේම සඳහන් කර ඇත.
+සෑම card එකකම title, description, required skills, team size, roles needed සහ difficulty තිබේ. Cards තත්පර 10කට වරක් ස්වයංක්‍රීයව මාරු වෙයි. Manual arrows/dots, Fictional example heading සහ 01 / 03 counter එක ඉවත් කර ඇත. ඒවා real invitations නොවන බව කුඩා disclaimer එකකින් සඳහන් කර ඇත.
+
+කියවීමට පහසු වීම සඳහා mouse hover හෝ keyboard focus ඇති විට rotation තාවකාලිකව නවතියි. Hidden tabs සහ reduced-motion setting භාවිත කරන විටත් cards මාරු නොවේ.
 
 ## Homepage එකෙන් ඉවත් කළ කොටස්
 
@@ -59,16 +61,20 @@ Hero එක අසල fictional project-card showcase එක තබා ඇත. H
 1. සාමාන්‍ය frontend/backend run කරන්න.
 2. http://localhost:3000 විවෘත කර Ctrl+Shift+R ඔබන්න.
 3. Guest view එක බැලීමට incognito window එක භාවිත කරන්න.
-4. Login කර username, workspace navigation සහ hero buttons බලන්න.
+4. Login කර username සහ hero buttons බලන්න. Homepage navigation row එකක් නැති බව බලන්න.
 5. My Profile → Edit my profile වෙතින් නම වෙනස් කර save කළ විට header නම වෙනස් වන බව බලන්න.
-6. How it works navigation item එකෙන් වෙනම guide page එක විවෘත කරන්න.
+6. Hero buttons යට How it works → link එකෙන් වෙනම guide page එක විවෘත කරන්න.
 7. Log out කළ විට guest view එකට නැවත මාරු වන බව බලන්න.
 
 Database migration එකක් හෝ අලුත් package install එකක් අවශ්‍ය නැත. Existing accounts, projects සහ tasks වෙනස් කර නැත.
 
 ## Verification
 
-Frontend lint සහ production build සාර්ථකයි. Landing UI browser tests 8/8 pass: guest/member controls, profile display names, login/logout, protected navigation, connection errors සහ 320px/390px/768px responsive widths.
+Tests මඟින් guest/member controls, profile display names, login/logout, protected navigation, connection errors, automatic rotation සහ viewport fit පරීක්ෂා කරයි.
+
+Latest verification: lint සහ production build pass; browser tests 11/11 pass. Guest/member දෙකටම cards තුනම 1920×1080, 1440×900, 1366×768, 1280×720, 1024×600, 888×429 සහ 390×844 viewport sizes වල horizontal/vertical scroll නැති බව පරීක්ෂා කර ඇත.
+
+සාමාන්‍ය desktop/laptop window sizes සඳහා homepage දෙකම scroll නොවී fit වන ලෙස spaces සහ font sizes සකසා ඇත. අන්තර්ගතය කපා දැමීමට overflow hidden භාවිත කර නැත. ඉතා කුඩා screen හෝ විශාල browser zoom එකකදී කියවීමේ හැකියාව රැකගැනීමට scrolling තිබිය හැක.
 
 Landing browser tests සැබෑ browser එකක UI පරීක්ෂා කළත් API responses mock කරන නිසා ඔබගේ SQL Server data වෙනස් නොවේ. Full backend/database workflow verification ඒවායින් තහවුරු කරන්නේ නැත.
 
@@ -91,14 +97,14 @@ Playwright tests සඳහා frontend server එක running විය යුත
 
 ## Commit
 
-Title: feat: redesign guest and signed-in landing pages
+Title: fix: fit landing pages and automate project cards
 
 Description:
 
 ```text
-Apply the supplied TeamFit logo, background, and reference layout.
-Separate guest and member navigation and homepage actions.
-Show first-name display usernames instead of header emails.
-Add fictional project cards and a dedicated How It Works page.
-Cover session changes and responsive layouts with browser tests.
+Fit guest and signed-in homepages to desktop and laptop viewports.
+Remove homepage workspace links, feature bullets, and card counters.
+Move How It Works below the hero buttons.
+Rotate project cards automatically without manual controls.
+Test all slides, viewport sizes, and accessibility pause behavior.
 ```
