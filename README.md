@@ -2,7 +2,7 @@
 
 A student project-team formation platform built with **Next.js, ASP.NET Core, and SQL Server**. Students create profiles, describe project requirements, compare explainable recommendations, and form teams through invitations.
 
-This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**, register or log in, then use **/dashboard**. The application structure follows the TeamFit draw.io page map; **/workspace** redirects to the dashboard for existing bookmarks. Public home examples are clearly labelled illustrations.
+This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students see their display name, workspace navigation, My profile, and Browse projects. Normal login returns to this signed-in home; protected deep links keep their destination. **/workspace** redirects to the dashboard for existing bookmarks.
 
 ## Features
 
@@ -20,10 +20,17 @@ This is a working individual full-stack learning project, not an AI/ML matching 
 - Owners create, assign, edit, and delete tasks; assignees update their own task status.
 - Saved task progress; leaving/removing a member unassigns their tasks without deleting the work.
 - Server-side validation, ownership authorization, error messages, and responsive screens.
+- Reference-based branding, separate guest/member landing controls, fictional example project cards, and a dedicated How It Works page.
+- Temporary display usernames derived from the first word of a saved profile name; account emails are not shown in the header.
 
 ## Screenshots
 
 These screenshots use synthetic test accounts, not real student information.
+
+![Guest homepage](docs/screenshots/home-guest.png)
+![Signed-in homepage](docs/screenshots/home-member.png)
+
+The following workflow screenshots are from the earlier workspace styling:
 
 ![Explainable matching](docs/screenshots/matching-desktop.png)
 ![Team management](docs/screenshots/team-desktop.png)
@@ -215,10 +222,19 @@ npm run build
 npm audit
 ```
 
+Landing UI regression tests use intercepted API responses and do not touch SQL Server. With the frontend running:
+
+```powershell
+cd frontend
+npx playwright test tests/landing.spec.ts
+```
+
+Set TEAMFIT_UI_URL to a different local frontend URL to test a separate preview without stopping the normal servers. These UI tests are not a substitute for the real API/SQL workflow suite.
+
 GitHub Actions runs frontend lint/build/audit, backend build, and matching checks. SQL Server and browser tests are a separate local suite, not falsely reported as part of CI.
 
 ## Deployment and delivery
 
 The application can run locally end-to-end. **A public deployment has not been created.** See [deployment requirements](docs/deployment.md) for environment settings, HTTPS/cookie considerations, database migration, and the choices needed to publish it.
 
-See [the structure upgrade guide](docs/structure-upgrade-si.md) for the page map, permissions, and a step-by-step walkthrough. The earlier [delivery report](docs/delivery-report-si.md) describes the previous single-workspace release. A larger visual redesign remains separate from this navigation/functional upgrade.
+See [the landing UI guide](docs/landing-ui-update-si.md) for the latest branding, guest/member views, and display-name behavior. The [structure upgrade guide](docs/structure-upgrade-si.md) explains the workspace routes and task permissions; its earlier homepage description is superseded by the landing UI guide.

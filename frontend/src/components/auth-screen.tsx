@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ApiError, message } from "@/lib/api";
@@ -8,6 +7,7 @@ import { safeDestination } from "@/lib/navigation";
 import type { Student } from "@/lib/types";
 import AuthForm from "./auth-form";
 import { Notice } from "./form-controls";
+import Brand from "./brand";
 
 export default function AuthScreen({ mode, next }: { mode: "login" | "register"; next?: string }) {
   const router = useRouter();
@@ -30,8 +30,8 @@ export default function AuthScreen({ mode, next }: { mode: "login" | "register";
     });
     return () => { active = false; };
   }, [router, destination]);
-  return <main className="min-h-screen bg-slate-50 px-6 py-8">
-    <div className="mx-auto mb-10 max-w-6xl"><Link href="/" className="text-xl font-bold text-indigo-700">← TeamFit home</Link></div>
+  return <main className="public-experience min-h-screen px-6 py-8">
+    <div className="mx-auto mb-10 max-w-6xl"><Brand /></div>
     <div className="mx-auto mb-4 max-w-lg"><Notice text={error} error /></div>
     {checking ? <p className="text-center" role="status">Checking your session…</p> :
       <AuthForm mode={mode} next={destination} onSignedIn={async () => {

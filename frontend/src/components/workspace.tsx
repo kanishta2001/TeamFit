@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, ApiError, message } from "@/lib/api";
 import type { Invitation, Options, Project, Skill, Student, User } from "@/lib/types";
 import { Notice, secondaryStyle } from "./form-controls";
+import { displayName } from "@/lib/display-name";
+import SiteHeader, { WorkspaceNavigation } from "./site-header";
 
 type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; options: Options };
 type WorkspaceContextValue = Snapshot & { refresh: () => Promise<void> };
@@ -73,41 +74,22 @@ export default function Workspace({ children }: { children: ReactNode }) {
 
   async function logout() {
     setBusy(true);
-    try { await api("auth/logout", "POST"); setLoaded(null); router.replace("/login"); }
+    try { await api("auth/logout", "POST"); setLoaded(null); router.replace("/"); }
     catch (reason) {
-      if (reason instanceof ApiError && reason.status === 401) { setLoaded(null); router.replace("/login"); }
+      if (reason instanceof ApiError && reason.status === 401) { setLoaded(null); router.replace("/"); }
       else setFailure({ path: pathname, text: message(reason) });
     } finally { setBusy(false); }
   }
 
   const pending = data?.invitations.filter(item => item.status === "Pending").length ?? 0;
-  const links = [
-    ["/dashboard", "Dashboard"], ["/profile", "My profile"], ["/students", "Students"],
-    ["/projects", "Projects"], ["/invitations", "Invitations"],
-  ];
   return <div className="min-h-screen bg-slate-50 text-slate-900">
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-        <Link href="/" className="text-xl font-bold text-indigo-700">TeamFit</Link>
-        <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm">
-          {data && <span className="break-all">{data.user.email}</span>}
-          <button className={secondaryStyle} disabled={busy} onClick={() => void refresh().catch(() => {})}>Refresh</button>
-          {data && <button className={secondaryStyle} disabled={busy} onClick={logout}>Sign out</button>}
-        </div>
-      </div>
-    </header>
+    <SiteHeader signedIn={Boolean(data)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
+      busy={busy} onLogout={logout} onRefresh={() => void refresh().catch(() => {})} />
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-      {data && <nav aria-label="Workspace navigation" className="flex flex-wrap gap-2">
-        {links.map(([href, label]) => {
-          const active = pathname === href || pathname.startsWith(href + "/");
-          return <Link key={href} href={href} aria-current={active ? "page" : undefined}
-            className={active ? "rounded-xl bg-indigo-600 px-4 py-3 font-semibold text-white" : secondaryStyle}>
-            {label}{href === "/invitations" && pending > 0 ? ` (${pending})` : ""}
-          </Link>;
-        })}
-      </nav>}
+      {data && <WorkspaceNavigation pending={pending} />}
       <main className="space-y-6">
         <Notice text={error} error />
+        {!data && error && <button className={secondaryStyle} disabled={busy} onClick={() => void refresh().catch(() => {})}>Retry connection</button>}
         {!data ? <p role="status">{error ? "Use Refresh to try again." : "Loading your workspace…"}</p> :
           !data.profile && pathname !== "/profile/create" ? <p role="status">Opening profile setup…</p> :
           <WorkspaceContext.Provider value={{ ...data, refresh }}>{children}</WorkspaceContext.Provider>}

@@ -7,7 +7,7 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.TEAMFIT_UI_URL ?? "http://localhost:3000",
     ...devices["Desktop Chrome"],
     channel: "chrome",
     screenshot: "only-on-failure",

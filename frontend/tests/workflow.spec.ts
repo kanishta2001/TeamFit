@@ -12,8 +12,9 @@ test("two students form a team entirely through the browser", async ({ browser }
   for (const page of [owner, member]) page.on("pageerror", error => errors.push(error.message));
 
   await owner.goto("/");
-  await expect(owner.getByRole("heading", { name: "Sample projects", exact: true })).toBeVisible();
-  await owner.getByRole("link", { name: "Browse projects", exact: true }).click();
+  await expect(owner.getByRole("heading", { name: "Campus Connect", exact: true })).toBeVisible();
+  await expect(owner.getByRole("link", { name: "Browse projects", exact: true })).toHaveCount(0);
+  await owner.goto("/projects");
   await expect(owner).toHaveURL(/\/login\?next=%2Fprojects$/);
   await expect(owner.getByRole("heading", { name: "Welcome back to TeamFit" })).toBeVisible();
 
@@ -36,7 +37,7 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.getByRole("button", { name: "Save profile" }).click();
   await expect(owner).toHaveURL(/\/dashboard$/);
   await expect(owner.getByRole("heading", { name: "Welcome, Browser Owner" })).toBeVisible();
-  await owner.getByRole("link", { name: "My profile", exact: true }).click();
+  await owner.getByRole("navigation", { name: "Workspace navigation" }).getByRole("link", { name: "My Profile", exact: true }).click();
   await owner.getByRole("link", { name: "Edit my profile", exact: true }).click();
   await expect(owner).toHaveURL(/\/profile\/edit$/);
   await owner.getByLabel("About you").fill("Frontend student and project owner.");
@@ -121,19 +122,20 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.getByRole("button", { name: "Refresh", exact: true }).click();
   await expect(owner.getByText("Assigned to: Unassigned", { exact: true })).toBeVisible();
 
-  await owner.getByRole("button", { name: "Sign out", exact: true }).click();
+  await owner.getByRole("button", { name: "Log out", exact: true }).click();
+  await owner.getByRole("link", { name: "Login", exact: true }).click();
   await expect(owner.getByRole("heading", { name: "Welcome back to TeamFit" })).toBeVisible();
   await owner.getByLabel("Email", { exact: true }).fill("browser-owner-" + suffix + "@example.test");
   await owner.getByLabel("Password", { exact: true }).fill(password);
   await owner.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(owner).toHaveURL(/\/dashboard$/);
+  await expect(owner).toHaveURL("/");
   await owner.reload();
-  await expect(owner.getByRole("heading", { name: "Welcome, Browser Owner" })).toBeVisible();
+  await expect(owner.getByRole("banner")).toContainText("browser");
   await owner.screenshot({ path: "test-results/dashboard-mobile.png", fullPage: true });
   await owner.goto("/workspace");
   await expect(owner).toHaveURL(/\/dashboard$/);
   await owner.goto("/login?next=https://untrusted.example");
-  await expect(owner).toHaveURL(/\/dashboard$/);
+  await expect(owner).toHaveURL("/");
   assertNoErrors();
   await ownerContext.close();
   await memberContext.close();

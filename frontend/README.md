@@ -13,7 +13,13 @@ npm run dev
 
 The API must also be running on localhost:5273. Set NEXT_PUBLIC_API_URL in .env.local if needed, then restart/rebuild Next.js. Never place secrets in NEXT_PUBLIC_ variables.
 
-Public routes: / (intro, sample projects, how it works), /login, /register.
+Public routes: / (hero, fictional project-card showcase, short feature list), /how-it-works, /login, /register.
+
+The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users see their first-name display username, Log out, the workspace navigation, My profile, and Browse projects. Normal login returns here; a protected deep link still returns to the requested route.
+
+The display name is computed from the saved profile by src/lib/display-name.ts. It is not a unique account identifier; before profile setup it displays Student. Header email addresses have been removed; profile/account email fields are unchanged.
+
+Supplied branding assets are in public/brand. landing.css controls the reference-based home layout; Brand and SiteHeader are shared with authenticated pages. The original transparent logo is displayed using a navy CSS mask without editing the source file. No real project data is used in the homepage showcase.
 
 Authenticated routes:
 
@@ -38,3 +44,5 @@ npm run build
 ```
 
 Run browser tests through scripts/test.ps1 -Browser from the repository root so synthetic data goes into a disposable database.
+
+For the non-mutating landing UI tests only, run npx playwright test tests/landing.spec.ts against a running frontend. Set TEAMFIT_UI_URL to override the default localhost:3000 URL. These tests stub the API and exercise guest/member views, onboarding display names, logout, navigation, mobile widths, and connection failure handling.
