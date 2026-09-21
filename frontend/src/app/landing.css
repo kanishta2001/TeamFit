@@ -53,7 +53,7 @@ button:not(:disabled), a { cursor: pointer; }
 .brand-button-secondary { background: #fff; color: var(--brand-navy); box-shadow: 0 8px 13px #17233d25; }
 .hero-session-placeholder { display: block; min-height: 56px; width: 200px; }
 .hero-how-link { display: inline-flex; align-items: center; gap: 9px; margin: 17px 0 0 16px; padding: 8px 10px; color: var(--brand-ink); font-size: 14px; }
-.hero-how-link:hover { color: var(--brand-navy); text-decoration: underline; text-underline-offset: 5px; }
+.hero-how-link:hover { color: var(--brand-navy); }
 .project-showcase { min-width: 0; padding-inline: 8px 20px; }
 .project-stack { position: relative; isolation: isolate; }
 .stack-sheet { position: absolute; inset: 0; border-radius: 27px; border: 1px solid #dce2eb; background: #ffffffbc; z-index: -1; }
