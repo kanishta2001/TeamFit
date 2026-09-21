@@ -27,12 +27,6 @@ button:not(:disabled), a { cursor: pointer; }
 .account-avatar { display: grid; place-items: center; height: 29px; width: 29px; flex-shrink: 0; border-radius: 50%; background: #153e720d; color: var(--brand-navy); font-size: 12px; }
 .account-navigation .logout-button { border-left: 1px solid #9096a1; padding-left: 22px; }
 .session-check { color: #626c7c; font-size: 12px; }
-.public-workspace-nav { width: min(1420px, calc(100% - 112px)); margin: 0 auto; }
-.workspace-navigation { display: flex; flex-wrap: wrap; gap: 6px; }
-.workspace-navigation a { display: inline-flex; align-items: center; gap: 8px; border-radius: 9px; padding: 10px 17px; font-size: 14px; font-weight: 600; color: #536176; }
-.workspace-navigation a:hover { color: var(--brand-navy); background: #fff9; }
-.workspace-navigation a[aria-current="page"] { background: var(--brand-navy); color: white; }
-.nav-count { display: inline-grid; place-items: center; border-radius: 50%; min-width: 21px; height: 21px; padding-inline: 4px; font-size: 11px; background: #eaf0f8; color: var(--brand-navy); }
 .public-session-error { width: min(1420px, calc(100% - 48px)); margin: 12px auto; border-radius: 12px; padding: 14px 18px; border: 1px solid #f6d2cb; background: #fff8f5; font-size: 13px; display: flex; flex-wrap: wrap; gap: 16px; }
 .public-session-error button { font-weight: 700; text-decoration: underline; }
 .landing-hero {
@@ -101,7 +95,6 @@ button:not(:disabled), a { cursor: pointer; }
   .brand-button { min-width: 145px; font-size: 13px; padding: 15px 18px; }
   .example-project { padding: 25px; }
   .example-roles ul { grid-template-columns: 1fr; min-height: 90px; }
-  .public-workspace-nav { width: calc(100% - 64px); }
 }
 @media (max-width: 760px) {
   .public-experience { background-size: 100% 100%; }
@@ -122,9 +115,6 @@ button:not(:disabled), a { cursor: pointer; }
   .stack-sheet-middle { transform: rotate(1deg) translate(2px, -4px); }
   .example-heading h2 { font-size: 30px; }
   .example-roles ul { grid-template-columns: 1fr 1fr; min-height: 48px; }
-  .public-workspace-nav { width: calc(100% - 32px); margin-top: 8px; }
-  .workspace-navigation { gap: 2px; }
-  .workspace-navigation a { padding: 9px 11px; font-size: 11px; }
   .how-page { margin-top: 25px; }
   .how-steps li { padding: 21px; gap: 17px; }
 }

@@ -6,7 +6,7 @@ import { api, ApiError, message } from "@/lib/api";
 import type { Invitation, Options, Project, Skill, Student, User } from "@/lib/types";
 import { Notice, secondaryStyle } from "./form-controls";
 import { displayName } from "@/lib/display-name";
-import SiteHeader, { WorkspaceNavigation } from "./site-header";
+import SiteHeader from "./site-header";
 
 type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; options: Options };
 type WorkspaceContextValue = Snapshot & { refresh: () => Promise<void> };
@@ -81,12 +81,10 @@ export default function Workspace({ children }: { children: ReactNode }) {
     } finally { setBusy(false); }
   }
 
-  const pending = data?.invitations.filter(item => item.status === "Pending").length ?? 0;
   return <div className="min-h-screen bg-slate-50 text-slate-900">
     <SiteHeader signedIn={Boolean(data)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
-      busy={busy} onLogout={logout} onRefresh={() => void refresh().catch(() => {})} />
+      busy={busy} onLogout={logout} onRefresh={() => void refresh().catch(() => {})} homeHref="/dashboard" />
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-      {data && <WorkspaceNavigation pending={pending} />}
       <main className="space-y-6">
         <Notice text={error} error />
         {!data && error && <button className={secondaryStyle} disabled={busy} onClick={() => void refresh().catch(() => {})}>Retry connection</button>}

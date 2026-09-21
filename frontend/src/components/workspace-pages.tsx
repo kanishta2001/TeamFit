@@ -29,9 +29,6 @@ export function DashboardPage() {
         <p className="text-sm text-slate-600">{item.label}</p><p className="mt-2 text-3xl font-bold">{item.count}</p>
       </Link>)}
     </div>
-    <div className="flex flex-wrap gap-3"><Link className={buttonStyle} href="/projects/new">Create project</Link>
-      <Link className={secondaryStyle} href="/projects">Browse projects</Link>
-      <Link className={secondaryStyle} href="/projects/joined">Joined projects ({joined.length})</Link></div>
     <section className={panelStyle + " space-y-4"}>
       <h2 className="text-xl font-bold">Your active work</h2>
       {[...owned, ...joined].length === 0 ? <p className="text-slate-600">Create a project or accept an invitation to begin.</p> :

@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Brand from "./brand";
 
-export default function SiteHeader({ signedIn, username, checking = false, busy = false, onLogout, onRefresh }: {
+export default function SiteHeader({ signedIn, username, checking = false, busy = false, onLogout, onRefresh, homeHref = "/" }: {
   signedIn: boolean; username?: string; checking?: boolean; busy?: boolean;
-  onLogout?: () => void; onRefresh?: () => void;
+  onLogout?: () => void; onRefresh?: () => void; homeHref?: string;
 }) {
   return <header className="site-header">
     <div className="site-header-inner">
-      <Brand />
+      <Brand href={homeHref} />
       <nav className="account-navigation" aria-label="Account navigation">
         {checking ? <span className="session-check" role="status">Checking session…</span> : signedIn ? <>
           <Link href="/profile" className="account-name" aria-label={`My profile: ${username}`}>
@@ -26,17 +25,4 @@ export default function SiteHeader({ signedIn, username, checking = false, busy 
       </nav>
     </div>
   </header>;
-}
-
-export function WorkspaceNavigation({ pending = 0 }: { pending?: number }) {
-  const pathname = usePathname();
-  return <nav className="workspace-navigation" aria-label="Workspace navigation">
-    {[
-      ["/dashboard", "Dashboard"], ["/profile", "My Profile"], ["/students", "Students"],
-      ["/projects", "Projects"], ["/invitations", "Invitations"],
-    ].map(([href, label]) => <Link key={href} href={href}
-      aria-current={pathname === href || pathname.startsWith(href + "/") ? "page" : undefined}>
-      {label}{href === "/invitations" && pending > 0 && <span className="nav-count">{pending}</span>}
-    </Link>)}
-  </nav>;
 }

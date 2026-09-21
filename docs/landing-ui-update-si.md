@@ -15,10 +15,10 @@
 ### Signed-in view
 
 - Top-right: profile නමෙන් ගත් username සහ Log out.
-- Homepage එකේ Dashboard, My Profile, Students, Projects, Invitations navigation row එක නැත. Workspace pages තුළ එය තවමත් තිබේ.
+- Dashboard, My Profile, Students, Projects, Invitations navigation row එක homepage හෝ workspace pages තුළ නැත.
 - Hero actions: My profile සහ Browse projects.
 - Create your profile සහ Login/Register buttons නොපෙන්වයි.
-- සාමාන්‍ය Login එකෙන් signed-in homepage එකට යයි. Protected page එකකට යමින් login කළොත් එම page එකටම නැවත යයි.
+- සාමාන්‍ය Login එකෙන් workspace dashboard එකට යයි. Protected page එකකට යමින් login කළොත් එම page එකටම නැවත යයි.
 - Register කළ පසු profile setup අවසන් කිරීම තවමත් අවශ්‍යයි.
 
 ## Temporary username කියන්නේ කුමක්ද?
@@ -61,7 +61,7 @@ Hero එක අසල fictional project-card showcase එක තබා ඇත. H
 1. සාමාන්‍ය frontend/backend run කරන්න.
 2. http://localhost:3000 විවෘත කර Ctrl+Shift+R ඔබන්න.
 3. Guest view එක බැලීමට incognito window එක භාවිත කරන්න.
-4. Login කර username සහ hero buttons බලන්න. Homepage navigation row එකක් නැති බව බලන්න.
+4. Login කළ විට dashboard එක විවෘත වේ. එහි navigation row සහ project action buttons තුන නැති බව බලන්න. Logo එකෙන් නැවත dashboard වෙත යා හැක.
 5. My Profile → Edit my profile වෙතින් නම වෙනස් කර save කළ විට header නම වෙනස් වන බව බලන්න.
 6. Hero buttons යට How it works → link එකෙන් වෙනම guide page එක විවෘත කරන්න.
 7. Log out කළ විට guest view එකට නැවත මාරු වන බව බලන්න.

@@ -105,10 +105,16 @@ test("signed-in home hides workspace navigation but keeps profile access and log
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: "test-results/member-home-desktop.png", fullPage: true });
   await page.getByRole("main").getByRole("link", { name: "My profile", exact: true }).click();
-  await expect(navigation.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(navigation).toHaveCount(0);
   await expect(page.getByRole("banner")).toContainText("nimal");
   await expect(page.getByRole("banner")).not.toContainText("private@example.test");
   await page.getByRole("link", { name: "TeamFit home" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(navigation).toHaveCount(0);
+  for (const label of ["Create project", "Browse projects", "Joined projects (0)"])
+    await expect(page.getByRole("link", { name: label, exact: true })).toHaveCount(0);
+  await page.goto("/");
   await page.getByRole("button", { name: "Log out", exact: true }).click();
   await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Workspace navigation" })).toHaveCount(0);
@@ -117,7 +123,7 @@ test("signed-in home hides workspace navigation but keeps profile access and log
   await expect(page.getByRole("link", { name: "Register", exact: true })).toBeVisible();
 });
 
-test("profile creation and edits generate the header name; login opens signed-in home", async ({ page }) => {
+test("profile creation and edits generate the header name; login opens dashboard", async ({ page }) => {
   await sessionApi(page);
   await page.goto("/register");
   await page.getByLabel("Email", { exact: true }).fill("private@example.test");
@@ -141,7 +147,7 @@ test("profile creation and edits generate the header name; login opens signed-in
   await page.getByLabel("Email", { exact: true }).fill("private@example.test");
   await page.getByLabel("Password", { exact: true }).fill("Example-password!12");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("banner")).toContainText("kasun");
   await page.reload();
   await expect(page.getByRole("banner")).toContainText("kasun");

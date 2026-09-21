@@ -2,7 +2,7 @@
 
 A student project-team formation platform built with **Next.js, ASP.NET Core, and SQL Server**. Students create profiles, describe project requirements, compare explainable recommendations, and form teams through invitations.
 
-This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students see their display name, My profile, and Browse projects. Both homepages use a compact viewport-fit layout and link to How It Works below the hero buttons. The full workspace navigation remains on authenticated workspace pages, not the homepage. Normal login returns to this signed-in home; protected deep links keep their destination. **/workspace** redirects to the dashboard for existing bookmarks.
+This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students see their display name, My profile, and Browse projects. Both homepages use a compact viewport-fit layout and link to How It Works below the hero buttons. Normal login opens the dashboard, while protected deep links keep their destination. Workspace pages use the dashboard cards and page-specific links instead of a shared navigation bar. The workspace logo returns to the dashboard. **/workspace** redirects there for existing bookmarks.
 
 ## Features
 
@@ -134,10 +134,10 @@ Keep both terminals running. Use **Ctrl+C** to stop them. Do not start a second 
 3. In another browser profile/incognito window, register a second student and create their profile.
 4. As the first student, create a project with required skills, desired roles, and meeting times.
 5. Open the project; inspect the recommendation scores and invite the second student.
-6. As the second student, use **Refresh → Invitations → Accept**.
+6. As the second student, open the dashboard from the logo, then use **Pending invitations → Accept**.
 7. Refresh the owner's workspace; the team now includes both students.
 8. On the project details page, create a task and assign it to the second student.
-9. The second student opens **Projects → Joined projects → View project** and updates their task to **Done**.
+9. The second student opens **Dashboard → My projects → Joined projects → View project** and updates their task to **Done**.
 10. Task progress updates from saved tasks. The owner changes the overall project status separately.
 
 Different tabs in the **same browser profile share the same login cookie**. Use separate browser profiles/incognito sessions when demonstrating multiple users.

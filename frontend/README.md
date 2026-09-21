@@ -15,7 +15,7 @@ The API must also be running on localhost:5273. Set NEXT_PUBLIC_API_URL in .env.
 
 Public routes: / (compact hero and automatically rotating project-card showcase), /how-it-works, /login, /register.
 
-The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users see their first-name display username, Log out, My profile, and Browse projects. The workspace navigation is omitted only on the homepage. How It Works sits below the hero buttons instead of in the homepage header. Normal login returns here; a protected deep link still returns to the requested route.
+The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users see their first-name display username, Log out, My profile, and Browse projects. How It Works sits below the hero buttons instead of in the homepage header. Normal login opens /dashboard; a protected deep link still returns to the requested route. The shared workspace navigation bar is removed from every page. Use dashboard cards, page-specific links, and the header username to reach sections; the workspace logo returns to /dashboard.
 
 The fictional cards rotate every 10 seconds without arrows, dots, or a slide counter. Rotation pauses on hover/focus, in hidden tabs, and when reduced motion is requested. A small disclaimer remains so the examples are not mistaken for real projects. Home-only spacing uses viewport height as well as width; no content is hidden with overflow rules. Extremely small windows or enlarged text may still scroll so information remains accessible.
 
@@ -25,7 +25,7 @@ Supplied branding assets are in public/brand. landing.css controls the reference
 
 Authenticated routes:
 
-- /dashboard — summary counts and project shortcuts.
+- /dashboard — workspace main page with section counts and active projects.
 - /profile/create — new-account profile setup.
 - /profile and /profile/edit — view and update your profile.
 - /students — search/filter the student directory.
