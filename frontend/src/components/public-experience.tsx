@@ -58,7 +58,7 @@ export default function PublicExperience({ children }: { children: ReactNode }) 
   return <PublicSession.Provider value={session}>
     <div className={pathname === "/" ? "public-experience landing-home" : "public-experience"}>
       <SiteHeader signedIn={session.status === "signed-in"} username={displayName(session.profile?.fullName)}
-        checking={session.status === "loading"} busy={busy} onLogout={logout} showHowItWorks={pathname !== "/"} />
+        checking={session.status === "loading"} busy={busy} onLogout={logout} />
       {session.status === "signed-in" && pathname !== "/" && <div className="public-workspace-nav"><WorkspaceNavigation /></div>}
       {session.error && <div className="public-session-error" role="alert" aria-label="Session connection error">
         <p>{session.error}</p>
