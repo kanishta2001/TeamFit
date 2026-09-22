@@ -60,7 +60,7 @@ public class StudentsController(TeamFitDbContext context) : ControllerBase
             return BadRequest(new { message = "Use the email of your signed-in account." });
         if (await context.Students.AnyAsync(x => x.UserId == userId || x.UniversityEmail == user.Email))
             return Conflict(new { message = "This account or email already has a student profile." });
-        if (!await ValidSkills(request.SkillIds)) return BadRequest(new { message = "One or more skills do not exist." });
+        if (!await ValidSkills(request.SkillIds)) return BadRequest(new { message = "Choose skills from the predefined catalog." });
 
         var student = new Student { UserId = userId, UniversityEmail = user.Email };
         Apply(student, request);
@@ -78,7 +78,8 @@ public class StudentsController(TeamFitDbContext context) : ControllerBase
         if (student.UserId != CurrentUser.Id(User)) return Forbid();
         if (!string.Equals(request.UniversityEmail.Trim(), student.UniversityEmail, StringComparison.OrdinalIgnoreCase))
             return BadRequest(new { message = "Your account email cannot be changed from the profile form." });
-        if (!await ValidSkills(request.SkillIds)) return BadRequest(new { message = "One or more skills do not exist." });
+        if (!await ValidSkills(request.SkillIds, student.StudentSkills.Select(link => link.SkillId).ToHashSet()))
+            return BadRequest(new { message = "Choose skills from the predefined catalog." });
         Apply(student, request);
         await context.SaveChangesAsync();
         // Load navigation values for newly assigned skills before creating the response.
@@ -103,8 +104,13 @@ public class StudentsController(TeamFitDbContext context) : ControllerBase
     public async Task<IActionResult> GetSkills(int studentId)
     {
         if (!await context.Students.AnyAsync(x => x.Id == studentId)) return NotFound();
-        return Ok(await context.StudentSkills.AsNoTracking().Where(x => x.StudentId == studentId)
-            .OrderBy(x => x.Skill.Name).Select(x => new SkillResponse { Id = x.SkillId, Name = x.Skill.Name }).ToListAsync());
+        var skills = await context.StudentSkills.AsNoTracking().Where(x => x.StudentId == studentId)
+            .OrderBy(x => x.Skill.Name).Select(x => new { x.SkillId, x.Skill.Name }).ToListAsync();
+        return Ok(skills.Select(skill => new SkillResponse
+        {
+            Id = skill.SkillId, Name = SkillCatalog.CanonicalName(skill.Name),
+            Categories = SkillCatalog.CategoriesFor(skill.Name)
+        }));
     }
 
     [HttpPost("{studentId:int}/skills")]
@@ -114,14 +120,19 @@ public class StudentsController(TeamFitDbContext context) : ControllerBase
         if (student is null) return NotFound();
         if (student.UserId != CurrentUser.Id(User)) return Forbid();
         var skill = await context.Skills.FindAsync(request.SkillId);
-        if (skill is null) return NotFound(new { message = "Skill was not found." });
+        if (skill is null || !SkillCatalog.Contains(skill.Name))
+            return BadRequest(new { message = "Choose a skill from the predefined catalog." });
         if (await context.StudentSkills.AnyAsync(x => x.StudentId == studentId && x.SkillId == request.SkillId))
             return Conflict(new { message = "This skill is already assigned to the student." });
         if (await context.StudentSkills.CountAsync(x => x.StudentId == studentId) >= 30)
             return BadRequest(new { message = "A profile can have at most 30 skills." });
         context.StudentSkills.Add(new StudentSkill { StudentId = studentId, SkillId = skill.Id });
         await context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetSkills), new { studentId }, new SkillResponse { Id = skill.Id, Name = skill.Name });
+        return CreatedAtAction(nameof(GetSkills), new { studentId }, new SkillResponse
+        {
+            Id = skill.Id, Name = SkillCatalog.CanonicalName(skill.Name),
+            Categories = SkillCatalog.CategoriesFor(skill.Name)
+        });
     }
 
     [HttpDelete("{studentId:int}/skills/{skillId:int}")]
@@ -137,8 +148,15 @@ public class StudentsController(TeamFitDbContext context) : ControllerBase
         return NoContent();
     }
 
-    private async Task<bool> ValidSkills(int[]? ids) =>
-        ids is null || await context.Skills.CountAsync(x => ids.Contains(x.Id)) == ids.Distinct().Count();
+    private async Task<bool> ValidSkills(int[]? ids, HashSet<int>? previouslyAssigned = null)
+    {
+        if (ids is null) return true;
+        var found = await context.Skills.Where(skill => ids.Contains(skill.Id))
+            .Select(skill => new { skill.Id, skill.Name }).ToListAsync();
+        // Existing non-catalog IDs may remain on this profile, but cannot be newly assigned.
+        return found.Count == ids.Distinct().Count() &&
+            found.All(skill => SkillCatalog.Contains(skill.Name) || previouslyAssigned?.Contains(skill.Id) == true);
+    }
 
     private static void Apply(Student student, CreateStudentRequest request)
     {

@@ -47,7 +47,7 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
     {
         var student = await context.Students.SingleOrDefaultAsync(x => x.UserId == CurrentUser.Id(User));
         if (student is null) return BadRequest(new { message = "Create your student profile before creating a project." });
-        if (!await ValidSkills(request.RequiredSkillIds)) return BadRequest(new { message = "One or more skills do not exist." });
+        if (!await ValidSkills(request.RequiredSkillIds)) return BadRequest(new { message = "Choose skills from the predefined catalog." });
         var project = new ProjectRequest { OwnerId = CurrentUser.Id(User) };
         Apply(project, request);
         project.Members.Add(new TeamMember { StudentId = student.Id });
@@ -69,7 +69,8 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
         await Projects().SingleAsync(x => x.Id == id);
         if (request.TeamSize < project.Members.Count)
             return Conflict(new { message = "Team size cannot be smaller than the current member count." });
-        if (!await ValidSkills(request.RequiredSkillIds)) return BadRequest(new { message = "One or more skills do not exist." });
+        if (!await ValidSkills(request.RequiredSkillIds, project.RequiredSkills.Select(link => link.SkillId).ToHashSet()))
+            return BadRequest(new { message = "Choose skills from the predefined catalog." });
         Apply(project, request);
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
@@ -188,8 +189,14 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
         .FromSqlInterpolated($"SELECT * FROM Projects WITH (UPDLOCK, HOLDLOCK) WHERE Id = {id}")
         .SingleOrDefaultAsync();
 
-    private async Task<bool> ValidSkills(int[] ids) =>
-        await context.Skills.CountAsync(x => ids.Contains(x.Id)) == ids.Distinct().Count();
+    private async Task<bool> ValidSkills(int[] ids, HashSet<int>? previouslyAssigned = null)
+    {
+        var found = await context.Skills.Where(skill => ids.Contains(skill.Id))
+            .Select(skill => new { skill.Id, skill.Name }).ToListAsync();
+        // Preserve requirements saved before the catalog was fixed, without allowing new custom skills.
+        return found.Count == ids.Distinct().Count() &&
+            found.All(skill => SkillCatalog.Contains(skill.Name) || previouslyAssigned?.Contains(skill.Id) == true);
+    }
 
     private static void Apply(ProjectRequest project, ProjectRequestInput request)
     {

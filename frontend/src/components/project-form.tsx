@@ -4,10 +4,13 @@ import { useState, type FormEvent } from "react";
 import { api, message } from "@/lib/api";
 import type { Options, Project, Skill } from "@/lib/types";
 import { buttonStyle, Choices, Field, inputStyle, Notice, panelStyle, secondaryStyle } from "./form-controls";
+import SkillMultiSelect from "./skill-multi-select";
 
 export default function ProjectForm({ project, skills, options, onSaved, onCancel }: {
   project?: Project; skills: Skill[]; options: Options; onSaved: (project: Project) => Promise<void>; onCancel: () => void;
 }) {
+  const allowed = new Set(skills.map(skill => skill.id));
+  const legacySkills = project?.requiredSkills.filter(skill => !allowed.has(skill.id)) ?? [];
   const [selectedSkills, setSkills] = useState(project?.requiredSkills.map(skill => String(skill.id)) ?? []);
   const [roles, setRoles] = useState(project?.desiredRoles ?? []);
   const [slots, setSlots] = useState(project?.availability ?? []);
@@ -42,7 +45,8 @@ export default function ProjectForm({ project, skills, options, onSaved, onCance
           <option value="Open">Open — accepting teammates</option><option value="InProgress">In progress</option><option value="Completed">Completed</option>
         </select></Field>}
       </div>
-      <Choices label="Required skills" options={skills.map(skill => ({ value: String(skill.id), label: skill.name }))} selected={selectedSkills} onChange={setSkills} />
+      <SkillMultiSelect label="Required skills" skills={skills} selectedLegacy={legacySkills} selected={selectedSkills} onChange={setSkills} />
+      {legacySkills.length > 0 && <p className="text-sm text-amber-800">Older required skills stay on this project unless you remove their chips. New selections must come from the catalogue.</p>}
       <Choices label="Desired roles" options={options.roles.map(role => ({ value: role, label: role }))} selected={roles} onChange={setRoles} />
       <Choices label="Meeting availability (Sri Lanka time)" options={options.availabilitySlots.map(slot => ({ value: slot, label: slot }))} selected={slots} onChange={setSlots} />
       <div className="flex gap-3"><button type="submit" className={buttonStyle}>{busy ? "Saving…" : "Save project"}</button>

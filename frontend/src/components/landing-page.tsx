@@ -16,6 +16,7 @@ function Hero() {
       <p className="hero-description">TeamFit helps university students discover teammates with complementary skills, suitable roles, and shared availability.</p>
       <div className="hero-actions">
         {session.status === "loading" ? <span className="hero-session-placeholder" aria-hidden="true" /> :
+          session.status === "signed-in" && !session.profile ? <Link className="brand-button brand-button-primary" href="/profile/create">Complete your profile</Link> :
           session.status === "signed-in" ? <>
             <Link className="brand-button brand-button-primary" href="/profile">My profile</Link>
             <Link className="brand-button brand-button-secondary" href="/projects">Browse projects</Link>

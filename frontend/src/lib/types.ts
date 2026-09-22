@@ -1,5 +1,5 @@
 export type User = { id: number; email: string };
-export type Skill = { id: number; name: string };
+export type Skill = { id: number; name: string; categories?: string[] };
 export type Options = { roles: string[]; availabilitySlots: string[] };
 export type Student = {
   id: number; userId: number | null; fullName: string; universityEmail: string;

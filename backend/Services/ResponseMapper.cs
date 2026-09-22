@@ -1,6 +1,7 @@
 using TeamFit.Api.DTOs.Students;
 using TeamFit.Api.DTOs.Projects;
 using TeamFit.Api.DTOs.Skills;
+using TeamFit.Api.Data;
 using TeamFit.Api.Models;
 
 namespace TeamFit.Api.Services;
@@ -14,7 +15,8 @@ public static class ResponseMapper
         UniversityEmail = student.UniversityEmail, Bio = student.Bio,
         PreferredRole = student.PreferredRole, CreatedAt = student.CreatedAt,
         Skills = student.StudentSkills.OrderBy(link => link.Skill.Name)
-            .Select(link => new SkillResponse { Id = link.SkillId, Name = link.Skill.Name }).ToList(),
+            .Select(link => new SkillResponse { Id = link.SkillId, Name = SkillCatalog.CanonicalName(link.Skill.Name),
+                Categories = SkillCatalog.CategoriesFor(link.Skill.Name) }).ToList(),
         Availability = student.Availability.Select(item => item.Slot).Order().ToList()
     };
 
@@ -28,7 +30,8 @@ public static class ResponseMapper
         ProgressPercent = project.Tasks.Count == 0 ? 0 :
             (int)Math.Round(100m * project.Tasks.Count(task => task.Status == "Done") / project.Tasks.Count),
         RequiredSkills = project.RequiredSkills.OrderBy(link => link.Skill.Name)
-            .Select(link => new SkillResponse { Id = link.SkillId, Name = link.Skill.Name }).ToList(),
+            .Select(link => new SkillResponse { Id = link.SkillId, Name = SkillCatalog.CanonicalName(link.Skill.Name),
+                Categories = SkillCatalog.CategoriesFor(link.Skill.Name) }).ToList(),
         DesiredRoles = project.DesiredRoles.Select(item => item.Role).Order().ToList(),
         Availability = project.Availability.Select(item => item.Slot).Order().ToList()
     };

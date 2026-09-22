@@ -15,11 +15,13 @@ The API must also be running on localhost:5273. Set NEXT_PUBLIC_API_URL in .env.
 
 Public routes: / (compact hero and automatically rotating project-card showcase), /how-it-works, /login, /register.
 
-The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users see their first-name display username, Log out, My profile, and Browse projects. How It Works sits below the hero buttons instead of in the homepage header. Normal login opens /dashboard; a protected deep link still returns to the requested route. The shared workspace navigation bar is removed from every page. Use dashboard cards, page-specific links, and the header username to reach sections; the workspace logo returns to /dashboard.
+The root page checks the HttpOnly session through the API. Guests see Login/Register and Create your profile, never a Browse projects button. Signed-in users with completed profiles see their first-name display username, Log out, My profile, and Browse projects. How It Works sits below the hero buttons instead of in the homepage header. Registration opens /profile/create, then saving opens /dashboard. Normal login opens /dashboard; a protected deep link still returns to the requested route once a profile exists. The shared workspace navigation bar is removed from every page. Use dashboard cards, page-specific links, and the header username to reach sections; the TeamFit logo always returns to /.
 
 The fictional cards rotate every 10 seconds without arrows, dots, or a slide counter. Rotation pauses on hover/focus, in hidden tabs, and when reduced motion is requested. A small disclaimer remains so the examples are not mistaken for real projects. Home-only spacing uses viewport height as well as width; no content is hidden with overflow rules. Extremely small windows or enlarged text may still scroll so information remains accessible.
 
 The display name is computed from the saved profile by src/lib/display-name.ts. It is not a unique account identifier; before profile setup it displays Student. Header email addresses have been removed; profile/account email fields are unchanged.
+
+Profile creation/editing and project creation/editing share the searchable skill selector. It receives the categorized, predefined catalog from the API; users cannot add new skill names. Previously saved non-catalog skills remain on existing profiles and projects during editing unless their chips are explicitly removed. They cannot be added to another profile or project.
 
 Supplied branding assets are in public/brand. landing.css controls the reference-based home layout; Brand and SiteHeader are shared with authenticated pages. The original transparent logo is displayed using a navy CSS mask without editing the source file. No real project data is used in the homepage showcase.
 

@@ -35,10 +35,13 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
   await request("auth/login", { method: "POST", body: { email: owner.email, password } });
   await request("auth/me", { headers: { Cookie: owner.cookie } });
   await request("skills", { method: "POST", body: { name: "CSRF blocked" }, headers: { Cookie: owner.cookie, Origin: "https://untrusted.example" }, status: 403 });
-  const a = (await request("skills", { token: owner.token, method: "POST", body: { name: prefix + " React" }, status: 201 })).data;
-  const b = (await request("skills", { token: owner.token, method: "POST", body: { name: prefix + " SQL" }, status: 201 })).data;
-  await request("skills", { token: owner.token, method: "POST", body: { name: a.name }, status: 409 });
-  await request("skills", { token: owner.token, method: "POST", body: { name: "   " }, status: 400 });
+  const skills = (await request("skills", { token: owner.token })).data;
+  const a = skills.find(skill => skill.name === "React");
+  const b = skills.find(skill => skill.name === "SQL Server");
+  assert.ok(a?.categories.includes("Frontend"));
+  assert.ok(b?.categories.includes("Databases"));
+  assert.deepEqual(skills.find(skill => skill.name === "Kotlin").categories, ["Programming Languages", "Mobile Development"]);
+  await request("skills", { token: owner.token, method: "POST", body: { name: prefix + " React" }, status: 405 });
   const profile = account => ({
     fullName: account.label, universityEmail: account.email, bio: "Integration test",
     preferredRole: account === backend ? "Backend Developer" : "Frontend Developer",

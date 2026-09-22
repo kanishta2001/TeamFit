@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Options, Skill, Student } from "@/lib/types";
 import { Field, inputStyle, panelStyle, Tags } from "./form-controls";
+import PageBack from "./page-back";
 
 export default function StudentDirectory({ students, skills, options }: { students: Student[]; skills: Skill[]; options: Options }) {
   const [search, setSearch] = useState("");
@@ -14,7 +15,8 @@ export default function StudentDirectory({ students, skills, options }: { studen
     (!skill || student.skills.some(item => item.id === Number(skill))) &&
     (!role || student.preferredRole === role) && (!slot || student.availability.includes(slot)));
   return <section className="space-y-5">
-    <h2 className="text-2xl font-bold">Student directory</h2>
+    <PageBack />
+    <h2 className="workspace-page-title">Student directory</h2>
     <div className={panelStyle}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label="Search by name"><input value={search} onChange={event => setSearch(event.target.value)} className={inputStyle} /></Field>

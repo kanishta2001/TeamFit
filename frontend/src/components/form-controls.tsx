@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 export const inputStyle = "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200";
-export const buttonStyle = "rounded-xl bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50";
-export const secondaryStyle = "rounded-xl border border-slate-300 bg-white px-4 py-2.5 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50";
+export const buttonStyle = "rounded-xl bg-[#1e385f] px-5 py-3 font-semibold text-white hover:bg-[#153052] disabled:cursor-not-allowed disabled:opacity-50";
+export const secondaryStyle = "rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-[#1e385f] hover:bg-slate-50 disabled:opacity-50";
 export const panelStyle = "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm";
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -23,7 +23,7 @@ export function Choices({ label, options, selected, onChange }: {
           className="accent-indigo-600" />
         {option.label}
       </label>)}
-      {options.length === 0 && <p className="text-sm text-slate-500">No options yet. Add a skill below.</p>}
+      {options.length === 0 && <p className="text-sm text-slate-500">No options available.</p>}
     </div>
   </fieldset>;
 }

@@ -1,10 +1,18 @@
 import { test, expect, type Page } from "@playwright/test";
 import { displayName } from "../src/lib/display-name";
+import type { Skill, Student } from "../src/lib/types";
+
+const catalog: Skill[] = [
+  { id: 1, name: "React", categories: ["Frontend"] },
+  { id: 2, name: "Next.js", categories: ["Frontend"] },
+  { id: 3, name: "Kotlin", categories: ["Programming Languages", "Mobile Development"] },
+  { id: 4, name: "Figma", categories: ["UI/UX & Design"] },
+];
 
 // These UI tests intercept API traffic. They never create accounts or touch SQL Server.
 async function sessionApi(page: Page, initial: "guest" | "member" | "new" = "guest") {
   let signedIn = initial !== "guest";
-  let profile = initial === "member" ? {
+  let profile: Student | null = initial === "member" ? {
     id: 1, userId: 1, fullName: "Nimal Perera", universityEmail: "private@example.test",
     bio: "Student", preferredRole: "Frontend Developer", skills: [], availability: [],
   } : null;
@@ -31,16 +39,18 @@ async function sessionApi(page: Page, initial: "guest" | "member" | "new" = "gue
     if (path === "students/me") return profile ? send(profile) : send({}, 404);
     if (path === "students" && request.method() === "POST") {
       const input = request.postDataJSON();
-      profile = { ...input, id: 1, userId: 1, skills: [] };
+      profile = { ...input, id: 1, userId: 1, skills: catalog.filter(skill => input.skillIds?.includes(skill.id)) };
       return send(profile, 201);
     }
     if (path === "students/1" && request.method() === "PUT") {
-      profile = { ...profile, ...request.postDataJSON(), skills: [] };
+      const input = request.postDataJSON();
+      profile = { ...profile!, ...input, skills: catalog.filter(skill => input.skillIds?.includes(skill.id)) };
       return send(profile);
     }
     if (path === "students") return send(profile ? [profile] : []);
     if (path === "options") return send({ roles: ["Frontend Developer"], availabilitySlots: ["Weekday Evening"] });
-    if (["skills", "projects", "invitations"].includes(path)) return send([]);
+    if (path === "skills") return send(catalog);
+    if (["projects", "invitations"].includes(path)) return send([]);
     return send({ message: "Unexpected test endpoint: " + path }, 500);
   });
   return requested;
@@ -110,7 +120,8 @@ test("signed-in home hides workspace navigation but keeps profile access and log
   await expect(page.getByRole("banner")).toContainText("nimal");
   await expect(page.getByRole("banner")).not.toContainText("private@example.test");
   await page.getByRole("link", { name: "TeamFit home" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL("/");
+  await page.goto("/dashboard");
   await expect(navigation).toHaveCount(0);
   for (const label of ["Create project", "Browse projects", "Joined projects (0)"])
     await expect(page.getByRole("link", { name: label, exact: true })).toHaveCount(0);
@@ -131,12 +142,40 @@ test("profile creation and edits generate the header name; login opens dashboard
   await page.getByRole("button", { name: "Register", exact: true }).click();
   await expect(page).toHaveURL(/\/profile\/create$/);
   await expect(page.getByRole("banner")).toContainText("Student");
+  await expect(page.getByRole("heading", { name: "Create new profile" })).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: /My profile:/ })).toHaveCount(0);
+  await page.screenshot({ path: "test-results/profile-create-desktop.png", fullPage: true });
+  for (const path of ["/dashboard", "/profile", "/profile/edit", "/students", "/projects", "/projects/new", "/invitations"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/profile\/create$/);
+  }
   await page.getByLabel("Full name", { exact: true }).fill("Nimal Perera");
   await page.getByLabel("Preferred project role").selectOption("Frontend Developer");
+  const selector = page.getByRole("combobox", { name: "Your skills" });
+  await selector.fill("React");
+  await expect(page.getByText("Frontend", { exact: true })).toBeVisible();
+  await selector.press("Enter");
+  await expect(page.getByRole("button", { name: "Remove React" })).toBeVisible();
+  await selector.fill("Kotlin");
+  await expect(page.getByRole("option", { name: "Kotlin", exact: true })).toHaveCount(2);
+  await page.getByRole("option", { name: "Kotlin", exact: true }).first().click();
+  await expect(page.getByRole("button", { name: "Remove Kotlin" })).toHaveCount(1);
+  await selector.fill("Kotlin");
+  await expect(page.getByRole("option", { name: "Kotlin", exact: true })).toHaveCount(0);
+  await selector.fill("not in catalogue");
+  await expect(page.getByText("No matching skills in the catalogue.")).toBeVisible();
+  await selector.press("Enter");
+  await expect(page.getByRole("button", { name: "Remove not in catalogue" })).toHaveCount(0);
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("banner")).toContainText("nimal");
+  await page.getByRole("banner").getByRole("link", { name: /My profile:/ }).click();
+  await expect(page.getByText("React", { exact: true })).toBeVisible();
+  await page.screenshot({ path: "test-results/profile-view-desktop.png", fullPage: true });
   await page.goto("/profile/edit");
+  await expect(page.getByRole("button", { name: "Remove React" })).toBeVisible();
+  await page.getByRole("button", { name: "Remove React" }).click();
+  await expect(page.getByRole("button", { name: "Remove React" })).toHaveCount(0);
   await page.getByLabel("Full name", { exact: true }).fill("Kasun Perera");
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(page).toHaveURL(/\/profile$/);
@@ -151,6 +190,25 @@ test("profile creation and edits generate the header name; login opens dashboard
   await expect(page.getByRole("banner")).toContainText("kasun");
   await page.reload();
   await expect(page.getByRole("banner")).toContainText("kasun");
+});
+
+test("Create project appears only in My projects", async ({ page }) => {
+  await sessionApi(page, "member");
+  await page.goto("/projects");
+  await expect(page.getByRole("link", { name: "Create project", exact: true })).toHaveCount(0);
+  await page.screenshot({ path: "test-results/projects-all-desktop.png", fullPage: true });
+  await page.getByRole("link", { name: "My projects", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Create project", exact: true })).toBeVisible();
+  await page.screenshot({ path: "test-results/projects-mine-desktop.png", fullPage: true });
+  await page.getByRole("link", { name: "Create project", exact: true }).click();
+  await expect(page).toHaveURL(/\/projects\/new$/);
+  await expect(page.getByRole("heading", { name: "Create a project" })).toBeVisible();
+  await page.getByRole("combobox", { name: "Required skills" }).fill("React");
+  await page.getByRole("option", { name: "React", exact: true }).click();
+  await page.getByRole("checkbox", { name: "Frontend Developer", exact: true }).check();
+  await expect(page.getByRole("checkbox", { name: "Frontend Developer", exact: true })).toBeChecked();
+  await page.getByRole("link", { name: "TeamFit home" }).click();
+  await expect(page).toHaveURL("/");
 });
 
 for (const state of ["guest", "member"] as const) {

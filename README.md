@@ -2,13 +2,13 @@
 
 A student project-team formation platform built with **Next.js, ASP.NET Core, and SQL Server**. Students create profiles, describe project requirements, compare explainable recommendations, and form teams through invitations.
 
-This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students see their display name, My profile, and Browse projects. Both homepages use a compact viewport-fit layout and link to How It Works below the hero buttons. Normal login opens the dashboard, while protected deep links keep their destination. Workspace pages use the dashboard cards and page-specific links instead of a shared navigation bar. The workspace logo returns to the dashboard. **/workspace** redirects there for existing bookmarks.
+This is a working individual full-stack learning project, not an AI/ML matching service. Start at **/**: guests see the public landing page; signed-in students with profiles see their display name, My profile, and Browse projects. Both homepages use a compact viewport-fit layout and link to How It Works below the hero buttons. Registration requires profile setup before opening workspace pages. Normal login opens the dashboard, while protected deep links keep their destination after profile setup. Workspace pages use dashboard cards and page-specific links instead of a shared navigation bar. The TeamFit logo always opens the landing page. **/workspace** redirects to the dashboard for existing bookmarks.
 
 ## Features
 
 - Register, sign in, persistent sessions, and sign out with token revocation.
 - Create, update, and delete your own student profile.
-- Shared skill catalog, profile skills, preferred roles, and availability.
+- Predefined, categorized skill catalog with searchable multi-select for profile and project forms.
 - Search/filter students by name, skill, role, and availability.
 - Create, edit, and delete projects; manage Open / InProgress / Completed status.
 - Ranked recommendations with matched skills, missing skills, and score explanations.
@@ -134,7 +134,7 @@ Keep both terminals running. Use **Ctrl+C** to stop them. Do not start a second 
 3. In another browser profile/incognito window, register a second student and create their profile.
 4. As the first student, create a project with required skills, desired roles, and meeting times.
 5. Open the project; inspect the recommendation scores and invite the second student.
-6. As the second student, open the dashboard from the logo, then use **Pending invitations → Accept**.
+6. As the second student, use **Pending invitations → Accept** on the dashboard after profile setup. The logo opens the landing page.
 7. Refresh the owner's workspace; the team now includes both students.
 8. On the project details page, create a task and assign it to the second student.
 9. The second student opens **Dashboard → My projects → Joined projects → View project** and updates their task to **Done**.
@@ -167,7 +167,7 @@ Except for options, registration, and login, endpoints require authentication.
 | Options | GET /api/options |
 | Students | GET/POST /api/students; GET /api/students/me; GET/PUT/DELETE /api/students/{id} |
 | Profile skills | GET/POST /api/students/{id}/skills; DELETE /api/students/{id}/skills/{skillId} |
-| Skill catalog | GET/POST /api/skills; GET /api/skills/{id} |
+| Skill catalog | GET /api/skills; GET /api/skills/{id} (custom skill creation is disabled) |
 | Projects | GET/POST /api/projects; GET/PUT/DELETE /api/projects/{id} |
 | Matching | GET /api/projects/{id}/recommendations |
 | Teams | GET /api/projects/{id}/members; DELETE /api/projects/{id}/members/{studentId} |

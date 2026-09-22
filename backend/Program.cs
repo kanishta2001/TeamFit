@@ -20,6 +20,7 @@ if (string.IsNullOrWhiteSpace(signingKey) || Encoding.UTF8.GetByteCount(signingK
 var frontendOrigin = builder.Configuration["Frontend:Origin"] ?? "http://localhost:3000";
 
 builder.Services.AddDbContext<TeamFitDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddHostedService<SkillCatalogSeeder>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddControllers();

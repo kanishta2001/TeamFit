@@ -20,11 +20,16 @@ export function useWorkspace() {
 
 async function loadWorkspace(): Promise<Snapshot> {
   const user = await api<User>("auth/me");
-  const [profile, students, skills, projects, invitations, options] = await Promise.all([
-    api<Student>("students/me").catch(reason => {
-      if (reason instanceof ApiError && reason.status === 404) return null;
-      throw reason;
-    }),
+  const profile = await api<Student>("students/me").catch(reason => {
+    if (reason instanceof ApiError && reason.status === 404) return null;
+    throw reason;
+  });
+  // Profile setup is the only workspace screen allowed before onboarding is complete.
+  if (!profile) {
+    const [skills, options] = await Promise.all([api<Skill[]>("skills"), api<Options>("options")]);
+    return { user, profile, students: [], skills, projects: [], invitations: [], options };
+  }
+  const [students, skills, projects, invitations, options] = await Promise.all([
     api<Student[]>("students"), api<Skill[]>("skills"), api<Project[]>("projects"),
     api<Invitation[]>("invitations"), api<Options>("options"),
   ]);
@@ -61,9 +66,12 @@ export default function Workspace({ children }: { children: ReactNode }) {
     setBusy(true); setFailure(null);
     try {
       const snapshot = await loadWorkspace();
+      // A refresh started on another page must not replace the new page's state.
+      if (window.location.pathname !== pathname) return;
       setLoaded({ path: pathname, data: snapshot });
       if (!snapshot.profile && pathname !== "/profile/create") router.replace("/profile/create");
     } catch (reason) {
+      if (window.location.pathname !== pathname) return;
       setFailure({ path: pathname, text: message(reason) });
       if (reason instanceof ApiError && reason.status === 401) {
         setLoaded(null); router.replace("/login?next=" + encodeURIComponent(pathname));
@@ -81,10 +89,10 @@ export default function Workspace({ children }: { children: ReactNode }) {
     } finally { setBusy(false); }
   }
 
-  return <div className="min-h-screen bg-slate-50 text-slate-900">
-    <SiteHeader signedIn={Boolean(data)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
-      busy={busy} onLogout={logout} onRefresh={() => void refresh().catch(() => {})} homeHref="/dashboard" />
-    <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+  return <div className="workspace-shell">
+    <SiteHeader signedIn={Boolean(data)} profileReady={Boolean(data?.profile)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
+      busy={busy} onLogout={logout} onRefresh={() => void refresh().catch(() => {})} />
+    <div className="workspace-container">
       <main className="space-y-6">
         <Notice text={error} error />
         {!data && error && <button className={secondaryStyle} disabled={busy} onClick={() => void refresh().catch(() => {})}>Retry connection</button>}

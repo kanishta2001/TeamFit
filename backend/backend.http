@@ -58,15 +58,6 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/skills
 Authorization: Bearer {{token}}
 
-### Add a catalog skill
-POST {{host}}/api/skills
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "name": "React"
-}
-
 ### Assign an existing skill to your own profile (set IDs above)
 POST {{host}}/api/students/{{studentId}}/skills
 Authorization: Bearer {{token}}
