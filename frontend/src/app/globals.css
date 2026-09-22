@@ -9,7 +9,7 @@
   --brand-ink: #0b132c;
   /* Shared typography: geometric UI text and hand-drawn display headings. */
   --font-ui: var(--font-outfit), Arial, sans-serif;
-  --font-display: var(--font-boogaloo), cursive;
+  --font-display: var(--font-marykate), cursive;
 }
 
 @theme inline {

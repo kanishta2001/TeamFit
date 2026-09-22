@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Boogaloo, Outfit, Geist_Mono } from "next/font/google";
+import { Outfit, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const uiFont = Outfit({
@@ -12,8 +13,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Self-hosted alternatives to the reference's Etna Sans Serif and Marykate fonts.
-const displayFont = Boogaloo({ variable: "--font-boogaloo", weight: "400", subsets: ["latin"], display: "swap" });
+const displayFont = localFont({
+  src: "./fonts/MaryKate.ttf",
+  variable: "--font-marykate",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "TeamFit | Smart Student Team Formation",
