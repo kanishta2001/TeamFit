@@ -20,7 +20,7 @@ export default function InvitationInbox({ invitations, onChanged }: { invitation
   return <section className="space-y-5">
     <PageBack />
     <h2 className="workspace-page-title">Invitation inbox</h2>
-    <p className="text-slate-600">Your in-app notifications. Use Refresh to check for new invitations. Pending invitations do not reserve a team place.</p>
+    <p className="text-slate-600">Your in-app notifications. Reload the page to check for new invitations. Pending invitations do not reserve a team place.</p>
     <Notice text={error} error /><Notice text={notice} />
     {!invitations.length && <p className={panelStyle}>No invitations yet. Complete your skills and availability so project owners can find you.</p>}
     {invitations.map(item => <article className={panelStyle} key={item.id}>

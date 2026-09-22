@@ -91,12 +91,12 @@ export default function Workspace({ children }: { children: ReactNode }) {
 
   return <div className="workspace-shell">
     <SiteHeader signedIn={Boolean(data)} profileReady={Boolean(data?.profile)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
-      busy={busy} onLogout={logout} onRefresh={() => void refresh().catch(() => {})} />
+      busy={busy} onLogout={logout} />
     <div className="workspace-container">
       <main className="space-y-6">
         <Notice text={error} error />
         {!data && error && <button className={secondaryStyle} disabled={busy} onClick={() => void refresh().catch(() => {})}>Retry connection</button>}
-        {!data ? <p role="status">{error ? "Use Refresh to try again." : "Loading your workspace…"}</p> :
+        {!data ? <p role="status">{error ? "Use Retry connection to try again." : "Loading your workspace…"}</p> :
           !data.profile && pathname !== "/profile/create" ? <p role="status">Opening profile setup…</p> :
           <WorkspaceContext.Provider value={{ ...data, refresh }}>{children}</WorkspaceContext.Provider>}
       </main>

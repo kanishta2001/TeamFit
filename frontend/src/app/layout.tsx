@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Anton, Geist, Geist_Mono } from "next/font/google";
+import { Boogaloo, Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const uiFont = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -12,7 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const displayFont = Anton({ variable: "--font-display", weight: "400", subsets: ["latin"], display: "swap" });
+// Self-hosted alternatives to the reference's Etna Sans Serif and Marykate fonts.
+const displayFont = Boogaloo({ variable: "--font-boogaloo", weight: "400", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "TeamFit | Smart Student Team Formation",
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} h-full antialiased`}
+      className={`${uiFont.variable} ${geistMono.variable} ${displayFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

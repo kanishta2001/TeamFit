@@ -3,9 +3,9 @@
 import Link from "next/link";
 import Brand from "./brand";
 
-export default function SiteHeader({ signedIn, username, profileReady = true, checking = false, busy = false, onLogout, onRefresh }: {
+export default function SiteHeader({ signedIn, username, profileReady = true, checking = false, busy = false, onLogout }: {
   signedIn: boolean; username?: string; profileReady?: boolean; checking?: boolean; busy?: boolean;
-  onLogout?: () => void; onRefresh?: () => void;
+  onLogout?: () => void;
 }) {
   return <header className="site-header">
     <div className="site-header-inner">
@@ -19,7 +19,6 @@ export default function SiteHeader({ signedIn, username, profileReady = true, ch
             <span aria-hidden="true" className="account-avatar">S</span>
             <span className="account-name-text">Student</span>
           </span>}
-          {onRefresh && <button disabled={busy} onClick={onRefresh}>Refresh</button>}
           <button className="logout-button" disabled={busy} onClick={onLogout}>Log out</button>
         </> : <>
           <Link href="/login">Login</Link>

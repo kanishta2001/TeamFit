@@ -59,8 +59,7 @@ test("two students form a team entirely through the browser", async ({ browser }
   await expect(owner).toHaveURL("/");
   await owner.goto("/dashboard");
   await expect(owner).toHaveURL(/\/dashboard$/);
-  await owner.getByRole("button", { name: "Refresh", exact: true }).click();
-  await expect(owner.getByRole("button", { name: "Refresh", exact: true })).toBeEnabled();
+  await owner.reload();
   await owner.getByRole("link", { name: /^Students/ }).click();
   await expect(owner.getByLabel("Search by name")).toBeVisible();
   await owner.getByLabel("Search by name").fill("Browser Member");
@@ -85,11 +84,11 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.screenshot({ path: "test-results/matching-desktop.png", fullPage: true });
   await owner.getByRole("button", { name: "Invite student", exact: true }).click();
   await expect(owner.getByRole("button", { name: "Invitation pending" })).toBeDisabled();
-  await member.getByRole("button", { name: "Refresh", exact: true }).click();
+  await member.reload();
   await member.getByRole("link", { name: /Pending invitations/ }).click();
   await member.getByRole("button", { name: "Accept", exact: true }).click();
   await expect(member.getByText("You joined the team.", { exact: false })).toBeVisible();
-  await owner.getByRole("button", { name: "Refresh", exact: true }).click();
+  await owner.reload();
   await expect(owner.getByText("Open · 2/2 team members")).toBeVisible();
   await expect(owner.getByRole("heading", { name: "Team members" }).locator("..").getByText("Browser Member", { exact: true })).toBeVisible();
 
@@ -113,7 +112,7 @@ test("two students form a team entirely through the browser", async ({ browser }
   await expect(member.getByText("1/1 tasks done · 100%", { exact: true })).toBeVisible();
   await member.reload();
   await expect(member.getByLabel("Status for Build homepage", { exact: true })).toHaveValue("Done");
-  await owner.getByRole("button", { name: "Refresh", exact: true }).click();
+  await owner.reload();
   await expect(owner.getByText("1/1 tasks done · 100%", { exact: true })).toBeVisible();
 
   // Check the completed state and mobile width without changing the visual design.
@@ -133,7 +132,7 @@ test("two students form a team entirely through the browser", async ({ browser }
   member.once("dialog", dialog => dialog.accept());
   await member.getByRole("button", { name: "Leave team", exact: true }).click();
   await expect(member.getByRole("region", { name: "Project tasks" })).toHaveCount(0);
-  await owner.getByRole("button", { name: "Refresh", exact: true }).click();
+  await owner.reload();
   await expect(owner.getByText("Assigned to: Unassigned", { exact: true })).toBeVisible();
 
   await owner.getByRole("button", { name: "Log out", exact: true }).click();

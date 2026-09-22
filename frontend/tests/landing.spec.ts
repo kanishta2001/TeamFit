@@ -75,7 +75,7 @@ test("guest home matches the simplified public experience and fictional cards", 
   await expect(page.getByRole("link", { name: "Register", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Browse projects", exact: true })).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "Workspace navigation" })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Create your profile" })).toHaveAttribute("href", "/register");
+  await expect(page.getByRole("link", { name: "Let’s Build" })).toHaveAttribute("href", "/register");
   await expect(page.getByRole("heading", { name: "Sample projects", exact: true })).toHaveCount(0);
   await expect(page.getByText("Your next team starts here")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Campus Connect" })).toBeVisible();
@@ -107,15 +107,15 @@ test("signed-in home hides workspace navigation but keeps profile access and log
   const header = page.getByRole("banner");
   await expect(header.getByText("nimal", { exact: true })).toBeVisible();
   await expect(header).not.toContainText("private@example.test");
-  await expect(page.getByRole("link", { name: "Create your profile" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Let’s Build" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Browse projects", exact: true })).toBeVisible();
   const navigation = page.getByRole("navigation", { name: "Workspace navigation" });
   await expect(navigation).toHaveCount(0);
   await expect(page.getByRole("main").getByRole("link", { name: "How it works", exact: true })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: "test-results/member-home-desktop.png", fullPage: true });
-  await page.getByRole("main").getByRole("link", { name: "My profile", exact: true }).click();
-  await expect(page).toHaveURL(/\/profile$/);
+  await page.getByRole("main").getByRole("link", { name: "Workspace", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
   await expect(navigation).toHaveCount(0);
   await expect(page.getByRole("banner")).toContainText("nimal");
   await expect(page.getByRole("banner")).not.toContainText("private@example.test");

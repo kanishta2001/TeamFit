@@ -35,7 +35,8 @@ button:not(:disabled), a { cursor: pointer; }
   gap: clamp(48px, 7vw, 120px); padding: 44px 0 72px;
 }
 .hero-copy { min-width: 0; }
-.hero-title { font-family: var(--font-display), Impact, "Arial Narrow", sans-serif; font-weight: 400; letter-spacing: -.035em; margin: 0; }
+.hero-title { font-family: var(--font-display); font-weight: 400; letter-spacing: .01em; margin: 0; }
+.hero-intro { display: block; color: var(--brand-navy); line-height: 1.05; }
 .hero-build { display: block; color: var(--brand-navy); font-size: clamp(112px, 12.1vw, 218px); line-height: .94; margin-bottom: 8px; letter-spacing: -.045em; }
 .hero-line { display: block; font-size: clamp(40px, 4.35vw, 77px); line-height: 1.06; letter-spacing: -.025em; white-space: nowrap; }
 .hero-description { border-top: 4px solid var(--brand-navy); padding-top: 13px; margin-top: 23px; color: #3f485d; font-size: clamp(15px, 1.13vw, 20px); line-height: 1.8; font-weight: 600; }
@@ -47,7 +48,8 @@ button:not(:disabled), a { cursor: pointer; }
 .brand-button-secondary { background: #fff; color: var(--brand-navy); box-shadow: 0 8px 13px #17233d25; }
 .hero-session-placeholder { display: block; min-height: 56px; width: 200px; }
 .hero-how-link { display: inline-flex; align-items: center; gap: 9px; margin: 17px 0 0 16px; padding: 8px 10px; color: var(--brand-ink); font-size: 14px; }
-.hero-how-link:hover { color: var(--brand-navy); }
+.hero-how-link { font-family: var(--font-display); transform-origin: center; transition: transform .18s ease, color .18s ease; }
+.hero-how-link:hover, .hero-how-link:focus-visible { color: var(--brand-navy); transform: translateY(-3px) scale(1.06); }
 .project-showcase { min-width: 0; padding-inline: 8px 20px; }
 .project-stack { position: relative; isolation: isolate; }
 .stack-sheet { position: absolute; inset: 0; border-radius: 27px; border: 1px solid #dce2eb; background: #ffffffbc; z-index: -1; }
@@ -127,40 +129,44 @@ button:not(:disabled), a { cursor: pointer; }
   .example-roles ul { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .brand-button { transition: none; }
-  .brand-button:hover { transform: none; }
+  .brand-button, .hero-how-link { transition: none; }
+  .brand-button:hover, .hero-how-link:hover, .hero-how-link:focus-visible { transform: none; }
 }
 
 /* Home-only sizing: use both viewport dimensions, without hiding/cropping content.
    Workspace pages and the longer How It Works guide keep their normal scrolling. */
 .landing-home { --home-header: clamp(52px, 10svh, 92px); }
 .landing-home .site-header-inner {
-  width: min(1560px, 82%); min-height: var(--home-header); padding-block: 8px;
+  width: 92%; min-height: var(--home-header); padding-block: 8px;
 }
-.landing-home .brand-mark { width: clamp(120px, 13vw, 178px); }
+.landing-home .brand-mark { width: clamp(120px, 10vw, 186px); background-color: #365470; }
+.landing-home .account-avatar { display: none; }
+.landing-home .account-navigation > a:last-child:not(.account-name) { border-left: 1px solid #9096a1; padding-left: 22px; }
 .landing-home .landing-hero {
-  width: min(1420px, 76%); min-height: calc(100svh - var(--home-header));
-  grid-template-columns: 1fr 1fr; gap: clamp(40px, 8vw, 125px);
+  width: 78%; margin-left: 13%; margin-right: 9%; min-height: calc(100svh - var(--home-header));
+  grid-template-columns: 1.12fr 1fr; gap: clamp(40px, 7.2vw, 140px);
   padding-block: min(3svh, 24px) min(5svh, 42px);
 }
-.landing-home .hero-build { font-size: clamp(70px, min(12vw, 23svh), 206px); margin-bottom: 5px; }
-.landing-home .hero-line { font-size: clamp(29px, min(4.35vw, 8.3svh), 74px); }
+.landing-home .hero-intro { font-size: clamp(36px, min(4.1vw, 8.2svh), 78px); }
+.landing-home .hero-build { font-size: clamp(80px, min(11.4vw, 23svh), 216px); line-height: .86; margin: 6px 0 0; letter-spacing: .015em; }
+.landing-home .hero-line { font-size: clamp(25px, min(3.15vw, 6.3svh), 60px); line-height: 1.12; letter-spacing: .01em; padding-bottom: 8px; border-bottom: 2px solid var(--brand-navy); width: fit-content; }
 .landing-home .hero-description {
-  font-size: clamp(12px, min(1.13vw, 2.05svh), 18px); line-height: 1.65;
-  margin-top: clamp(8px, 2svh, 19px); padding-top: clamp(7px, 1.3svh, 12px); border-top-width: 3px;
+  font-family: var(--font-display); font-weight: 400; letter-spacing: .025em;
+  font-size: clamp(15px, min(1.4vw, 2.85svh), 27px); line-height: 1.4;
+  margin-top: clamp(10px, 1.7svh, 17px); padding-top: 0; border: 0;
 }
 .landing-home .hero-actions { margin-top: clamp(12px, 2.7svh, 23px); min-height: 0; gap: 18px; }
 .landing-home .brand-button {
-  min-width: clamp(125px, 12.5vw, 182px); padding: clamp(10px, 1.7svh, 15px) 19px;
-  font-size: clamp(12px, 1.12vw, 16px); border-radius: 12px;
+  min-width: clamp(125px, 12vw, 228px); padding: clamp(10px, 2svh, 18px) 24px;
+  font-size: clamp(12px, 1.12vw, 21px); border-radius: 14px;
 }
 .landing-home .hero-session-placeholder { min-height: 44px; }
-.landing-home .hero-how-link { margin-top: clamp(8px, 1.7svh, 16px); font-size: clamp(12px, 1.1vw, 15px); }
-.landing-home .project-showcase { padding-inline: 0 14px; max-width: 560px; width: 100%; justify-self: end; }
+.landing-home .hero-how-link { margin: clamp(8px, 2.6svh, 24px) 0 0 32px; font-size: clamp(17px, 1.4vw, 26px); color: var(--brand-navy); }
+.landing-home .project-showcase { padding-inline: 0 14px; max-width: 640px; width: 100%; justify-self: end; }
 .landing-home .stack-sheet-back { transform: rotate(5deg) translate(11px, 5px); }
 .landing-home .stack-sheet-middle { transform: rotate(2.5deg) translate(5px, -4px); }
-.landing-home .example-project { padding: clamp(18px, 3.2svh, 34px); }
-.landing-home .example-heading { padding-block: 0 clamp(10px, 2.3svh, 22px); }
+.landing-home .example-project { padding: clamp(18px, 2.25vw, 44px); min-height: min(68svh, 626px); display: flex; flex-direction: column; justify-content: center; }
+.landing-home .example-heading { padding-block: 0 clamp(10px, 3.5svh, 33px); }
 .landing-home .example-heading h2 { font-size: clamp(24px, min(2.45vw, 4.5svh), 35px); margin-top: 6px; }
 .landing-home .example-heading p {
   font-size: clamp(12px, min(1.03vw, 1.9svh), 14px); line-height: 1.6;
@@ -180,8 +186,8 @@ button:not(:disabled), a { cursor: pointer; }
   .landing-home .stack-sheet-middle { transform: rotate(1.5deg) translate(3px, -3px); }
   .landing-home .site-header-inner { min-height: 50px; padding-block: 0; }
   .landing-home { --home-header: 50px; }
-  .landing-home .landing-hero { width: 78%; gap: 7vw; padding-block: 6px 16px; }
-  .landing-home .example-project { padding: 14px 22px; border-radius: 19px; }
+  .landing-home .landing-hero { width: 81%; gap: 7vw; padding-block: 6px 16px; }
+  .landing-home .example-project { padding: 14px 22px; border-radius: 19px; min-height: 0; }
   .landing-home .project-category { font-size: 10px; }
   .landing-home .example-heading { padding-bottom: 6px; }
   .landing-home .example-heading h2 { font-size: 23px; }
@@ -203,19 +209,20 @@ button:not(:disabled), a { cursor: pointer; }
   .landing-home .site-header-inner { width: calc(100% - 40px); min-height: 54px; flex-wrap: nowrap; justify-content: space-between; gap: 16px; }
   .landing-home .account-navigation { gap: 14px; }
   .landing-home .landing-hero {
-    width: min(460px, calc(100% - 44px)); grid-template-columns: 1fr;
+    width: min(460px, calc(100% - 44px)); margin-inline: auto; grid-template-columns: 1fr;
     align-content: center; gap: clamp(14px, 2.2svh, 24px); padding-block: 8px 19px;
   }
-  .landing-home .hero-build { font-size: clamp(59px, 9.1svh, 93px); line-height: .97; margin-bottom: 2px; }
-  .landing-home .hero-line { font-size: clamp(25px, 3.8svh, 36px); line-height: 1.02; }
-  .landing-home .hero-description { font-size: 12px; line-height: 1.45; margin-top: 8px; padding-top: 7px; border-top-width: 2px; }
+  .landing-home .hero-intro { font-size: 28px; }
+  .landing-home .hero-build { font-size: clamp(59px, 9.1svh, 93px); line-height: .9; margin-block: 2px; }
+  .landing-home .hero-line { font-size: clamp(24px, 6.5vw, 32px); line-height: 1.02; padding-bottom: 5px; }
+  .landing-home .hero-description { font-size: 15px; line-height: 1.3; margin-top: 8px; padding-top: 0; }
   .landing-home .hero-actions { margin-top: 10px; gap: 12px; }
   .landing-home .brand-button { min-width: 0; flex: 0 1 auto; font-size: 12px; padding: 10px 17px; border-radius: 9px; }
-  .landing-home .hero-how-link { margin: 5px 0 0 8px; padding-block: 6px; font-size: 12px; }
+  .landing-home .hero-how-link { margin: 5px 0 0 8px; padding-block: 4px; font-size: 17px; }
   .landing-home .project-showcase { padding-inline: 0 6px; }
   .landing-home .stack-sheet-back { transform: rotate(2deg) translate(4px, 3px); }
   .landing-home .stack-sheet-middle { transform: rotate(1deg) translate(2px, -3px); }
-  .landing-home .example-project { padding: 16px 19px; border-radius: 18px; }
+  .landing-home .example-project { padding: 16px 19px; border-radius: 18px; min-height: 0; }
   .landing-home .project-category { font-size: 9px; }
   .landing-home .example-heading { padding-bottom: 9px; }
   .landing-home .example-heading h2 { font-size: 23px; margin-top: 3px; }

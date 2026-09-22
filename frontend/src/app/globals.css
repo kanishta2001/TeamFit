@@ -7,17 +7,21 @@
   --foreground: #0f172a;
   --brand-navy: #153e72;
   --brand-ink: #0b132c;
+  /* Shared typography: geometric UI text and hand-drawn display headings. */
+  --font-ui: var(--font-outfit), Arial, sans-serif;
+  --font-display: var(--font-boogaloo), cursive;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-ui);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-ui);
 }
+h1 { font-family: var(--font-display); }
