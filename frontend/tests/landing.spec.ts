@@ -296,6 +296,27 @@ test("Create project appears only in My projects", async ({ page }) => {
   await expect(page).toHaveURL("/");
 });
 
+test("project tabs keep the landing or workspace page as the back destination", async ({ page }) => {
+  await sessionApi(page, "member");
+  await page.goto("/");
+  await page.getByRole("link", { name: "Browse projects", exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  const tabs = page.getByRole("navigation", { name: "Project views" });
+  await tabs.getByRole("link", { name: "My projects" }).click();
+  await tabs.getByRole("link", { name: "Joined projects" }).click();
+  await page.getByRole("button", { name: "Go to previous page" }).click();
+  await expect(page).toHaveURL("/");
+
+  await page.getByRole("link", { name: "Workspace", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole("link", { name: /^My projects/ }).click();
+  await expect(page).toHaveURL(/\/projects\/mine$/);
+  await tabs.getByRole("link", { name: "Browse projects" }).click();
+  await tabs.getByRole("link", { name: "Joined projects" }).click();
+  await page.getByRole("button", { name: "Go to previous page" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+});
+
 for (const state of ["guest", "member"] as const) {
   test(state + " home fits the viewport vertically across desktop and laptop sizes", async ({ page }) => {
     await sessionApi(page, state);

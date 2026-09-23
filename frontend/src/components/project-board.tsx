@@ -24,7 +24,7 @@ export default function ProjectBoard({ user, projects, filter }: {
     </div>
     <nav aria-label="Project views" className="flex flex-wrap gap-2">
       {[["all", "/projects", "Browse projects"], ["owned", "/projects/mine", "My projects"], ["joined", "/projects/joined", "Joined projects"]].map(([value, href, label]) =>
-        <Link key={href} href={href} aria-current={filter === value ? "page" : undefined} className={filter === value ? buttonStyle : secondaryStyle}>{label}</Link>)}
+        <Link key={href} href={href} replace aria-current={filter === value ? "page" : undefined} className={filter === value ? buttonStyle : secondaryStyle}>{label}</Link>)}
     </nav>
     <div className="flex flex-wrap items-end gap-4">
       <label className="block min-w-60 flex-1 text-sm font-semibold">Search projects<input className={inputStyle} value={search} onChange={event => setSearch(event.target.value)} /></label>
