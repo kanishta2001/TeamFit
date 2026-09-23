@@ -1,0 +1,23 @@
+# Node.js dependencies and build output
+**/node_modules/
+**/.next/
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Local IDE settings
+.vs/
+*.user
+*.suo
+
+# Local environment values may contain secrets
+.env
+.env.*
+!.env.example
+
+# Local automated-test output (may contain session details)
+**/test-results/
+**/playwright-report/
+*.tsbuildinfo
+artifacts/

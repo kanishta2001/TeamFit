@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@import "./landing.css";
+@import "./workspace.css";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --brand-navy: #153e72;
+  --brand-ink: #0b132c;
+  /* Shared typography: geometric UI text and hand-drawn display headings. */
+  --font-ui: var(--font-outfit), Arial, sans-serif;
+  --font-display: var(--font-marykate), cursive;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-ui);
+}
+h1 { font-family: var(--font-display); }
+
+.logout-confirm-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(400px, calc(100% - 32px));
+  max-width: none;
+  margin: auto;
+  padding: 24px;
+  border: 1px solid #d7e1ec;
+  border-radius: 16px;
+  background: white;
+  color: #1d3559;
+  box-shadow: 0 22px 65px #10294440;
+  text-align: left;
+}
+.logout-confirm-dialog::backdrop { background: #10294499; }
+.logout-confirm-dialog h2 { margin: 0 0 8px; font-size: 23px; font-weight: 700; line-height: 1.25; }
+.logout-confirm-dialog p { margin: 0; color: #526278; font-size: 15px; line-height: 1.5; font-weight: 400; }
+.logout-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.logout-confirm-dialog .logout-confirm-actions button,
+.account-navigation .logout-confirm-dialog .logout-confirm-actions button {
+  min-width: 88px;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.logout-confirm-dialog .logout-confirm-actions button:first-child { border: 1px solid #c5d0de; color: #1d3559; background: white; }
+.logout-confirm-dialog .logout-confirm-actions button:last-child { color: white; background: #1d3559; }
+.logout-confirm-dialog .logout-confirm-actions button:first-child:hover { background: #f1f5f9; }
+.logout-confirm-dialog .logout-confirm-actions button:last-child:hover,
+.account-navigation .logout-confirm-dialog .logout-confirm-actions button:last-child:hover { color: white; background: #102944; }

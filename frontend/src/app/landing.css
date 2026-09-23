@@ -1,0 +1,267 @@
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), a { cursor: pointer; }
+:focus-visible { outline: 3px solid #3677bf; outline-offset: 5px; }
+.public-experience {
+  min-height: 100svh;
+  color: var(--brand-ink);
+  background: #fff url("/brand/home-background.png") center top / cover no-repeat;
+}
+.site-header { position: relative; z-index: 10; }
+.site-header-inner {
+  width: min(1600px, calc(100% - 112px)); margin-inline: auto; min-height: 112px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.brand-link { display: inline-flex; flex-shrink: 0; padding-block: 8px; }
+.brand-mark {
+  display: block; width: 186px; aspect-ratio: 1191 / 214; background-color: var(--brand-navy);
+  /* Ignore the transparent padding in the original, unmodified logo file. */
+  mask: url("/brand/teamfit-logo.png") 49.65% 49.65% / 182.37% auto no-repeat;
+}
+.account-navigation { display: flex; align-items: center; justify-content: flex-end; gap: 30px; font-size: 14px; font-weight: 650; }
+.account-navigation a, .account-navigation button { padding-block: 10px; }
+.account-navigation a:hover, .account-navigation button:hover { color: var(--brand-navy); }
+.account-navigation a[aria-current="page"] { text-decoration: underline; text-underline-offset: 7px; }
+.account-navigation button:disabled { opacity: .5; cursor: wait; }
+.account-name { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.account-name-text { max-width: 160px; overflow-wrap: anywhere; }
+.account-avatar { display: grid; place-items: center; height: 29px; width: 29px; flex-shrink: 0; border-radius: 50%; background: #153e720d; color: var(--brand-navy); font-size: 12px; }
+.account-navigation .logout-button { border-left: 1px solid #9096a1; padding-left: 22px; }
+.session-check { color: #626c7c; font-size: 12px; }
+.public-session-error { width: min(1420px, calc(100% - 48px)); margin: 12px auto; border-radius: 12px; padding: 14px 18px; border: 1px solid #f6d2cb; background: #fff8f5; font-size: 13px; display: flex; flex-wrap: wrap; gap: 16px; }
+.public-session-error button { font-weight: 700; text-decoration: underline; }
+.landing-hero {
+  width: min(1420px, calc(100% - 160px)); min-height: calc(100svh - 112px); margin-inline: auto;
+  display: grid; grid-template-columns: 1.13fr 1fr; align-items: center;
+  gap: clamp(48px, 7vw, 120px); padding: 44px 0 72px;
+}
+.hero-copy { min-width: 0; }
+.hero-title { font-family: var(--font-display); font-weight: 400; letter-spacing: .01em; margin: 0; }
+.hero-intro { display: block; color: var(--brand-navy); line-height: 1.05; }
+.hero-build { display: block; color: var(--brand-navy); font-size: clamp(112px, 12.1vw, 218px); line-height: .94; margin-bottom: 8px; letter-spacing: -.045em; }
+.hero-line { display: block; font-size: clamp(40px, 4.35vw, 77px); line-height: 1.06; letter-spacing: -.025em; white-space: nowrap; }
+.hero-description { border-top: 4px solid var(--brand-navy); padding-top: 13px; margin-top: 23px; color: #3f485d; font-size: clamp(15px, 1.13vw, 20px); line-height: 1.8; font-weight: 600; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 25px; min-height: 56px; }
+.brand-button { display: inline-flex; align-items: center; justify-content: center; min-width: 190px; padding: 16px 26px; border-radius: 14px; font-size: 16px; font-weight: 700; transition: transform .18s, box-shadow .18s; }
+.brand-button:hover { transform: translateY(-2px); }
+.brand-button-primary { background: var(--brand-navy); color: #fff; box-shadow: 0 8px 13px #16335535; }
+.brand-button-primary:hover { background: #102f58; }
+.brand-button-secondary { background: #fff; color: var(--brand-navy); box-shadow: 0 8px 13px #17233d25; }
+.hero-session-placeholder { display: block; min-height: 56px; width: 200px; }
+.hero-how-link { display: inline-flex; align-items: center; gap: 9px; margin: 17px 0 0 16px; padding: 8px 10px; color: var(--brand-ink); font-size: 14px; }
+.hero-how-link { font-family: var(--font-display); transform-origin: center; transition: transform .18s ease, color .18s ease; }
+.hero-how-link:hover, .hero-how-link:focus-visible { color: var(--brand-navy); transform: translateY(-3px) scale(1.06); }
+.project-showcase { min-width: 0; padding-inline: 8px 20px; }
+.project-stack { position: relative; isolation: isolate; }
+.stack-sheet { position: absolute; inset: 0; border-radius: 27px; border: 1px solid #dce2eb; background: #ffffffbc; z-index: -1; }
+.stack-sheet-back { transform: rotate(7deg) translate(17px, 8px); box-shadow: 18px 25px 50px #283e6020; }
+.stack-sheet-middle { transform: rotate(3.5deg) translate(8px, -5px); }
+.example-project { border: 1px solid #e2e6ed; border-radius: 25px; background: #fffffff2; padding: clamp(24px, 2.4vw, 42px); box-shadow: 0 8px 30px #2c42600a; }
+.example-heading { padding-block: 30px 25px; }
+.project-category { color: var(--brand-navy); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.example-heading h2 { margin-top: 9px; color: var(--brand-navy); font-size: clamp(25px, 2.2vw, 36px); font-weight: 750; letter-spacing: -.045em; line-height: 1.2; }
+.example-heading p { color: #636e80; font-size: 14px; line-height: 1.75; margin-top: 13px; min-height: 74px; }
+.example-project h3, .example-facts dt { color: #6d7789; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+.example-skills ul { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.example-skills li { padding: 7px 12px; border: 1px solid #e2e9f2; background: #f4f7fb; border-radius: 7px; color: var(--brand-navy); font-size: 12px; font-weight: 600; }
+.example-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 25px; padding-block: 20px; border-block: 1px solid #e8ebf1; }
+.example-facts > div + div { border-left: 1px solid #e8ebf1; padding-left: 22px; }
+.example-facts dd { font-size: 13px; font-weight: 600; color: #283a54; margin-top: 10px; }
+.people-icon { font-size: 8px; letter-spacing: -2px; color: #6c88aa; margin-right: 5px; }
+.example-roles { margin-top: 22px; }
+.example-roles ul { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-top: 12px; min-height: 48px; }
+.example-roles li { font-size: 11px; color: #455773; display: flex; align-items: baseline; gap: 6px; }
+.example-roles li span { color: #6682a2; font-size: 14px; }
+.example-disclaimer { font-size: 10px; color: #7b8594; line-height: 1.65; margin-top: 25px; padding-top: 18px; border-top: 1px dashed #e3e7ef; }
+.how-page { width: min(1000px, calc(100% - 48px)); margin: 28px auto 0; padding-bottom: 80px; }
+.back-home { display: inline-block; font-size: 13px; color: var(--brand-navy); margin-bottom: 45px; }
+.page-eyebrow { font-size: 11px; letter-spacing: .15em; color: var(--brand-navy); font-weight: 700; text-transform: uppercase; }
+.how-page h1 { font-family: var(--font-display), Impact, sans-serif; font-size: clamp(40px, 6vw, 74px); color: var(--brand-navy); line-height: 1.15; margin-top: 13px; }
+.how-intro { max-width: 630px; font-size: 17px; line-height: 1.8; color: #526076; margin-top: 20px; }
+.how-steps { display: grid; gap: 16px; margin-top: 38px; }
+.how-steps li { display: flex; align-items: flex-start; gap: 25px; border-radius: 18px; background: #ffffffd9; border: 1px solid #dce4ef; padding: 27px; }
+.how-step-number { color: #a1b4cd; font-family: var(--font-display), Impact, sans-serif; font-size: 31px; }
+.how-steps h2 { color: var(--brand-navy); font-size: 19px; font-weight: 700; }
+.how-steps p { color: #5a687b; font-size: 14px; line-height: 1.8; margin-top: 8px; }
+.how-note { color: #59687d; font-size: 12px; line-height: 1.8; margin-top: 25px; }
+@media (min-width: 1700px) {
+  .landing-hero { grid-template-columns: 1.08fr 1fr; }
+}
+@media (max-width: 1100px) {
+  .site-header-inner { width: calc(100% - 64px); min-height: 96px; }
+  .brand-mark { width: 156px; }
+  .account-navigation { gap: 20px; font-size: 12px; }
+  .landing-hero { width: calc(100% - 80px); gap: 40px; }
+  .hero-line { font-size: 4.35vw; }
+  .hero-description { font-size: 14px; }
+  .hero-actions { gap: 13px; }
+  .brand-button { min-width: 145px; font-size: 13px; padding: 15px 18px; }
+  .example-project { padding: 25px; }
+  .example-roles ul { grid-template-columns: 1fr; min-height: 90px; }
+}
+@media (max-width: 760px) {
+  .public-experience { background-size: 100% 100%; }
+  .site-header-inner { width: calc(100% - 40px); min-height: 90px; flex-wrap: wrap; gap: 4px 18px; padding-block: 22px 12px; }
+  .brand-mark { width: 128px; }
+  .account-navigation { gap: 16px; font-size: 11px; flex-wrap: wrap; }
+  .account-avatar { display: none; }
+  .account-name-text { max-width: 90px; }
+  .account-navigation .logout-button { padding-left: 14px; }
+  .landing-hero { width: calc(100% - 52px); grid-template-columns: 1fr; gap: 60px; padding-block: 45px 48px; }
+  .hero-build { font-size: clamp(104px, 28vw, 185px); }
+  .hero-line { font-size: clamp(35px, 9.4vw, 64px); }
+  .hero-description { font-size: 14px; line-height: 1.8; margin-top: 20px; }
+  .brand-button { min-width: 145px; font-size: 13px; padding: 16px 18px; }
+  .project-showcase { max-width: 480px; width: 100%; margin-inline: auto; padding-inline: 0 15px; }
+  .example-project { padding: 26px; border-radius: 22px; }
+  .stack-sheet-back { transform: rotate(2deg) translate(5px, 5px); }
+  .stack-sheet-middle { transform: rotate(1deg) translate(2px, -4px); }
+  .example-heading h2 { font-size: 30px; }
+  .example-roles ul { grid-template-columns: 1fr 1fr; min-height: 48px; }
+  .how-page { margin-top: 25px; }
+  .how-steps li { padding: 21px; gap: 17px; }
+}
+@media (max-width: 380px) {
+  .site-header-inner { justify-content: center; gap: 10px; }
+  .hero-line { font-size: 9.1vw; }
+  .hero-actions { gap: 12px; }
+  .brand-button { min-width: 0; flex: 1 1 auto; }
+  .example-project { padding: 21px; }
+  .example-roles ul { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-button, .hero-how-link { transition: none; }
+  .brand-button:hover, .hero-how-link:hover, .hero-how-link:focus-visible { transform: none; }
+}
+
+/* Home-only sizing: use both viewport dimensions, without hiding/cropping content.
+   Workspace pages and the longer How It Works guide keep their normal scrolling. */
+.landing-home { --home-header: clamp(52px, 10svh, 92px); }
+.landing-home .site-header-inner {
+  width: 92%; min-height: var(--home-header); padding-block: 8px;
+}
+.landing-home .brand-mark { width: clamp(120px, 10vw, 186px); background-color: #365470; }
+.landing-home .account-avatar { display: none; }
+.landing-home .account-navigation > a:last-child:not(.account-name) { border-left: 1px solid #9096a1; padding-left: 22px; }
+.landing-home .landing-hero {
+  width: 78%; margin-left: 13%; margin-right: 9%; min-height: calc(100svh - var(--home-header));
+  grid-template-columns: 1.12fr 1fr; gap: clamp(40px, 7.2vw, 140px);
+  padding-block: min(3svh, 24px) min(5svh, 42px);
+}
+.landing-home .hero-intro { font-size: clamp(36px, min(4.1vw, 8.2svh), 78px); }
+.landing-home .hero-build { font-size: clamp(80px, min(11.4vw, 23svh), 216px); line-height: .86; margin: 6px 0 0; letter-spacing: .015em; }
+.landing-home .hero-line { font-size: clamp(25px, min(3.15vw, 6.3svh), 60px); line-height: 1.12; letter-spacing: .01em; padding-bottom: 8px; border-bottom: 2px solid var(--brand-navy); width: fit-content; }
+.landing-home .hero-description {
+  font-family: var(--font-display); font-weight: 400; letter-spacing: .025em;
+  font-size: clamp(15px, min(1.4vw, 2.85svh), 27px); line-height: 1.4;
+  margin-top: clamp(10px, 1.7svh, 17px); padding-top: 0; border: 0;
+}
+.landing-home .hero-actions { margin-top: clamp(12px, 2.7svh, 23px); min-height: 0; gap: 18px; }
+.landing-home .brand-button {
+  min-width: clamp(125px, 12vw, 228px); padding: clamp(10px, 2svh, 18px) 24px;
+  font-size: clamp(12px, 1.12vw, 21px); border-radius: 14px;
+}
+.landing-home .hero-session-placeholder { min-height: 44px; }
+.landing-home .hero-how-link { margin: clamp(8px, 2.6svh, 24px) 0 0 32px; font-size: clamp(17px, 1.4vw, 26px); color: var(--brand-navy); }
+.landing-home .project-showcase { padding-inline: 0 14px; max-width: 640px; width: 100%; justify-self: end; }
+.landing-home .stack-sheet-back { transform: rotate(5deg) translate(11px, 5px); }
+.landing-home .stack-sheet-middle { transform: rotate(2.5deg) translate(5px, -4px); }
+.landing-home .example-project { padding: clamp(18px, 2.25vw, 44px); min-height: min(68svh, 626px); display: flex; flex-direction: column; justify-content: center; }
+.landing-home .example-heading { padding-block: 0 clamp(10px, 3.5svh, 33px); }
+.landing-home .example-heading h2 { font-size: clamp(24px, min(2.45vw, 4.5svh), 35px); margin-top: 6px; }
+.landing-home .example-heading p {
+  font-size: clamp(12px, min(1.03vw, 1.9svh), 14px); line-height: 1.6;
+  margin-top: 10px; min-height: 4.8em;
+}
+.landing-home .example-skills ul { margin-top: 9px; gap: 6px; }
+.landing-home .example-skills li { padding: 6px 10px; font-size: 11px; }
+.landing-home .example-facts { margin-top: clamp(12px, 2.4svh, 23px); padding-block: clamp(10px, 2svh, 18px); }
+.landing-home .example-facts dd { margin-top: 7px; font-size: 12px; }
+.landing-home .example-roles { margin-top: clamp(12px, 2.3svh, 21px); }
+.landing-home .example-roles ul { grid-template-columns: 1fr 1fr; gap: 7px 12px; margin-top: 9px; min-height: 42px; }
+.landing-home .example-roles li { font-size: 11px; }
+.landing-home .example-disclaimer { margin-top: clamp(11px, 2.3svh, 20px); padding-top: clamp(9px, 1.6svh, 14px); }
+
+/* Match the supplied desktop references while retaining compact-screen sizing. */
+@media (min-width: 1101px) and (min-height: 601px) {
+  .landing-home { --home-header: clamp(92px, 12.2svh, 112px); }
+  .landing-home .site-header-inner { width: auto; margin-left: 4%; margin-right: 7.5%; }
+  .landing-home .account-navigation { font-size: 16px; gap: 24px; }
+  .landing-home .account-navigation a, .landing-home .account-navigation button { padding-block: 6px; }
+  .landing-home .landing-hero { padding-bottom: min(7.6svh, 70px); }
+  .landing-home .hero-copy { transform: translateY(min(2svh, 18px)); }
+  .landing-home .hero-intro { font-size: clamp(44px, min(4.75vw, 9.8svh), 90px); }
+  .landing-home .hero-build { font-size: clamp(96px, min(10.55vw, 21.8svh), 200px); line-height: .76; margin-top: 6px; }
+  .landing-home .hero-line { font-size: clamp(32px, min(3.32vw, 6.86svh), 63px); line-height: 1; padding-bottom: 10px; }
+  .landing-home .hero-description { margin-left: 7px; }
+  .landing-home .hero-actions { margin-top: 8px; margin-left: 11px; gap: 28px; }
+  .landing-home .brand-button { padding-block: 15px; line-height: 1.5; }
+  .landing-home .hero-how-link { margin-top: 20px; margin-left: 44px; }
+  .landing-home .hero-how-link span { font-family: var(--font-ui); font-size: 1.3em; line-height: 1; }
+  .landing-home .example-project { font-family: Arial, sans-serif; }
+  .landing-home .example-heading h2 { font-size: clamp(28px, min(2.2vw, 4.6svh), 40px); }
+  .landing-home .example-heading p { font-size: 16px; min-height: 4.8em; }
+  .landing-home .project-category { font-size: 12px; }
+  .landing-home .example-project h3, .landing-home .example-facts dt { font-size: 11px; }
+  .landing-home .example-skills li { font-size: 12px; padding: 8px 12px; }
+  .landing-home .example-facts dd { font-size: 13px; }
+  .landing-home .example-roles li { font-size: 12px; }
+  .landing-home .stack-sheet-back { transform: rotate(7deg) translate(17px, 8px); }
+  .landing-home .stack-sheet-middle { transform: rotate(3.5deg) translate(8px, -5px); }
+}
+
+@media (min-width: 761px) and (max-height: 600px) {
+  .landing-home .stack-sheet-back { transform: rotate(3deg) translate(6px, 3px); }
+  .landing-home .stack-sheet-middle { transform: rotate(1.5deg) translate(3px, -3px); }
+  .landing-home .site-header-inner { min-height: 50px; padding-block: 0; }
+  .landing-home { --home-header: 50px; }
+  .landing-home .landing-hero { width: 81%; gap: 7vw; padding-block: 6px 16px; }
+  .landing-home .example-project { padding: 14px 22px; border-radius: 19px; min-height: 0; }
+  .landing-home .project-category { font-size: 10px; }
+  .landing-home .example-heading { padding-bottom: 6px; }
+  .landing-home .example-heading h2 { font-size: 23px; }
+  .landing-home .example-heading p { font-size: 11px; line-height: 1.5; margin-top: 6px; min-height: 3em; }
+  .landing-home .example-skills ul { margin-top: 6px; }
+  .landing-home .example-skills li { font-size: 10px; padding: 3px 8px; }
+  .landing-home .example-facts { margin-top: 8px; padding-block: 7px; }
+  .landing-home .example-facts dd { font-size: 11px; margin-top: 5px; }
+  .landing-home .example-roles { margin-top: 9px; }
+  .landing-home .example-roles ul { margin-top: 5px; min-height: 32px; gap: 3px 7px; }
+  .landing-home .example-roles li { font-size: 10px; line-height: 1.3; }
+  .landing-home .example-roles li span { font-size: 11px; line-height: 1; }
+  .landing-home .example-disclaimer { margin-top: 7px; padding-top: 6px; font-size: 9px; line-height: 1.4; }
+  .landing-home .hero-how-link { margin-top: 6px; }
+}
+
+@media (max-width: 760px) {
+  .landing-home { --home-header: 54px; }
+  .landing-home .site-header-inner { width: calc(100% - 40px); min-height: 54px; flex-wrap: nowrap; justify-content: space-between; gap: 16px; }
+  .landing-home .account-navigation { gap: 14px; }
+  .landing-home .landing-hero {
+    width: min(460px, calc(100% - 44px)); margin-inline: auto; grid-template-columns: 1fr;
+    align-content: center; gap: clamp(14px, 2.2svh, 24px); padding-block: 8px 19px;
+  }
+  .landing-home .hero-intro { font-size: 28px; }
+  .landing-home .hero-build { font-size: clamp(59px, 9.1svh, 93px); line-height: .9; margin-block: 2px; }
+  .landing-home .hero-line { font-size: clamp(24px, 6.5vw, 32px); line-height: 1.02; padding-bottom: 5px; }
+  .landing-home .hero-description { font-size: 15px; line-height: 1.3; margin-top: 8px; padding-top: 0; }
+  .landing-home .hero-actions { margin-top: 10px; gap: 12px; }
+  .landing-home .brand-button { min-width: 0; flex: 0 1 auto; font-size: 12px; padding: 10px 17px; border-radius: 9px; }
+  .landing-home .hero-how-link { margin: 5px 0 0 8px; padding-block: 4px; font-size: 17px; }
+  .landing-home .project-showcase { padding-inline: 0 6px; }
+  .landing-home .stack-sheet-back { transform: rotate(2deg) translate(4px, 3px); }
+  .landing-home .stack-sheet-middle { transform: rotate(1deg) translate(2px, -3px); }
+  .landing-home .example-project { padding: 16px 19px; border-radius: 18px; min-height: 0; }
+  .landing-home .project-category { font-size: 9px; }
+  .landing-home .example-heading { padding-bottom: 9px; }
+  .landing-home .example-heading h2 { font-size: 23px; margin-top: 3px; }
+  .landing-home .example-heading p { font-size: 11px; line-height: 1.5; min-height: 3em; margin-top: 6px; }
+  .landing-home .example-project h3, .landing-home .example-facts dt { font-size: 9px; }
+  .landing-home .example-skills ul { margin-top: 6px; }
+  .landing-home .example-skills li { font-size: 10px; padding: 4px 8px; }
+  .landing-home .example-facts { margin-top: 9px; padding-block: 9px; }
+  .landing-home .example-facts dd { font-size: 11px; margin-top: 4px; }
+  .landing-home .example-roles { margin-top: 9px; }
+  .landing-home .example-roles ul { margin-top: 5px; gap: 3px 10px; min-height: 32px; }
+  .landing-home .example-roles li { font-size: 10px; }
+  .landing-home .example-disclaimer { font-size: 9px; margin-top: 9px; padding-top: 8px; }
+}

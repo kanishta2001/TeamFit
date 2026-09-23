@@ -1,0 +1,30 @@
+name: TeamFit checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet build backend/backend.csproj --configuration Release
+      - run: dotnet run --project tests/MatchingChecks --configuration Release
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: npm audit --audit-level=high
+        working-directory: frontend
+# SQL Server integration and Chrome workflow tests run using scripts/test.ps1 on Windows.
