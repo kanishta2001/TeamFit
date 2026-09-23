@@ -12,6 +12,7 @@ public class StudentResponse
     public string UniversityEmail { get; set; } = string.Empty;
 
     public string? Bio { get; set; }
+    public Guid? PhotoVersion { get; set; }
 
     public string PreferredRole { get; set; } = string.Empty;
 

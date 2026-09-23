@@ -8,6 +8,7 @@ This is a working individual full-stack learning project, not an AI/ML matching 
 
 - Register, sign in, persistent sessions, and sign out with token revocation.
 - Create, update, and delete your own student profile.
+- Upload or replace a profile picture by clicking the circle on My Profile (JPG/PNG, up to 2 MB). Photos are stored in SQL Server; removing a photo restores the name's first letter. The dashboard avatar also displays the saved photo.
 - Predefined, categorized skill catalog with searchable multi-select for profile and project forms.
 - Search/filter students by name, skill, role, and availability.
 - Create, edit, and delete projects; manage Open / InProgress / Completed status.
@@ -167,6 +168,7 @@ Except for options, registration, and login, endpoints require authentication.
 | Options | GET /api/options |
 | Students | GET/POST /api/students; GET /api/students/me; GET/PUT/DELETE /api/students/{id} |
 | Profile skills | GET/POST /api/students/{id}/skills; DELETE /api/students/{id}/skills/{skillId} |
+| Profile picture | GET/PUT/DELETE /api/students/{id}/photo (PUT uses multipart field `file`; only the owner can upload or remove) |
 | Skill catalog | GET /api/skills; GET /api/skills/{id} (custom skill creation is disabled) |
 | Projects | GET/POST /api/projects; GET/PUT/DELETE /api/projects/{id} |
 | Matching | GET /api/projects/{id}/recommendations |

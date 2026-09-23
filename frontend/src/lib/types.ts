@@ -4,6 +4,7 @@ export type Options = { roles: string[]; availabilitySlots: string[] };
 export type Student = {
   id: number; userId: number | null; fullName: string; universityEmail: string;
   bio: string | null; preferredRole: string; skills: Skill[]; availability: string[];
+  photoVersion?: string | null;
 };
 export type Project = {
   id: number; ownerId: number; title: string; description: string; teamSize: number;

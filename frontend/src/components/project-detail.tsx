@@ -5,12 +5,13 @@ import { api, message } from "@/lib/api";
 import type { Member, Project, Recommendation, SentInvitation, Student, User } from "@/lib/types";
 import ProjectTasks from "./project-tasks";
 import { buttonStyle, Notice, panelStyle, secondaryStyle, Tags } from "./form-controls";
+import PageBack from "./page-back";
 
 type Detail = { members: Member[]; recommendations: Recommendation[]; invitations: SentInvitation[] };
 
-export default function ProjectDetail({ project, user, students, onBack, onEdit, onChanged, onDeleted }: {
+export default function ProjectDetail({ project, user, students, onEdit, onChanged, onDeleted }: {
   project: Project; user: User; students: Student[];
-  onBack: () => void; onEdit: () => void; onChanged: () => Promise<void>; onDeleted: () => Promise<void>;
+  onEdit: () => void; onChanged: () => Promise<void>; onDeleted: () => Promise<void>;
 }) {
   const owner = project.ownerId === user.id;
   const [detail, setDetail] = useState<Detail | null>(null);
@@ -48,7 +49,7 @@ export default function ProjectDetail({ project, user, students, onBack, onEdit,
   const covered = new Set(memberStudents.flatMap(student => student.skills.map(skill => skill.id)));
   const full = project.memberCount >= project.teamSize;
   return <section className="space-y-5">
-    <button className={secondaryStyle} onClick={onBack}>← Back to projects</button>
+    <PageBack href="/projects" className={secondaryStyle} label="Go to previous page">← Back</PageBack>
     <Notice text={error} error /><Notice text={notice} />
     <article className={panelStyle + " space-y-4"}>
       <div className="flex flex-wrap items-start justify-between gap-4">

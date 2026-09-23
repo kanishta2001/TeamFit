@@ -9,7 +9,7 @@ import { displayName } from "@/lib/display-name";
 import SiteHeader from "./site-header";
 
 type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; options: Options };
-type WorkspaceContextValue = Snapshot & { refresh: () => Promise<void> };
+type WorkspaceContextValue = Snapshot & { refresh: () => Promise<void>; logout: () => Promise<void>; busy: boolean };
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export function useWorkspace() {
@@ -89,16 +89,17 @@ export default function Workspace({ children }: { children: ReactNode }) {
     } finally { setBusy(false); }
   }
 
-  return <div className="workspace-shell">
-    <SiteHeader signedIn={Boolean(data)} profileReady={Boolean(data?.profile)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
-      busy={busy} onLogout={logout} />
+  const profileView = pathname === "/profile";
+  return <div className={`workspace-shell${profileView ? " profile-view-shell" : ""}`}>
+    {!profileView && <SiteHeader signedIn={Boolean(data)} profileReady={Boolean(data?.profile)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
+      busy={busy} onLogout={logout} />}
     <div className="workspace-container">
       <main className="space-y-6">
         <Notice text={error} error />
         {!data && error && <button className={secondaryStyle} disabled={busy} onClick={() => void refresh().catch(() => {})}>Retry connection</button>}
         {!data ? <p role="status">{error ? "Use Retry connection to try again." : "Loading your workspace…"}</p> :
           !data.profile && pathname !== "/profile/create" ? <p role="status">Opening profile setup…</p> :
-          <WorkspaceContext.Provider value={{ ...data, refresh }}>{children}</WorkspaceContext.Provider>}
+          <WorkspaceContext.Provider value={{ ...data, refresh, logout, busy }}>{children}</WorkspaceContext.Provider>}
       </main>
     </div>
   </div>;

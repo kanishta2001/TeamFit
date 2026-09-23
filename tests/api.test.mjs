@@ -1,6 +1,7 @@
 // Run through scripts/test.ps1: it supplies a disposable SQL Server database and API.
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 const base = process.env.TEAMFIT_TEST_API;
 if (!base || !process.env.TEAMFIT_ISOLATED_TEST) throw new Error("Use scripts/test.ps1; never run these fixtures against real student data.");
 const prefix = crypto.randomUUID().slice(0, 8);
@@ -54,6 +55,39 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
     assert.equal(account.profile.skills.length, 1);
     assert.deepEqual(account.profile.availability, ["Weekday Evening"]);
   }
+  const photoPath = `students/${owner.profile.id}/photo`;
+  const png = readFileSync(new URL("../frontend/public/brand/teamfit-logo.png", import.meta.url));
+  async function uploadPhoto(token, bytes = png, status = 200, headers = {}) {
+    const form = new FormData();
+    form.append("file", new Blob([bytes], { type: "image/png" }), "avatar.png");
+    const response = await fetch(`${base}/api/${photoPath}`, {
+      method: "PUT", headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers }, body: form,
+    });
+    assert.equal(response.status, status); assertions++;
+    return response;
+  }
+  assert.equal(owner.profile.photoVersion, null);
+  await request(photoPath, { token: owner.token, status: 404 });
+  await uploadPhoto(undefined, png, 401);
+  await uploadPhoto(react.token, png, 403);
+  await uploadPhoto(owner.token, Buffer.from("<svg></svg>"), 400);
+  await uploadPhoto(owner.token, Buffer.alloc(2 * 1024 * 1024 + 1), 400);
+  await uploadPhoto(undefined, png, 403, { Cookie: owner.cookie, Origin: "https://untrusted.example" });
+  const savedPhoto = await (await uploadPhoto(owner.token)).json();
+  const readPhoto = await fetch(`${base}/api/${photoPath}`, { headers: { Cookie: owner.cookie } });
+  assert.equal(readPhoto.status, 200); assertions++;
+  assert.equal(readPhoto.headers.get("content-type"), "image/png");
+  assert.deepEqual(Buffer.from(await readPhoto.arrayBuffer()), png);
+  assert.equal((await request("students/me", { token: owner.token })).data.photoVersion, savedPhoto.photoVersion);
+  await request(photoPath, { status: 401 });
+  const replacement = await (await uploadPhoto(owner.token)).json();
+  assert.notEqual(replacement.photoVersion, savedPhoto.photoVersion);
+  await request(photoPath, { token: react.token, method: "DELETE", status: 403 });
+  await request(photoPath, { token: owner.token, method: "DELETE", status: 204 });
+  await request(photoPath, { token: owner.token, status: 404 });
+  assert.equal((await request("students/me", { token: owner.token })).data.photoVersion, null);
+  // Leave a photo attached to verify cascading cleanup when the profile is deleted.
+  await uploadPhoto(owner.token);
   await request("students", { token: owner.token, method: "POST", body: profile(owner), status: 409 });
   await request("students/" + owner.profile.id, { token: react.token, method: "PUT", body: profile(owner), status: 403 });
   await request("students/" + owner.profile.id, { token: react.token, method: "DELETE", status: 403 });
@@ -167,6 +201,7 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
     await request("students/" + account.profile.id, { token: account.token, method: "DELETE", status: 204 });
     await request("students/me", { token: account.token, status: 404 });
   }
+  await request(photoPath, { token: owner.token, status: 404 });
   await request("auth/logout", { token: owner.token, method: "POST", status: 204 });
   await request("auth/me", { token: owner.token, status: 401 });
   await request("auth/me", { headers: { Cookie: owner.cookie }, status: 401 });

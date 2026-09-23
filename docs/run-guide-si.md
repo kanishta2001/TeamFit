@@ -76,6 +76,12 @@ Frontend කියන්නේ ඔබ click/type කරන screen එක. API �
 
 පැරණි learning profiles මකා දමා නැහැ. ඒවාට login account link එකක් නැති නිසා read-only ලෙස පෙනෙනවා. ඒවායේ email භාවිත කර account claim කිරීමට ඉඩ දෙන්නේ නැහැ. අලුත් account සඳහා වෙනස් email එකක් භාවිත කරන්න.
 
+## Profile picture එකක් එකතු කිරීම
+
+My Profile page එකේ නමේ මුල් අකුර ඇති circle එක click කර JPG හෝ PNG image එකක් තෝරන්න (උපරිම 2 MB). Photo එක SQL Server database එකට save වන නිසා page එක refresh කළත් එය පවතිනවා. Photo එක නැවත click කර වෙනත් image එකක් තෝරන්න පුළුවන්. **Remove photo** click කළොත් නැවත නමේ මුල් අකුර පෙන්වනවා. Dashboard circle එකෙත් save කළ photo එක පෙන්වනවා.
+
+වෙනත් පරිගණකයක setup කරන විට `scripts/setup.ps1` මඟින් `AddStudentPhotos` migration එකත් apply වෙනවා. Git තුළ photo records නොමැති නිසා පවතින photos රැගෙන යාමට database backup/restore අවශ්‍යයි.
+
 ## 6. Common errors
 
 - **Build failed / file locked:** පරණ backend terminal එකේ Ctrl+C කරලා build කරන්න. Running exe එක overwrite කරන්න බැරි වෙන්න පුළුවන්.

@@ -22,6 +22,8 @@ public class Student
     [MaxLength(500)]
     public string? Bio { get; set; }
 
+    public Guid? PhotoVersion { get; set; }
+
     [Required]
     [MaxLength(50)]
     public string PreferredRole { get; set; } = string.Empty;

@@ -13,6 +13,7 @@ public static class ResponseMapper
     {
         Id = student.Id, UserId = student.UserId, FullName = student.FullName,
         UniversityEmail = student.UniversityEmail, Bio = student.Bio,
+        PhotoVersion = student.PhotoVersion,
         PreferredRole = student.PreferredRole, CreatedAt = student.CreatedAt,
         Skills = student.StudentSkills.OrderBy(link => link.Skill.Name)
             .Select(link => new SkillResponse { Id = link.SkillId, Name = SkillCatalog.CanonicalName(link.Skill.Name),

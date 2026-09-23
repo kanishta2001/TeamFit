@@ -1,5 +1,9 @@
 const baseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5273").replace(/\/$/, "");
 
+export function studentPhotoUrl(id: number, version: string) {
+  return `${baseUrl}/api/students/${id}/photo?v=${encodeURIComponent(version)}`;
+}
+
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
@@ -10,8 +14,8 @@ export async function api<T>(path: string, method = "GET", body?: unknown): Prom
   try {
     response = await fetch(`${baseUrl}/api/${path}`, {
       method, credentials: "include", cache: "no-store",
-      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      headers: body === undefined || body instanceof FormData ? undefined : { "Content-Type": "application/json" },
+      body: body instanceof FormData ? body : body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(15000),
     });
   } catch {

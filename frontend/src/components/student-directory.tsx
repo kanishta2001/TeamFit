@@ -16,7 +16,7 @@ export default function StudentDirectory({ students, skills, options }: { studen
     (!role || student.preferredRole === role) && (!slot || student.availability.includes(slot)));
   return <section className="space-y-5">
     <PageBack />
-    <h2 className="workspace-page-title">Student directory</h2>
+    <h2 className="student-directory-title">Student directory</h2>
     <div className={panelStyle}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label="Search by name"><input value={search} onChange={event => setSearch(event.target.value)} className={inputStyle} /></Field>

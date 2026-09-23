@@ -11,6 +11,8 @@ import ProjectDetail from "./project-detail";
 import InvitationInbox from "./invitation-inbox";
 import { buttonStyle, panelStyle, secondaryStyle, Tags } from "./form-controls";
 import PageBack from "./page-back";
+import ProfilePhoto from "./profile-photo";
+import StudentAvatar from "./student-avatar";
 
 export function DashboardPage() {
   const { user, profile, students, projects, invitations } = useWorkspace();
@@ -19,8 +21,10 @@ export function DashboardPage() {
   const pending = invitations.filter(item => item.status === "Pending").length;
   return <div className="dashboard-page space-y-7">
     <div className="dashboard-intro">
-      <div className="dashboard-avatar" aria-hidden="true">{profile?.fullName?.slice(0, 1).toUpperCase()}</div>
-      <div><p className="text-sm font-semibold uppercase tracking-widest text-[#1e385f]">Workspace</p>
+      <Link href="/profile" className="dashboard-avatar" aria-label="Open my profile">
+        {profile && <StudentAvatar student={profile} />}
+      </Link>
+      <div><p className="dashboard-workspace-label">Workspace</p>
       <h1 className="mt-2 text-3xl font-bold">Welcome, {profile?.fullName}</h1>
       <p className="mt-3 text-slate-600">Find your people, build your team, and keep your project moving.</p></div></div>
     <div className="dashboard-stats grid gap-4 sm:grid-cols-3">
@@ -44,20 +48,22 @@ export function DashboardPage() {
 }
 
 export function ProfilePage({ mode = "view" }: { mode?: "view" | "create" | "edit" }) {
-  const { user, profile, skills, options, refresh } = useWorkspace();
+  const { user, profile, skills, options, refresh, logout, busy } = useWorkspace();
   const router = useRouter();
   if (mode === "create" && profile) return <div className={panelStyle}><h1 className="text-2xl font-bold">Your profile is ready</h1><Link href="/profile" className="mt-4 inline-block text-indigo-700">View my profile →</Link></div>;
   if (mode !== "view" || !profile) return <div className="profile-form-page space-y-4">
-    {mode === "edit" && <PageBack href="/profile" label="Back to my profile" />}
+    {mode === "edit" && <PageBack href="/profile" />}
     <StudentProfileForm user={user} student={profile} skills={skills} options={options}
       onSaved={async () => { await refresh(); router.push(mode === "create" ? "/dashboard" : "/profile"); }} />
   </div>;
   return <div className="profile-view-page">
-    <PageBack />
-    <h1 className="workspace-page-title">My profile</h1>
+    <div className="profile-view-heading">
+      <PageBack />
+      <h1 className="workspace-page-title">My profile</h1>
+    </div>
     <section className={panelStyle + " profile-view-card"}>
       <div className="profile-identity">
-        <div className="profile-avatar" aria-hidden="true">{profile.fullName.slice(0, 1).toUpperCase()}</div>
+        <ProfilePhoto student={profile} onChanged={refresh} />
         <h2>{profile.fullName}</h2>
         <p>{profile.preferredRole}</p>
         <p className="break-all">{profile.universityEmail}</p>
@@ -67,7 +73,12 @@ export function ProfilePage({ mode = "view" }: { mode?: "view" | "create" | "edi
         <h3 className="font-semibold">Skills</h3><Tags values={profile.skills.map(skill => skill.name)} />
         <h3 className="font-semibold">Availability</h3><Tags values={profile.availability} />
         <p className="text-sm text-slate-500">Meeting periods use Sri Lanka local time.</p>
-        <Link className={buttonStyle + " profile-edit-action"} href="/profile/edit">Edit my profile</Link>
+      </div>
+      <div className="profile-actions">
+          <Link className={buttonStyle} href="/profile/edit">Edit my profile</Link>
+          <button className={secondaryStyle} type="button" disabled={busy} onClick={() => void logout()}>
+            {busy ? "Logging out…" : "Log out"}
+          </button>
       </div>
     </section>
   </div>;
@@ -100,7 +111,7 @@ export function ProjectPage({ id, edit = false }: { id: number; edit?: boolean }
   if (edit) return <ProjectForm project={project} skills={skills} options={options} onCancel={() => router.push(`/projects/${id}`)}
     onSaved={async () => { await refresh(); router.push(`/projects/${id}`); }} />;
   return <ProjectDetail key={id} project={project} user={user} students={students}
-    onBack={() => router.push("/projects")} onEdit={() => router.push(`/projects/${id}/edit`)}
+    onEdit={() => router.push(`/projects/${id}/edit`)}
     onChanged={refresh} onDeleted={async () => { await refresh(); router.push("/projects/mine"); }} />;
 }
 

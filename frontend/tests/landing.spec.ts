@@ -96,6 +96,8 @@ test("guest home matches the simplified public experience and fictional cards", 
   await expect(page).toHaveURL(/\/how-it-works$/);
   await expect(page.getByRole("heading", { name: "How TeamFit works." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Form a balanced team" })).toBeVisible();
+  await page.getByRole("button", { name: "Go to previous page" }).click();
+  await expect(page).toHaveURL("/");
   expect(requests.every(path => path === "auth/me")).toBeTruthy();
   expect(errors).toEqual([]);
 });
@@ -171,6 +173,9 @@ test("profile creation and edits generate the header name; login opens dashboard
   await expect(page.getByRole("banner")).toContainText("nimal");
   await page.getByRole("banner").getByRole("link", { name: /My profile:/ }).click();
   await expect(page.getByText("React", { exact: true })).toBeVisible();
+  await expect(page.getByRole("banner")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Log out", exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBeTruthy();
   await page.screenshot({ path: "test-results/profile-view-desktop.png", fullPage: true });
   await page.goto("/profile/edit");
   await expect(page.getByRole("button", { name: "Remove React" })).toBeVisible();
@@ -179,7 +184,8 @@ test("profile creation and edits generate the header name; login opens dashboard
   await page.getByLabel("Full name", { exact: true }).fill("Kasun Perera");
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(page).toHaveURL(/\/profile$/);
-  await expect(page.getByRole("banner")).toContainText("kasun");
+  await expect(page.getByRole("banner")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Kasun Perera", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Log out", exact: true }).click();
   await expect(page).toHaveURL("/");
   await page.getByRole("link", { name: "Login", exact: true }).click();
@@ -190,6 +196,85 @@ test("profile creation and edits generate the header name; login opens dashboard
   await expect(page.getByRole("banner")).toContainText("kasun");
   await page.reload();
   await expect(page.getByRole("banner")).toContainText("kasun");
+});
+
+test("profile layout keeps actions visible without a header or page scrolling", async ({ page }) => {
+  const requests = await sessionApi(page, "member");
+  await page.route("**/api/students/me", route => route.fulfill({ json: {
+    id: 1, userId: 1, fullName: "Nimal Perera", universityEmail: "private@example.test",
+    bio: "No bio added yet.", preferredRole: "Full-stack Developer",
+    skills: catalog.slice(0, 2), availability: ["Weekday Afternoon", "Weekday Morning"],
+  } }));
+  for (const [width, height] of [[976, 513], [1440, 900], [390, 844]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/profile");
+    await expect(page.getByRole("heading", { name: "My profile", exact: true })).toBeVisible();
+    await expect(page.getByRole("banner")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "TeamFit home" })).toHaveCount(0);
+    await page.evaluate(() => document.fonts.ready);
+    const edit = page.getByRole("link", { name: "Edit my profile", exact: true });
+    const logout = page.getByRole("button", { name: "Log out", exact: true });
+    await expect(edit).toBeInViewport();
+    await expect(logout).toBeInViewport();
+    const editBounds = (await edit.boundingBox())!;
+    const logoutBounds = (await logout.boundingBox())!;
+    expect(Math.abs(editBounds.y - logoutBounds.y)).toBeLessThan(2);
+    const bounds = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight }));
+    expect(bounds.width).toBeLessThanOrEqual(width);
+    expect(bounds.height).toBeLessThanOrEqual(height);
+    await page.screenshot({ path: `test-results/profile-layout-${width}.png`, fullPage: true });
+  }
+  await page.getByRole("link", { name: "Edit my profile", exact: true }).click();
+  await expect(page).toHaveURL(/\/profile\/edit$/);
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Log out", exact: true }).click();
+  await expect(page).toHaveURL("/");
+  expect(requests).toContain("auth/logout");
+});
+
+test("portrait and landscape photos stay inside profile and dashboard circles", async ({ page }) => {
+  await sessionApi(page, "member");
+  await page.route("**/api/students/me", route => route.fulfill({ json: {
+    id: 1, userId: 1, fullName: "Nimal Perera", universityEmail: "private@example.test",
+    bio: "Student", preferredRole: "Frontend Developer", skills: [], availability: [], photoVersion: "test-photo",
+  } }));
+  for (const [width, height] of [[1200, 300], [300, 1200]]) {
+    const dataUrl = await page.evaluate(([w, h]) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext("2d")!;
+      ctx.fillStyle = "#153e72"; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#f0c45c"; ctx.fillRect(w / 3, h / 3, w / 3, h / 3);
+      return canvas.toDataURL("image/png");
+    }, [width, height]);
+    await page.route("**/api/students/1/photo?*", route => route.fulfill({
+      contentType: "image/png", body: Buffer.from(dataUrl.split(",")[1], "base64"),
+    }));
+    for (const viewport of [{ width: 1280, height: 720 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      for (const path of ["/profile", "/dashboard"]) {
+        await page.goto(path);
+        const photo = page.getByRole("img", { name: "Nimal Perera's profile picture", exact: true });
+        await expect(photo).toBeVisible();
+        await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(width);
+        const bounds = await photo.evaluate(img => {
+          const circle = img.parentElement!;
+          return { image: img.getBoundingClientRect().toJSON(), circle: circle.getBoundingClientRect().toJSON(),
+            overflow: getComputedStyle(circle).overflow, radius: getComputedStyle(circle).borderRadius,
+            fit: getComputedStyle(img).objectFit };
+        });
+        expect(bounds.image.width).toBeCloseTo(bounds.circle.width, 0);
+        expect(bounds.image.height).toBeCloseTo(bounds.circle.height, 0);
+        expect(bounds.image.x).toBeCloseTo(bounds.circle.x, 0);
+        expect(bounds.image.y).toBeCloseTo(bounds.circle.y, 0);
+        expect(bounds.circle.width).toBeCloseTo(bounds.circle.height, 0);
+        expect(bounds.overflow).toBe("hidden");
+        expect(bounds.radius).toBe("50%");
+        expect(bounds.fit).toBe("cover");
+      }
+    }
+    await page.unroute("**/api/students/1/photo?*");
+  }
 });
 
 test("Create project appears only in My projects", async ({ page }) => {

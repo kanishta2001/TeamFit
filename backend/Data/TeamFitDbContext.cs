@@ -6,6 +6,7 @@ namespace TeamFit.Api.Data;
 public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbContext(options)
 {
     public DbSet<Student> Students => Set<Student>();
+    public DbSet<StudentPhoto> StudentPhotos => Set<StudentPhoto>();
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<StudentSkill> StudentSkills => Set<StudentSkill>();
     public DbSet<StudentAvailability> StudentAvailability => Set<StudentAvailability>();
@@ -18,6 +19,8 @@ public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbCo
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<StudentPhoto>().HasOne(x => x.Student).WithOne()
+            .HasForeignKey<StudentPhoto>(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProjectTask>().HasOne(x => x.ProjectRequest).WithMany(x => x.Tasks)
             .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProjectTask>().HasOne(x => x.AssignedStudent).WithMany()
