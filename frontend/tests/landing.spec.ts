@@ -103,7 +103,7 @@ test("guest home matches the simplified public experience and fictional cards", 
 });
 
 test("signed-in home hides workspace navigation but keeps profile access and logout", async ({ page }) => {
-  await sessionApi(page, "member");
+  const requests = await sessionApi(page, "member");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   const header = page.getByRole("banner");
@@ -129,6 +129,17 @@ test("signed-in home hides workspace navigation but keeps profile access and log
     await expect(page.getByRole("link", { name: label, exact: true })).toHaveCount(0);
   await page.goto("/");
   await page.getByRole("button", { name: "Log out", exact: true }).click();
+  const logoutDialog = page.getByRole("dialog", { name: "Log out of TeamFit?" });
+  await expect(logoutDialog).toBeVisible();
+  await expect(logoutDialog).toBeInViewport();
+  await expect(logoutDialog.getByRole("button", { name: "Cancel" })).toBeVisible();
+  await expect(logoutDialog.getByRole("button", { name: "Log out" })).toBeVisible();
+  await logoutDialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(logoutDialog).not.toBeVisible();
+  expect(requests).not.toContain("auth/logout");
+  await expect(page.getByRole("link", { name: "Browse projects", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Log out", exact: true }).click();
+  await logoutDialog.getByRole("button", { name: "Log out" }).click();
   await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Workspace navigation" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Browse projects", exact: true })).toHaveCount(0);
@@ -187,6 +198,7 @@ test("profile creation and edits generate the header name; login opens dashboard
   await expect(page.getByRole("banner")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Kasun Perera", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Log out", exact: true }).click();
+  await page.getByRole("dialog", { name: "Log out of TeamFit?" }).getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL("/");
   await page.getByRole("link", { name: "Login", exact: true }).click();
   await page.getByLabel("Email", { exact: true }).fill("private@example.test");
@@ -226,8 +238,20 @@ test("profile layout keeps actions visible without a header or page scrolling", 
   }
   await page.getByRole("link", { name: "Edit my profile", exact: true }).click();
   await expect(page).toHaveURL(/\/profile\/edit$/);
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/profile");
   await page.getByRole("button", { name: "Log out", exact: true }).click();
+  const logoutDialog = page.getByRole("dialog", { name: "Log out of TeamFit?" });
+  await expect(logoutDialog).toBeVisible();
+  await expect(logoutDialog).toBeInViewport();
+  await expect(logoutDialog.getByRole("button", { name: "Cancel" })).toBeVisible();
+  await expect(logoutDialog.getByRole("button", { name: "Log out" })).toBeVisible();
+  await page.screenshot({ path: "test-results/profile-logout-confirmation.png" });
+  await logoutDialog.getByRole("button", { name: "Cancel" }).click();
+  expect(requests).not.toContain("auth/logout");
+  await expect(page).toHaveURL(/\/profile$/);
+  await page.getByRole("button", { name: "Log out", exact: true }).click();
+  await logoutDialog.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL("/");
   expect(requests).toContain("auth/logout");
 });

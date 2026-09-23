@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Brand from "./brand";
+import LogoutConfirm from "./logout-confirm";
 
 export default function SiteHeader({ signedIn, username, profileReady = true, checking = false, busy = false, onLogout }: {
   signedIn: boolean; username?: string; profileReady?: boolean; checking?: boolean; busy?: boolean;
-  onLogout?: () => void;
+  onLogout: () => Promise<void> | void;
 }) {
   return <header className="site-header">
     <div className="site-header-inner">
@@ -19,7 +20,7 @@ export default function SiteHeader({ signedIn, username, profileReady = true, ch
             <span aria-hidden="true" className="account-avatar">S</span>
             <span className="account-name-text">Student</span>
           </span>}
-          <button className="logout-button" disabled={busy} onClick={onLogout}>Log out</button>
+          <LogoutConfirm className="logout-button" busy={busy} onLogout={onLogout} />
         </> : <>
           <Link href="/login">Login</Link>
           <Link href="/register">Register</Link>

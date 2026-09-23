@@ -171,6 +171,7 @@ test("two students form a team entirely through the browser", async ({ browser }
   await expect(owner.getByText("Assigned to: Unassigned", { exact: true })).toBeVisible();
 
   await owner.getByRole("button", { name: "Log out", exact: true }).click();
+  await owner.getByRole("dialog", { name: "Log out of TeamFit?" }).getByRole("button", { name: "Log out" }).click();
   await owner.getByRole("link", { name: "Login", exact: true }).click();
   await expect(owner.getByRole("heading", { name: "Welcome back to TeamFit" })).toBeVisible();
   await owner.getByLabel("Email", { exact: true }).fill("browser-owner-" + suffix + "@example.test");

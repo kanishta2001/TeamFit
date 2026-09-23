@@ -13,6 +13,7 @@ import { buttonStyle, panelStyle, secondaryStyle, Tags } from "./form-controls";
 import PageBack from "./page-back";
 import ProfilePhoto from "./profile-photo";
 import StudentAvatar from "./student-avatar";
+import LogoutConfirm from "./logout-confirm";
 
 export function DashboardPage() {
   const { user, profile, students, projects, invitations } = useWorkspace();
@@ -76,9 +77,7 @@ export function ProfilePage({ mode = "view" }: { mode?: "view" | "create" | "edi
       </div>
       <div className="profile-actions">
           <Link className={buttonStyle} href="/profile/edit">Edit my profile</Link>
-          <button className={secondaryStyle} type="button" disabled={busy} onClick={() => void logout()}>
-            {busy ? "Logging out…" : "Log out"}
-          </button>
+          <LogoutConfirm className={secondaryStyle} busy={busy} onLogout={logout} />
       </div>
     </section>
   </div>;
