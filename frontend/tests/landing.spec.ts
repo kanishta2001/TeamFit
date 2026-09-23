@@ -50,7 +50,9 @@ async function sessionApi(page: Page, initial: "guest" | "member" | "new" = "gue
     if (path === "students") return send(profile ? [profile] : []);
     if (path === "options") return send({ roles: ["Frontend Developer"], availabilitySlots: ["Weekday Evening"] });
     if (path === "skills") return send(catalog);
-    if (["projects", "invitations", "tasks/mine"].includes(path)) return send([]);
+    if (["projects", "invitations", "tasks/mine", "activity", "chats"].includes(path)) return send([]);
+    if (path === "notifications") return send({ unreadCount: 0, items: [] });
+    if (path === "notifications/read") return route.fulfill({ status: 204 });
     return send({ message: "Unexpected test endpoint: " + path }, 500);
   });
   return requested;
@@ -96,7 +98,8 @@ test("guest home matches the simplified public experience and fictional cards", 
   await expect(page).toHaveURL(/\/how-it-works$/);
   await expect(page.getByRole("heading", { name: "How TeamFit works." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Form a balanced team" })).toBeVisible();
-  await page.getByRole("button", { name: "Go to previous page" }).click();
+  await expect(page.getByRole("button", { name: "Go to previous page" })).toHaveCount(0);
+  await page.goBack();
   await expect(page).toHaveURL("/");
   expect(requests.every(path => path === "auth/me")).toBeTruthy();
   expect(errors).toEqual([]);
@@ -145,6 +148,19 @@ test("signed-in home hides workspace navigation but keeps profile access and log
   await expect(page.getByRole("link", { name: "Browse projects", exact: true })).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("link", { name: "Register", exact: true })).toBeVisible();
+});
+
+test("notification popup uses a single See all link to the notifications page", async ({ page }) => {
+  await sessionApi(page, "member");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Notifications", exact: true }).click();
+  const panel = page.getByRole("region", { name: "Notifications panel" });
+  await expect(panel.getByText("Recently opened", { exact: true })).toHaveCount(0);
+  await expect(panel.getByRole("link", { name: "Invitation inbox", exact: true })).toHaveCount(0);
+  await expect(panel.getByRole("link", { name: "chats", exact: true })).toHaveCount(0);
+  await panel.getByRole("link", { name: "See all", exact: true }).click();
+  await expect(page).toHaveURL(/\/notifications$/);
+  await expect(page.getByRole("heading", { name: "Notifications", exact: true })).toBeVisible();
 });
 
 test("profile creation and edits generate the header name; login opens dashboard", async ({ page }) => {
@@ -348,24 +364,12 @@ test("My projects combines owned and joined projects with clear labels", async (
   await expect(cards).toHaveCount(2);
 });
 
-test("project tabs keep the landing or workspace page as the back destination", async ({ page }) => {
+test("workspace pages do not render undo arrow controls", async ({ page }) => {
   await sessionApi(page, "member");
-  await page.goto("/");
-  await page.getByRole("link", { name: "Browse projects", exact: true }).click();
-  await expect(page).toHaveURL(/\/projects$/);
-  const tabs = page.getByRole("navigation", { name: "Project views" });
-  await tabs.getByRole("link", { name: "My projects" }).click();
-  await page.getByRole("button", { name: "Go to previous page" }).click();
-  await expect(page).toHaveURL("/");
-
-  await page.getByRole("link", { name: "Workspace", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
-  await page.getByRole("link", { name: /^My projects/ }).click();
-  await expect(page).toHaveURL(/\/projects\/mine$/);
-  await tabs.getByRole("link", { name: "Browse projects" }).click();
-  await tabs.getByRole("link", { name: "My projects" }).click();
-  await page.getByRole("button", { name: "Go to previous page" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  for (const path of ["/how-it-works", "/dashboard", "/students", "/invitations", "/notifications", "/profile", "/profile/edit", "/projects", "/projects/mine", "/chats"]) {
+    await page.goto(path);
+    await expect(page.getByRole("button", { name: "Go to previous page" })).toHaveCount(0);
+  }
 });
 
 for (const state of ["guest", "member"] as const) {

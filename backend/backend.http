@@ -162,6 +162,39 @@ Content-Type: application/json
 DELETE {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}
 Authorization: Bearer {{token}}
 
+### List project chat threads and unread counts
+GET {{host}}/api/chats
+Authorization: Bearer {{token}}
+
+### Read the latest messages for a project team
+GET {{host}}/api/chats/{{projectId}}/messages
+Authorization: Bearer {{token}}
+
+### Send a message to the project team
+POST {{host}}/api/chats/{{projectId}}/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "body": "I finished the first draft. Please review it."
+}
+
+### Mark this project chat as read
+POST {{host}}/api/chats/{{projectId}}/read
+Authorization: Bearer {{token}}
+
+### Workspace activity feed
+GET {{host}}/api/activity
+Authorization: Bearer {{token}}
+
+### Header notification summary
+GET {{host}}/api/notifications
+Authorization: Bearer {{token}}
+
+### Mark current notifications as opened
+POST {{host}}/api/notifications/read
+Authorization: Bearer {{token}}
+
 ### Sign out and revoke this account's sessions
 POST {{host}}/api/auth/logout
 Authorization: Bearer {{token}}

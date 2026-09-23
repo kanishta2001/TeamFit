@@ -5,7 +5,6 @@ import Link from "next/link";
 import { api, message } from "@/lib/api";
 import type { Invitation } from "@/lib/types";
 import { buttonStyle, Notice, panelStyle, secondaryStyle } from "./form-controls";
-import PageBack from "./page-back";
 
 export default function InvitationInbox({ invitations, onChanged }: { invitations: Invitation[]; onChanged: () => Promise<void> }) {
   const [busy, setBusy] = useState<number | null>(null);
@@ -23,7 +22,6 @@ export default function InvitationInbox({ invitations, onChanged }: { invitation
     finally { setBusy(null); }
   }
   return <section className="space-y-5">
-    <PageBack />
     <h2 className="invitation-inbox-title">Invitation inbox</h2>
     <p className="text-slate-600">Project and task invitations appear here. Accept a task before it appears in your Workspace.</p>
     <Notice text={error} error /><Notice text={notice} />

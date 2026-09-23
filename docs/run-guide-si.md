@@ -70,12 +70,13 @@ Frontend කියන්නේ ඔබ click/type කරන screen එක. API �
 4. පළමු student ලෙස Projects → Create project.
 5. Required skills, desired roles, time periods select කර save කරන්න.
 6. Recommendation එකේ points බලලා Invite student කරන්න.
-7. දෙවන student ලෙස Refresh → Invitations → Accept.
+7. දෙවන student ලෙස header bell එක open කර Invitation inbox → Accept.
 8. පළමු studentගේ screen එක Refresh කර members බලන්න.
 9. Project page එකේ task එකක් සාදා members එක්කෙනෙක් හෝ කිහිපදෙනෙක් select කර deadline එක days වලින් දෙන්න.
-10. Assigned memberගේ Invitations තුළ task invitation එක Accept කරන්න. එවිට Workspace → My accepted tasks යට task එක පෙනේ.
+10. Assigned memberගේ Invitation inbox තුළ task invitation එක Accept කරන්න. එවිට Workspace → My active tasks යට task එක පෙනේ.
 11. Task එකේ `Mark as completed` button එක භාවිත කරන්න. නැවත විවෘත කිරීමට `Mark as not completed` භාවිත කළ හැක.
 12. Edit project තුළ project status එක InProgress / Completed කරන්න පුළුවන්.
+13. Workspace → Team chats විවෘත කර එම project team එකේ members සමඟ messages යවන්න. Unread message count එක Team chats card එකේ සහ header bell එකේ පෙනේ.
 
 පැරණි learning profiles මකා දමා නැහැ. ඒවාට login account link එකක් නැති නිසා read-only ලෙස පෙනෙනවා. ඒවායේ email භාවිත කර account claim කිරීමට ඉඩ දෙන්නේ නැහැ. අලුත් account සඳහා වෙනස් email එකක් භාවිත කරන්න.
 

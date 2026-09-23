@@ -16,6 +16,9 @@ public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbCo
     public DbSet<TeamInvitation> Invitations => Set<TeamInvitation>();
     public DbSet<ProjectTask> ProjectTasks => Set<ProjectTask>();
     public DbSet<ProjectTaskAssignment> ProjectTaskAssignments => Set<ProjectTaskAssignment>();
+    public DbSet<ProjectMessage> ProjectMessages => Set<ProjectMessage>();
+    public DbSet<ProjectChatReadState> ProjectChatReadStates => Set<ProjectChatReadState>();
+    public DbSet<NotificationReadState> NotificationReadStates => Set<NotificationReadState>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +32,18 @@ public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbCo
             .HasForeignKey(x => x.ProjectTaskId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProjectTaskAssignment>().HasOne(x => x.Student).WithMany()
             .HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ProjectMessage>().HasOne(x => x.ProjectRequest).WithMany(x => x.Messages)
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectMessage>().HasOne(x => x.SenderUser).WithMany()
+            .HasForeignKey(x => x.SenderUserId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ProjectChatReadState>().HasKey(x => new { x.ProjectRequestId, x.UserId });
+        modelBuilder.Entity<ProjectChatReadState>().HasOne(x => x.ProjectRequest).WithMany()
+            .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectChatReadState>().HasOne(x => x.User).WithMany()
+            .HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<NotificationReadState>().HasKey(x => x.UserId);
+        modelBuilder.Entity<NotificationReadState>().HasOne(x => x.User).WithOne()
+            .HasForeignKey<NotificationReadState>(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Student>().HasIndex(x => x.UniversityEmail).IsUnique();
         modelBuilder.Entity<Skill>().HasIndex(x => x.Name).IsUnique();
         modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.Email).IsUnique();

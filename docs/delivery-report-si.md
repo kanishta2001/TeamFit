@@ -29,7 +29,7 @@ UI redesign එක මේ change එකේ අරමුණ නොවේ. Existin
 
 **ඉතිරි වෙනම phases:** ඔබ ඉල්ලූ UI redesign සහ public deployment. Hosting provider, budget, domain තෝරා නොමැති නිසා public URL එකක් තව නැහැ.
 
-Email verification, forgotten-password email, administrator console, SSO සහ real-time/email notifications මේ release එකේ නැහැ. දැනට notification workflow එක invitation inbox + Refresh button එකයි. University-verified users කියලා මේ application එක හඳුන්වන්න එපා.
+Email verification, forgotten-password email, administrator console, SSO සහ email/push notifications මේ release එකේ නැහැ. In-app bell, activity feed සහ polling-based team chat තිබෙනවා; WebSocket real-time service එකක් නොවේ. University-verified users කියලා මේ application එක හඳුන්වන්න එපා.
 
 ## ප්‍රධාන fixes සහ implementation decisions
 
@@ -51,8 +51,8 @@ Email verification, forgotten-password email, administrator console, SSO සහ 
 - Frontend ESLint: pass.
 - Frontend production build: pass.
 - Matching regression checks: 9 pass.
-- Isolated SQL Server integration workflow: 134 explicit API/status/algorithm assertions pass.
-- Chrome browser suite: 17 tests pass, including separate accounts, multi-member task assignment, task invitation acceptance, deadlines, completion, logout/login, and session persistence.
+- Isolated SQL Server integration workflow: 145 explicit API/status/algorithm assertions pass.
+- Chrome browser suite: 17 tests pass, including separate accounts, team chat/unread counts, notification bell, multi-member task assignment, deadlines, completion, logout/login, and session persistence.
 - Desktop සහ 390px mobile screenshot checks: completed; tested screen එකේ horizontal overflow නැහැ.
 - npm dependency audit: 0 reported vulnerabilities after patching.
 - .NET dependency vulnerability scan: no vulnerable packages reported by configured sources.

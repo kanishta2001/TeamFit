@@ -5,7 +5,6 @@ import { api, message } from "@/lib/api";
 import type { Member, Project, Recommendation, SentInvitation, Student, User } from "@/lib/types";
 import ProjectTasks from "./project-tasks";
 import { buttonStyle, Notice, panelStyle, secondaryStyle, Tags } from "./form-controls";
-import PageBack from "./page-back";
 
 type Detail = { members: Member[]; recommendations: Recommendation[]; invitations: SentInvitation[] };
 
@@ -49,7 +48,6 @@ export default function ProjectDetail({ project, user, students, onEdit, onChang
   const covered = new Set(memberStudents.flatMap(student => student.skills.map(skill => skill.id)));
   const full = project.memberCount >= project.teamSize;
   return <section className="space-y-5">
-    <PageBack href="/projects" className={secondaryStyle} label="Go to previous page">← Back</PageBack>
     <Notice text={error} error /><Notice text={notice} />
     <article className={panelStyle + " space-y-4"}>
       <div className="flex flex-wrap items-start justify-between gap-4">

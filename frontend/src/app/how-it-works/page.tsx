@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import PublicExperience from "@/components/public-experience";
-import PageBack from "@/components/page-back";
 
 export const metadata: Metadata = { title: "How it works | TeamFit" };
 const steps = [
@@ -14,7 +13,6 @@ const steps = [
 export default function HowItWorks() {
   return <PublicExperience>
     <main className="how-page">
-      <PageBack href="/" className="back-home" label="Go to previous page">← Back</PageBack>
       <p className="page-eyebrow">From your first skill to your next team</p>
       <h1>How TeamFit works.</h1>
       <p className="how-intro">Good projects start with people who complement each other. Here is how to find yours.</p>

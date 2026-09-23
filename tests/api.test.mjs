@@ -144,6 +144,24 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
   assert.deepEqual(races.map(x => x.status).sort(), [200, 409]); assertions++;
   const winner = races.find(x => x.status === 200);
   const loser = races.find(x => x.status === 409);
+  // Project chat is restricted to the owner and accepted team members, with per-user unread counts.
+  const ownerThreads = (await request("chats", { token: owner.token })).data;
+  assert.equal(ownerThreads.some(x => x.projectId === project.id), true);
+  await request(`chats/${project.id}/messages`, { token: loser.account.token, status: 403 });
+  await request(`chats/${project.id}/messages`, { token: owner.token, method: "POST", body: { body: "Welcome to the team" }, status: 201 });
+  let winnerThreads = (await request("chats", { token: winner.account.token })).data;
+  assert.equal(winnerThreads.find(x => x.projectId === project.id).unreadCount, 1);
+  const chatMessages = (await request(`chats/${project.id}/messages`, { token: winner.account.token })).data;
+  assert.equal(chatMessages.at(-1).body, "Welcome to the team");
+  await request(`chats/${project.id}/read`, { token: winner.account.token, method: "POST", status: 204 });
+  winnerThreads = (await request("chats", { token: winner.account.token })).data;
+  assert.equal(winnerThreads.find(x => x.projectId === project.id).unreadCount, 0);
+  const notificationSummary = (await request("notifications", { token: winner.account.token })).data;
+  assert.ok(notificationSummary.unreadCount > 0);
+  assert.ok(notificationSummary.items.some(x => x.type === "Message"));
+  await request("notifications/read", { token: winner.account.token, method: "POST", status: 204 });
+  assert.equal((await request("notifications", { token: winner.account.token })).data.unreadCount, 0);
+  assert.ok((await request("activity", { token: winner.account.token })).data.some(x => x.type === "Message"));
   // Tasks support multiple assignees, acceptance, deadlines, and per-member completion.
   const tasksPath = path + "/tasks";
   const taskBody = { title: "Build student screen", description: "Use accessible form controls",

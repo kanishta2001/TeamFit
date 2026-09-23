@@ -3,12 +3,12 @@
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, ApiError, message } from "@/lib/api";
-import type { Invitation, MyTask, Options, Project, Skill, Student, User } from "@/lib/types";
+import type { ActivityFeedItem, ChatThread, Invitation, MyTask, Options, Project, Skill, Student, User } from "@/lib/types";
 import { Notice, secondaryStyle } from "./form-controls";
 import { displayName } from "@/lib/display-name";
 import SiteHeader from "./site-header";
 
-type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; myTasks: MyTask[]; options: Options };
+type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; myTasks: MyTask[]; activity: ActivityFeedItem[]; chats: ChatThread[]; options: Options };
 type WorkspaceContextValue = Snapshot & { refresh: () => Promise<void>; logout: () => Promise<void>; busy: boolean };
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
@@ -27,13 +27,14 @@ async function loadWorkspace(): Promise<Snapshot> {
   // Profile setup is the only workspace screen allowed before onboarding is complete.
   if (!profile) {
     const [skills, options] = await Promise.all([api<Skill[]>("skills"), api<Options>("options")]);
-    return { user, profile, students: [], skills, projects: [], invitations: [], myTasks: [], options };
+    return { user, profile, students: [], skills, projects: [], invitations: [], myTasks: [], activity: [], chats: [], options };
   }
-  const [students, skills, projects, invitations, myTasks, options] = await Promise.all([
+  const [students, skills, projects, invitations, myTasks, activity, chats, options] = await Promise.all([
     api<Student[]>("students"), api<Skill[]>("skills"), api<Project[]>("projects"),
-    api<Invitation[]>("invitations"), api<MyTask[]>("tasks/mine"), api<Options>("options"),
+    api<Invitation[]>("invitations"), api<MyTask[]>("tasks/mine"), api<ActivityFeedItem[]>("activity"),
+    api<ChatThread[]>("chats"), api<Options>("options"),
   ]);
-  return { user, profile, students, skills, projects, invitations, myTasks, options };
+  return { user, profile, students, skills, projects, invitations, myTasks, activity, chats, options };
 }
 
 export default function Workspace({ children }: { children: ReactNode }) {
@@ -90,7 +91,8 @@ export default function Workspace({ children }: { children: ReactNode }) {
   }
 
   const profileView = pathname === "/profile";
-  return <div className={`workspace-shell${profileView ? " profile-view-shell" : ""}`}>
+  const chatView = pathname === "/chats";
+  return <div className={`workspace-shell${profileView ? " profile-view-shell" : ""}${chatView ? " chat-view-shell" : ""}`}>
     {!profileView && <SiteHeader signedIn={Boolean(data)} profileReady={Boolean(data?.profile)} checking={!data && !error} username={displayName(data?.profile?.fullName)}
       busy={busy} onLogout={logout} />}
     <div className="workspace-container">

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Project, User } from "@/lib/types";
 import { buttonStyle, inputStyle, panelStyle, secondaryStyle, Tags } from "./form-controls";
-import PageBack from "./page-back";
 
 export default function ProjectBoard({ user, projects, filter }: {
   user: User; projects: Project[]; filter: "all" | "mine";
@@ -15,7 +14,6 @@ export default function ProjectBoard({ user, projects, filter }: {
     project.title.toLowerCase().includes(search.trim().toLowerCase()));
   const title = filter === "mine" ? "My projects" : "Browse projects";
   return <section className="space-y-5">
-    <PageBack />
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h1 className="workspace-page-title">{title}</h1><p className="mt-2 text-slate-600">
         {filter === "mine" ? "Projects you created or joined. Use the labels to tell them apart." :
