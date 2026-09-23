@@ -54,7 +54,7 @@
 .dashboard-active h2 { color: #1d3559; }
 .profile-view-shell {
   /* 1.15 means 15% larger; change this number to resize profile photos. */
-  --profile-photo-scale: 1.15;
+  --profile-photo-scale: 1.5;
   height: 100svh; min-height: 0; overflow: hidden;
 }
 .profile-view-shell .workspace-container {
