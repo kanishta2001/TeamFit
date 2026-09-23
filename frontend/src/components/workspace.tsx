@@ -3,12 +3,12 @@
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, ApiError, message } from "@/lib/api";
-import type { Invitation, Options, Project, Skill, Student, User } from "@/lib/types";
+import type { Invitation, MyTask, Options, Project, Skill, Student, User } from "@/lib/types";
 import { Notice, secondaryStyle } from "./form-controls";
 import { displayName } from "@/lib/display-name";
 import SiteHeader from "./site-header";
 
-type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; options: Options };
+type Snapshot = { user: User; profile: Student | null; students: Student[]; skills: Skill[]; projects: Project[]; invitations: Invitation[]; myTasks: MyTask[]; options: Options };
 type WorkspaceContextValue = Snapshot & { refresh: () => Promise<void>; logout: () => Promise<void>; busy: boolean };
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
@@ -27,13 +27,13 @@ async function loadWorkspace(): Promise<Snapshot> {
   // Profile setup is the only workspace screen allowed before onboarding is complete.
   if (!profile) {
     const [skills, options] = await Promise.all([api<Skill[]>("skills"), api<Options>("options")]);
-    return { user, profile, students: [], skills, projects: [], invitations: [], options };
+    return { user, profile, students: [], skills, projects: [], invitations: [], myTasks: [], options };
   }
-  const [students, skills, projects, invitations, options] = await Promise.all([
+  const [students, skills, projects, invitations, myTasks, options] = await Promise.all([
     api<Student[]>("students"), api<Skill[]>("skills"), api<Project[]>("projects"),
-    api<Invitation[]>("invitations"), api<Options>("options"),
+    api<Invitation[]>("invitations"), api<MyTask[]>("tasks/mine"), api<Options>("options"),
   ]);
-  return { user, profile, students, skills, projects, invitations, options };
+  return { user, profile, students, skills, projects, invitations, myTasks, options };
 }
 
 export default function Workspace({ children }: { children: ReactNode }) {

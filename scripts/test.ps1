@@ -33,7 +33,8 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Tool restore failed.' }
         dotnet build --configuration Release --output $testBinaryDirectory
         if ($LASTEXITCODE -ne 0) { throw 'Backend build failed.' }
-        $migrationOutput = dotnet tool run dotnet-ef database update --configuration Debug --no-build 2>&1
+        # Build the EF model in Release too, so migrations always match the API binary under test.
+        $migrationOutput = dotnet tool run dotnet-ef database update --configuration Release 2>&1
         if ($LASTEXITCODE -ne 0) { $migrationOutput; throw 'Test database migration failed.' }
         Write-Host 'Test database migrated.'
     } finally { Pop-Location }

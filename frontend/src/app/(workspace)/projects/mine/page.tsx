@@ -1,4 +1,4 @@
 import { ProjectsPage } from "@/components/workspace-pages";
 export default function Page() {
-  return <ProjectsPage filter="owned" />;
+  return <ProjectsPage filter="mine" />;
 }

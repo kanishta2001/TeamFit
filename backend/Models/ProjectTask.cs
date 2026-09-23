@@ -11,11 +11,8 @@ public class ProjectTask
     public string Title { get; set; } = string.Empty;
     [MaxLength(1000)]
     public string? Description { get; set; }
-    // A task becomes unassigned if its member leaves; the work history is retained.
-    public int? AssignedStudentId { get; set; }
-    public Student? AssignedStudent { get; set; }
-    [MaxLength(20)]
-    public string Status { get; set; } = "Todo";
+    public int DeadlineDays { get; set; } = 1;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public ICollection<ProjectTaskAssignment> Assignments { get; set; } = new List<ProjectTaskAssignment>();
 }

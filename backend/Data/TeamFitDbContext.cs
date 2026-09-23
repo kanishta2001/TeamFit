@@ -15,6 +15,7 @@ public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbCo
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<TeamInvitation> Invitations => Set<TeamInvitation>();
     public DbSet<ProjectTask> ProjectTasks => Set<ProjectTask>();
+    public DbSet<ProjectTaskAssignment> ProjectTaskAssignments => Set<ProjectTaskAssignment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,8 +24,11 @@ public class TeamFitDbContext(DbContextOptions<TeamFitDbContext> options) : DbCo
             .HasForeignKey<StudentPhoto>(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProjectTask>().HasOne(x => x.ProjectRequest).WithMany(x => x.Tasks)
             .HasForeignKey(x => x.ProjectRequestId).OnDelete(DeleteBehavior.Cascade);
-        modelBuilder.Entity<ProjectTask>().HasOne(x => x.AssignedStudent).WithMany()
-            .HasForeignKey(x => x.AssignedStudentId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ProjectTaskAssignment>().HasIndex(x => new { x.ProjectTaskId, x.StudentId }).IsUnique();
+        modelBuilder.Entity<ProjectTaskAssignment>().HasOne(x => x.ProjectTask).WithMany(x => x.Assignments)
+            .HasForeignKey(x => x.ProjectTaskId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectTaskAssignment>().HasOne(x => x.Student).WithMany()
+            .HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<Student>().HasIndex(x => x.UniversityEmail).IsUnique();
         modelBuilder.Entity<Skill>().HasIndex(x => x.Name).IsUnique();
         modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.Email).IsUnique();

@@ -10,17 +10,17 @@
 | Login | /login | දැනට තිබෙන account එකට ඇතුළු වීම |
 | Register | /register | අලුත් account එකක් සෑදීම |
 | Create my profile | /profile/create | නම, bio, role, skills, availability ඇතුළත් කිරීම |
-| Signed-in workspace | /dashboard | Students, My projects, Pending invitations counts සහ project shortcuts |
+| Signed-in workspace | /dashboard | Students, My projects, Pending invitations counts, project shortcuts සහ accepted tasks |
 | My profile | /profile | තමන්ගේ profile විස්තර බැලීම |
 | Edit my profile | /profile/edit | විස්තර වෙනස් කර save කිරීම |
 | Students | /students | Name, role, skill, availability අනුව සෙවීම |
 | Browse projects | /projects | පවතින projects සහ requirements බැලීම |
-| My projects | /projects/mine | තමන් owner වන projects පමණක් බැලීම |
-| Joined projects | /projects/joined | වෙනත් owner කෙනෙකුගේ team එකට invitation එකකින් joined වූ projects |
+| My projects | /projects/mine | තමන් owner වන සහ joined වූ projects එකම list එකක බැලීම; Owner/Joined labels පෙන්වයි |
+| Joined projects (පැරණි link) | /projects/joined | /projects/mine වෙත යවයි |
 | Create project | /projects/new | Requirements සහ team size සමඟ project එක සෑදීම |
 | Project details | /projects/123 | Team, requirements, status, tasks, progress; 123 වෙනුවට project ID |
 | Edit project | /projects/123/edit | Ownerට project විස්තර සහ status වෙනස් කිරීම |
-| Invitations | /invitations | Invitations accept/reject කිරීම |
+| Invitations | /invitations | Project සහ task invitations accept/reject කිරීම |
 
 Edit/remove member/invite/assign task සඳහා diagram එකේ තිබෙන actions project details page එකේ අදාළ controls ලෙස තිබේ. සෑම button එකකටම අනවශ්‍ය වෙනම page එකක් සාදා නැත.
 
@@ -38,8 +38,7 @@ Dashboard
  ├─ Projects
  │   ├─ Browse projects → Project details
  │   ├─ Create project → Save → Project details
- │   ├─ My projects → Project details → Manage team / tasks / edit
- │   └─ Joined projects → Project details → My assigned tasks / Leave team
+ │   └─ My projects → Owner/Joined label → Project details → Manage team / tasks හෝ Leave team
  └─ Invitations → Accept / Reject
 ```
 
@@ -47,20 +46,20 @@ Dashboard
 
 ## Tasks සහ අවසර
 
-- Owner: task create, assign, reassign, edit, delete, status change.
-- Current member: team tasks බැලීම සහ තමන්ට assign කළ task එකේ status වෙනස් කිරීම.
+- Owner: task create, members එක්කෙනෙක් හෝ කිහිපදෙනෙක් assign/reassign කිරීම, deadline days දීම, edit සහ delete කිරීම.
+- Assigned member: task invitation accept/reject කිරීම සහ accept කළ task එක Completed / Not completed ලෙස වෙනස් කිරීම.
 - Other students: project requirements සහ team summary බැලිය හැකි නමුත් task contents බැලිය නොහැක.
-- Assignment සඳහා දැනට team එකේ සිටින member කෙනෙකු පමණක් තෝරාගත හැක. Unassigned ලෙස තබන්නත් පුළුවන්.
-- Member leave/remove කළ විට ඔහුගේ tasks මැකෙන්නේ නැත. Assignee ඉවත් වී Unassigned වෙයි; title, description සහ status තබාගනී.
+- Assignment සඳහා දැනට team එකේ සිටින members පමණක් තෝරාගත හැකි අතර අවම වශයෙන් එක් member කෙනෙක් අවශ්‍යයි.
+- Member leave/remove කළ විට task එක මැකෙන්නේ නැත; එම memberගේ assignment එක පමණක් ඉවත් වේ.
 - Project delete කළොත් එහි tasks ද මැකෙයි. UI එකේ confirmation එකක් පෙන්වයි.
 
-Task statuses: **To do → In progress → Done**. අවශ්‍ය නම් නැවත කලින් status එකකට මාරු කළ හැක.
+Task status dropdown එකක් නැහැ. Assigned memberට **Mark as completed** සහ **Mark as not completed** buttons තිබේ.
 
 ```text
-Task progress = Done tasks / All tasks × 100
+Task progress = සියලු accepted assignees complete කළ tasks / All tasks × 100
 ```
 
-උදාහරණයක් ලෙස tasks 4කින් 3ක් Done නම් progress 75%. Tasks නැතිනම් 0%. සියලු tasks එකම බරින් ගණන් කරන නිසා මෙය hours හෝ project quality මැනීමක් නොවේ. Project status (Open/InProgress/Completed) owner විසින් වෙනම සකස් කරයි.
+උදාහරණයක් ලෙස tasks 4කින් 3ක accepted assignees සියලුදෙනා Completed කළා නම් progress 75%. Pending task invitation එකක් තිබෙන task එක complete නොවේ. Tasks නැතිනම් 0%. Project status (Open/InProgress/Completed) owner විසින් වෙනම සකස් කරයි.
 
 ## ඔබ පරීක්ෂා කරන ආකාරය
 
@@ -70,16 +69,16 @@ Task progress = Done tasks / All tasks × 100
 4. Ownerගේ Projects → Create project භාවිත කර requirements තෝරන්න.
 5. Details page එකේ Recommended teammates වෙතින් දෙවැනි studentට invite කරන්න.
 6. දෙවැනි studentගේ Invitations → Accept.
-7. Ownerගේ project page එකේ Refresh කර Task title සහ Assign to තෝරා Create task කරන්න.
-8. Memberගේ Projects → Joined projects → View project වෙත යන්න.
-9. තමන්ගේ task status Done කරන්න. Progress වෙනස් වන බව බලන්න.
+7. Ownerගේ project page එකේ Refresh කර Task title, members සහ Deadline (days) දී Create task කරන්න.
+8. Memberගේ Invitations තුළ Task invitation එක Accept කර Workspace → My accepted tasks තුළ පෙනෙන බව බලන්න.
+9. Memberගේ Projects → My projects → Joined label ඇති project → View project ගොස් Mark as completed කරන්න. Progress වෙනස් වන බව බලන්න.
 10. Ownerගේ My projects → View project → Edit project මඟින් project status වෙනස් කරන්න.
 
 එකම browser profile එකේ tabs login cookie share කරන නිසා users දෙදෙනා වෙනම browser sessions වලින් පරීක්ෂා කරන්න. වෙනත් user කරන වෙනස්කම් බැලීමට Refresh භාවිත කරන්න; මෙය real-time notification system එකක් නොවේ.
 
 ## Database සහ පවතින දත්ත
 
-AddProjectTasks migration එක නව ProjectTasks table එක සහ relationships එක් කරයි. Existing users, students, projects reset කිරීමක් නැත. අලුත් table එක පරණ projects සඳහා empty වන නිසා ඒවාට task progress 0% සිට ආරම්භ වේ.
+AddTaskAssignmentsAndDeadlines migration එක multi-member task assignments, task invitations සහ deadlines එකතු කරයි. Existing users, students සහ projects reset නොවේ. පරණ single assignee එක Accepted assignment එකක් ලෙසත් පරණ Done state එක completion ලෙසත් ආරක්ෂා වේ.
 
 Code update එක වෙනත් machine එකක ලබාගත් විට backend folder එකේ:
 

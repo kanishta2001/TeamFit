@@ -16,7 +16,7 @@ import StudentAvatar from "./student-avatar";
 import LogoutConfirm from "./logout-confirm";
 
 export function DashboardPage() {
-  const { user, profile, students, projects, invitations } = useWorkspace();
+  const { user, profile, students, projects, invitations, myTasks } = useWorkspace();
   const owned = projects.filter(project => project.ownerId === user.id);
   const joined = projects.filter(project => project.isMember && project.ownerId !== user.id);
   const pending = invitations.filter(item => item.status === "Pending").length;
@@ -31,7 +31,7 @@ export function DashboardPage() {
     <div className="dashboard-stats grid gap-4 sm:grid-cols-3">
       {[
         { label: "Students", count: students.filter(student => student.userId !== null).length, href: "/students" },
-        { label: "My projects", count: owned.length, href: "/projects/mine" },
+        { label: "My projects", count: owned.length + joined.length, href: "/projects/mine" },
         { label: "Pending invitations", count: pending, href: "/invitations" },
       ].map(item => <Link key={item.href} href={item.href} className={panelStyle + " dashboard-stat transition hover:border-[#6f8daf]"}>
         <p className="text-sm">{item.label}</p><p>{String(item.count).padStart(2, "0")}</p>
@@ -44,6 +44,16 @@ export function DashboardPage() {
           <div className="flex flex-wrap justify-between gap-2"><span className="font-semibold">{project.title}</span><span className="text-sm text-slate-600">{project.status}</span></div>
           <p className="mt-2 text-sm text-slate-600">{project.taskCount ? `${project.completedTaskCount}/${project.taskCount} tasks done · ${project.progressPercent}%` : "No tasks assigned yet"}</p>
         </Link>)}
+    </section>
+    <section className={panelStyle + " space-y-4"} aria-label="My accepted tasks">
+      <h2 className="text-xl font-bold">My accepted tasks</h2>
+      {myTasks.length === 0 ? <p className="text-slate-600">Accepted task invitations will appear here.</p> :
+        myTasks.map(task => <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-4" key={task.assignmentId}>
+          <div><p className="font-semibold">{task.title}</p><p className="text-sm text-slate-600">{task.projectTitle} · Due {new Date(task.deadlineAt).toLocaleDateString()}</p></div>
+          <div className="flex items-center gap-3"><span className={"rounded-full px-3 py-1 text-xs font-bold " + (task.isCompleted ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800")}>
+            {task.isCompleted ? "Completed" : "Not completed"}
+          </span><Link className={secondaryStyle} href={`/projects/${task.projectId}`}>View task</Link></div>
+        </article>)}
     </section>
   </div>;
 }
@@ -88,7 +98,7 @@ export function StudentsPage() {
   return <StudentDirectory students={students} skills={skills} options={options} />;
 }
 
-export function ProjectsPage({ filter = "all" }: { filter?: "all" | "owned" | "joined" }) {
+export function ProjectsPage({ filter = "all" }: { filter?: "all" | "mine" }) {
   const { user, projects } = useWorkspace();
   return <ProjectBoard user={user} projects={projects} filter={filter} />;
 }

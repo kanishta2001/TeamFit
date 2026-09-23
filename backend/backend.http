@@ -6,6 +6,7 @@
 @skillId = 1
 @invitationId = 1
 @taskId = 1
+@taskInvitationId = 1
 
 ### Public options
 GET {{host}}/api/options
@@ -115,7 +116,7 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/projects/{{projectId}}/tasks
 Authorization: Bearer {{token}}
 
-### Create a task (owner only; choose a current team member)
+### Create a task (owner only; choose one or more current team members)
 POST {{host}}/api/projects/{{projectId}}/tasks
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -123,20 +124,29 @@ Content-Type: application/json
 {
   "title": "Build the student directory",
   "description": "Implement search and filters.",
-  "assignedStudentId": {{studentId}},
-  "status": "Todo"
+  "assignedStudentIds": [{{studentId}}],
+  "deadlineDays": 2
 }
 
-### Change task status (assignee or owner)
-PATCH {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}/status
+### Accept a task invitation (use its ID from GET /api/invitations)
+PUT {{host}}/api/invitations/tasks/{{taskInvitationId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "status": "Done"
+  "status": "Accepted"
 }
 
-### Edit or unassign a task (owner only)
+### Mark accepted assigned work as completed
+PATCH {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}/completion
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+### Edit a task and its assignees (owner only)
 PUT {{host}}/api/projects/{{projectId}}/tasks/{{taskId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -144,8 +154,8 @@ Content-Type: application/json
 {
   "title": "Review the student directory",
   "description": "Check mobile layout and validation.",
-  "assignedStudentId": null,
-  "status": "InProgress"
+  "assignedStudentIds": [{{studentId}}],
+  "deadlineDays": 4
 }
 
 ### Delete a task (owner only; cannot be undone)

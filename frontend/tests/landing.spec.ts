@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { displayName } from "../src/lib/display-name";
-import type { Skill, Student } from "../src/lib/types";
+import type { Project, Skill, Student } from "../src/lib/types";
 
 const catalog: Skill[] = [
   { id: 1, name: "React", categories: ["Frontend"] },
@@ -50,7 +50,7 @@ async function sessionApi(page: Page, initial: "guest" | "member" | "new" = "gue
     if (path === "students") return send(profile ? [profile] : []);
     if (path === "options") return send({ roles: ["Frontend Developer"], availabilitySlots: ["Weekday Evening"] });
     if (path === "skills") return send(catalog);
-    if (["projects", "invitations"].includes(path)) return send([]);
+    if (["projects", "invitations", "tasks/mine"].includes(path)) return send([]);
     return send({ message: "Unexpected test endpoint: " + path }, 500);
   });
   return requested;
@@ -308,6 +308,7 @@ test("Create project appears only in My projects", async ({ page }) => {
   await page.screenshot({ path: "test-results/projects-all-desktop.png", fullPage: true });
   await page.getByRole("link", { name: "My projects", exact: true }).click();
   await expect(page.getByRole("link", { name: "Create project", exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Project views" }).getByRole("link")).toHaveCount(2);
   await page.screenshot({ path: "test-results/projects-mine-desktop.png", fullPage: true });
   await page.getByRole("link", { name: "Create project", exact: true }).click();
   await expect(page).toHaveURL(/\/projects\/new$/);
@@ -320,6 +321,33 @@ test("Create project appears only in My projects", async ({ page }) => {
   await expect(page).toHaveURL("/");
 });
 
+test("My projects combines owned and joined projects with clear labels", async ({ page }) => {
+  await sessionApi(page, "member");
+  const base: Project = {
+    id: 1, ownerId: 1, title: "Owned example", description: "Owner's project", teamSize: 4,
+    memberCount: 1, isMember: true, taskCount: 0, completedTaskCount: 0, progressPercent: 0,
+    status: "Open", requiredSkills: [], desiredRoles: [], availability: [],
+  };
+  await page.route("**/api/projects", route => route.fulfill({ json: [
+    base,
+    { ...base, id: 2, ownerId: 2, title: "Joined example" },
+    { ...base, id: 3, ownerId: 3, title: "Other example", isMember: false },
+  ] }));
+
+  await page.goto("/dashboard");
+  await expect(page.getByRole("link", { name: /^My projects/ })).toContainText("02");
+  await page.getByRole("link", { name: /^My projects/ }).click();
+  const cards = page.getByRole("article");
+  await expect(cards).toHaveCount(2);
+  await expect(cards.filter({ hasText: "Owned example" }).getByText("Owner", { exact: true })).toBeVisible();
+  await expect(cards.filter({ hasText: "Joined example" }).getByText("Joined", { exact: true })).toBeVisible();
+  await expect(page.getByText("Other example")).toHaveCount(0);
+
+  await page.goto("/projects/joined");
+  await expect(page).toHaveURL(/\/projects\/mine$/);
+  await expect(cards).toHaveCount(2);
+});
+
 test("project tabs keep the landing or workspace page as the back destination", async ({ page }) => {
   await sessionApi(page, "member");
   await page.goto("/");
@@ -327,7 +355,6 @@ test("project tabs keep the landing or workspace page as the back destination", 
   await expect(page).toHaveURL(/\/projects$/);
   const tabs = page.getByRole("navigation", { name: "Project views" });
   await tabs.getByRole("link", { name: "My projects" }).click();
-  await tabs.getByRole("link", { name: "Joined projects" }).click();
   await page.getByRole("button", { name: "Go to previous page" }).click();
   await expect(page).toHaveURL("/");
 
@@ -336,7 +363,7 @@ test("project tabs keep the landing or workspace page as the back destination", 
   await page.getByRole("link", { name: /^My projects/ }).click();
   await expect(page).toHaveURL(/\/projects\/mine$/);
   await tabs.getByRole("link", { name: "Browse projects" }).click();
-  await tabs.getByRole("link", { name: "Joined projects" }).click();
+  await tabs.getByRole("link", { name: "My projects" }).click();
   await page.getByRole("button", { name: "Go to previous page" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 });

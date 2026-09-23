@@ -17,7 +17,8 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
     private IQueryable<ProjectRequest> Projects() => context.Projects
         .Include(x => x.RequiredSkills).ThenInclude(x => x.Skill)
         .Include(x => x.DesiredRoles).Include(x => x.Availability)
-        .Include(x => x.Members).ThenInclude(x => x.Student).Include(x => x.Tasks).AsSplitQuery();
+        .Include(x => x.Members).ThenInclude(x => x.Student)
+        .Include(x => x.Tasks).ThenInclude(x => x.Assignments).AsSplitQuery();
 
     private TeamFit.Api.DTOs.Projects.ProjectResponse ToResponse(ProjectRequest project)
     {
@@ -133,11 +134,9 @@ public class ProjectsController(TeamFitDbContext context, MatchingService matchi
             return Conflict(new { message = "The project owner cannot leave their own team. Delete the project instead." });
         if (project.OwnerId != CurrentUser.Id(User) && member.Student.UserId != CurrentUser.Id(User))
             return Forbid();
-        // Retain work history while preventing former members from updating tasks.
-        await context.ProjectTasks.Where(x => x.ProjectRequestId == id && x.AssignedStudentId == studentId)
-            .ExecuteUpdateAsync(update => update
-                .SetProperty(x => x.AssignedStudentId, (int?)null)
-                .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
+        // Retain each task while removing the former member's assignment and pending invitation.
+        await context.ProjectTaskAssignments.Where(x => x.ProjectTask.ProjectRequestId == id && x.StudentId == studentId)
+            .ExecuteDeleteAsync();
         context.TeamMembers.Remove(member);
         await context.SaveChangesAsync();
         await transaction.CommitAsync();

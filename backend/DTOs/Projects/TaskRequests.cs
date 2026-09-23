@@ -8,14 +8,13 @@ public class TaskInput
     public string Title { get; set; } = string.Empty;
     [MaxLength(1000)]
     public string? Description { get; set; }
-    [Range(1, int.MaxValue)]
-    public int? AssignedStudentId { get; set; }
-    [Required, RegularExpression("^(Todo|InProgress|Done)$")]
-    public string Status { get; set; } = "Todo";
+    [Required, MinLength(1)]
+    public int[] AssignedStudentIds { get; set; } = [];
+    [Range(1, 365)]
+    public int DeadlineDays { get; set; } = 1;
 }
 
-public class TaskStatusInput
+public class TaskCompletionInput
 {
-    [Required, RegularExpression("^(Todo|InProgress|Done)$")]
-    public string Status { get; set; } = string.Empty;
+    public bool Completed { get; set; }
 }

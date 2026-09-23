@@ -22,10 +22,19 @@ export type Member = {
 };
 export type Invitation = {
   id: number; projectId: number; title: string; projectStatus: string;
-  status: string; createdAt: string;
+  kind: "Project" | "Task"; status: string; createdAt: string;
+  taskId: number | null; taskTitle: string | null; deadlineAt: string | null;
 };
 export type SentInvitation = { id: number; studentId: number; fullName: string; status: string };
 export type ProjectTask = {
-  id: number; title: string; description: string | null; assignedStudentId: number | null;
-  assignedStudentName: string | null; status: "Todo" | "InProgress" | "Done";
+  id: number; title: string; description: string | null; deadlineDays: number; dueAt: string;
+  isCompleted: boolean; assignments: TaskAssignment[];
+};
+export type TaskAssignment = {
+  id: number; studentId: number; fullName: string; status: "Pending" | "Accepted" | "Rejected";
+  isCompleted: boolean;
+};
+export type MyTask = {
+  assignmentId: number; taskId: number; projectId: number; projectTitle: string;
+  title: string; description: string | null; deadlineAt: string; isCompleted: boolean;
 };

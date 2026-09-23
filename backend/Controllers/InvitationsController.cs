@@ -13,14 +13,28 @@ namespace TeamFit.Api.Controllers;
 public class InvitationsController(TeamFitDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Inbox() => Ok(await context.Invitations.AsNoTracking()
-        .Where(x => x.Student.UserId == CurrentUser.Id(User))
-        .OrderByDescending(x => x.CreatedAt)
-        .Select(x => new
+    public async Task<IActionResult> Inbox()
+    {
+        var userId = CurrentUser.Id(User);
+        var projectInvitations = await context.Invitations.AsNoTracking()
+        .Where(x => x.Student.UserId == userId)
+        .Select(x => new InvitationInboxItem
         {
-            x.Id, projectId = x.ProjectRequestId, title = x.ProjectRequest.Title,
-            projectStatus = x.ProjectRequest.Status, x.Status, x.CreatedAt
-        }).ToListAsync());
+            Id = x.Id, Kind = "Project", ProjectId = x.ProjectRequestId, Title = x.ProjectRequest.Title,
+            ProjectStatus = x.ProjectRequest.Status, Status = x.Status, CreatedAt = x.CreatedAt
+        }).ToListAsync();
+        var taskInvitations = await context.ProjectTaskAssignments.AsNoTracking()
+            .Where(x => x.Student.UserId == userId)
+            .Select(x => new InvitationInboxItem
+            {
+                Id = x.Id, Kind = "Task", ProjectId = x.ProjectTask.ProjectRequestId,
+                Title = x.ProjectTask.ProjectRequest.Title, ProjectStatus = x.ProjectTask.ProjectRequest.Status,
+                Status = x.Status, CreatedAt = x.CreatedAt, TaskId = x.ProjectTaskId,
+                TaskTitle = x.ProjectTask.Title,
+                DeadlineAt = x.ProjectTask.CreatedAt.AddDays(x.ProjectTask.DeadlineDays)
+            }).ToListAsync();
+        return Ok(projectInvitations.Concat(taskInvitations).OrderByDescending(x => x.CreatedAt));
+    }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Decide(int id, InvitationDecision decision)
@@ -50,6 +64,29 @@ public class InvitationsController(TeamFitDbContext context) : ControllerBase
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
         return Ok(new { invitation.Id, invitation.Status });
+    }
+
+    [HttpPut("tasks/{id:int}")]
+    public async Task<IActionResult> DecideTask(int id, InvitationDecision decision)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        var assignment = await context.ProjectTaskAssignments
+            .Include(x => x.Student).Include(x => x.ProjectTask)
+            .SingleOrDefaultAsync(x => x.Id == id);
+        if (assignment is null) return NotFound();
+        if (assignment.Student.UserId != CurrentUser.Id(User)) return Forbid();
+        if (assignment.Status != "Pending")
+            return Conflict(new { message = "This task invitation has already been answered." });
+        if (!await context.TeamMembers.AnyAsync(x => x.ProjectRequestId == assignment.ProjectTask.ProjectRequestId &&
+            x.StudentId == assignment.StudentId))
+            return Conflict(new { message = "You are no longer a member of this project team." });
+        assignment.Status = decision.Status;
+        assignment.RespondedAt = DateTime.UtcNow;
+        assignment.IsCompleted = false;
+        assignment.CompletedAt = null;
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return Ok(new { assignment.Id, assignment.Status });
     }
 
     [HttpDelete("{id:int}")]

@@ -27,13 +27,20 @@ public static class ResponseMapper
         MemberCount = project.Members.Count, Title = project.Title, Description = project.Description,
         TeamSize = project.TeamSize, CreatedAt = project.CreatedAt,
         TaskCount = project.Tasks.Count,
-        CompletedTaskCount = project.Tasks.Count(task => task.Status == "Done"),
+        CompletedTaskCount = project.Tasks.Count(TaskCompleted),
         ProgressPercent = project.Tasks.Count == 0 ? 0 :
-            (int)Math.Round(100m * project.Tasks.Count(task => task.Status == "Done") / project.Tasks.Count),
+            (int)Math.Round(100m * project.Tasks.Count(TaskCompleted) / project.Tasks.Count),
         RequiredSkills = project.RequiredSkills.OrderBy(link => link.Skill.Name)
             .Select(link => new SkillResponse { Id = link.SkillId, Name = SkillCatalog.CanonicalName(link.Skill.Name),
                 Categories = SkillCatalog.CategoriesFor(link.Skill.Name) }).ToList(),
         DesiredRoles = project.DesiredRoles.Select(item => item.Role).Order().ToList(),
         Availability = project.Availability.Select(item => item.Slot).Order().ToList()
     };
+
+    private static bool TaskCompleted(ProjectTask task)
+    {
+        var accepted = task.Assignments.Where(x => x.Status == "Accepted").ToList();
+        return accepted.Count > 0 && task.Assignments.All(x =>
+            x.Status == "Rejected" || x.Status == "Accepted" && x.IsCompleted);
+    }
 }

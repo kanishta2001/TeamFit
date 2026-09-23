@@ -1,4 +1,5 @@
-import { ProjectsPage } from "@/components/workspace-pages";
+import { redirect } from "next/navigation";
+
 export default function Page() {
-  return <ProjectsPage filter="joined" />;
+  redirect("/projects/mine");
 }

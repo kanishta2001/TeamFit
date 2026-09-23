@@ -127,28 +127,35 @@ test("two students form a team entirely through the browser", async ({ browser }
   await expect(owner.getByText("Open · 2/2 team members")).toBeVisible();
   await expect(owner.getByRole("heading", { name: "Team members" }).locator("..").getByText("Browser Member", { exact: true })).toBeVisible();
 
-  // Tasks persist across page navigation; only the assignee or owner can change status.
+  // The owner can assign a task to members, who must accept before it appears in their workspace.
   await owner.getByLabel("Task title", { exact: true }).fill("Build homepage");
   await owner.getByLabel("Task description", { exact: true }).fill("Create the public landing page.");
-  await owner.getByRole("combobox", { name: "Assign to", exact: true }).selectOption({ label: "Browser Member" });
+  await owner.getByRole("checkbox", { name: "Browser Member", exact: true }).check();
+  await owner.getByLabel("Deadline (days)").fill("2");
   await owner.getByRole("button", { name: "Create task", exact: true }).click();
   await expect(owner.getByRole("heading", { name: "Build homepage", exact: true })).toBeVisible();
-  await member.getByRole("link", { name: "TeamFit home" }).click();
-  await expect(member).toHaveURL("/");
+  await expect(owner.getByText("Browser Member · Pending", { exact: true })).toBeVisible();
   await member.goto("/dashboard");
+  await expect(member.getByRole("region", { name: "My accepted tasks" }).getByText("Build homepage", { exact: true })).toHaveCount(0);
+  await member.getByRole("link", { name: /Pending invitations/ }).click();
+  const taskInvitation = member.getByRole("article").filter({ hasText: "Task invitation" });
+  await expect(taskInvitation.getByRole("heading", { name: "Build homepage" })).toBeVisible();
+  await taskInvitation.getByRole("button", { name: "Accept", exact: true }).click();
+  await expect(member.getByText("Task accepted.", { exact: false })).toBeVisible();
+  await member.goto("/dashboard");
+  await expect(member.getByRole("region", { name: "My accepted tasks" }).getByText("Build homepage", { exact: true })).toBeVisible();
   await member.getByRole("link", { name: /My projects/ }).click();
-  await expect(member.getByRole("link", { name: "View project", exact: true })).toHaveCount(0);
-  await member.getByRole("link", { name: "Joined projects", exact: true }).click();
+  await expect(member.getByRole("article").getByText("Joined", { exact: true })).toBeVisible();
   await member.getByRole("link", { name: "View project", exact: true }).click();
   await expect(member).toHaveURL(projectUrl);
-  await expect(member.getByRole("checkbox", { name: "My assigned tasks only" })).toBeChecked();
+  await expect(member.getByRole("checkbox", { name: "My accepted tasks only" })).toBeChecked();
   await expect(member.getByRole("button", { name: "Create task", exact: true })).toHaveCount(0);
-  await member.getByLabel("Status for Build homepage", { exact: true }).selectOption("Done");
-  await expect(member.getByText("1/1 tasks done · 100%", { exact: true })).toBeVisible();
+  await member.getByRole("button", { name: "Mark as completed", exact: true }).click();
+  await expect(member.getByText("1/1 tasks completed · 100%", { exact: true })).toBeVisible();
   await member.reload();
-  await expect(member.getByLabel("Status for Build homepage", { exact: true })).toHaveValue("Done");
+  await expect(member.getByRole("button", { name: "Mark as not completed", exact: true })).toBeVisible();
   await owner.reload();
-  await expect(owner.getByText("1/1 tasks done · 100%", { exact: true })).toBeVisible();
+  await expect(owner.getByText("1/1 tasks completed · 100%", { exact: true })).toBeVisible();
 
   // Check the completed state and mobile width without changing the visual design.
   await owner.getByRole("button", { name: "Edit project" }).click();
@@ -168,7 +175,8 @@ test("two students form a team entirely through the browser", async ({ browser }
   await member.getByRole("button", { name: "Leave team", exact: true }).click();
   await expect(member.getByRole("region", { name: "Project tasks" })).toHaveCount(0);
   await owner.reload();
-  await expect(owner.getByText("Assigned to: Unassigned", { exact: true })).toBeVisible();
+  await expect(owner.getByText("No tasks yet. The owner can create the first task.", { exact: true })).toHaveCount(0);
+  await expect(owner.getByRole("article", { name: "Build homepage" }).getByText(/Browser Member/)).toHaveCount(0);
 
   await owner.getByRole("button", { name: "Log out", exact: true }).click();
   await owner.getByRole("dialog", { name: "Log out of TeamFit?" }).getByRole("button", { name: "Log out" }).click();

@@ -144,18 +144,22 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
   assert.deepEqual(races.map(x => x.status).sort(), [200, 409]); assertions++;
   const winner = races.find(x => x.status === 200);
   const loser = races.find(x => x.status === 409);
-  // Task permissions are enforced by the API, not just by hidden UI buttons.
+  // Tasks support multiple assignees, acceptance, deadlines, and per-member completion.
   const tasksPath = path + "/tasks";
   const taskBody = { title: "Build student screen", description: "Use accessible form controls",
-    assignedStudentId: winner.account.profile.id, status: "Todo" };
+    assignedStudentIds: [winner.account.profile.id, owner.profile.id], deadlineDays: 2 };
   await request(tasksPath, { status: 401 });
   await request(tasksPath, { token: loser.account.token, status: 403 });
   await request(tasksPath, { token: winner.account.token, method: "POST", body: taskBody, status: 403 });
   await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, title: "   " }, status: 400 });
-  await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, assignedStudentId: loser.account.profile.id }, status: 400 });
-  await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, status: "Invalid" }, status: 400 });
+  await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, assignedStudentIds: [] }, status: 400 });
+  await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, assignedStudentIds: [loser.account.profile.id] }, status: 400 });
+  await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, deadlineDays: 0 }, status: 400 });
   const task = (await request(tasksPath, { token: owner.token, method: "POST", body: taskBody, status: 201 })).data;
-  const otherTask = (await request(tasksPath, { token: owner.token, method: "POST", body: { ...taskBody, title: "Review changes", assignedStudentId: null }, status: 201 })).data;
+  assert.equal(task.assignments.length, 2);
+  assert.equal(task.deadlineDays, 2);
+  const otherTask = (await request(tasksPath, { token: owner.token, method: "POST", body: {
+    ...taskBody, title: "Review changes", assignedStudentIds: [owner.profile.id], deadlineDays: 3 }, status: 201 })).data;
   assert.equal((await request(tasksPath, { token: winner.account.token })).data.length, 2);
   let progress = (await request(path, { token: winner.account.token })).data;
   assert.equal(progress.isMember, true);
@@ -164,16 +168,28 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
   assert.equal((await request(path, { token: loser.account.token })).data.isMember, false);
   await request(tasksPath + "/" + task.id, { token: winner.account.token, method: "PUT", body: taskBody, status: 403 });
   await request(tasksPath + "/" + task.id, { token: winner.account.token, method: "DELETE", status: 403 });
-  await request(tasksPath + "/" + task.id + "/status", { token: loser.account.token, method: "PATCH", body: { status: "Done" }, status: 403 });
-  await request(tasksPath + "/" + otherTask.id + "/status", { token: winner.account.token, method: "PATCH", body: { status: "Done" }, status: 403 });
-  await request(tasksPath + "/" + task.id + "/status", { token: winner.account.token, method: "PATCH", body: { status: "Invalid" }, status: 400 });
-  await request(tasksPath + "/" + task.id + "/status", { token: winner.account.token, method: "PATCH", body: { status: "InProgress" } });
-  await request(tasksPath + "/" + task.id + "/status", { token: winner.account.token, method: "PATCH", body: { status: "Done" } });
+  const winnerTaskInvite = (await request("invitations", { token: winner.account.token })).data.find(x => x.kind === "Task" && x.taskId === task.id);
+  const ownerInvites = (await request("invitations", { token: owner.token })).data.filter(x => x.kind === "Task");
+  const ownerTaskInvite = ownerInvites.find(x => x.taskId === task.id);
+  const ownerOtherInvite = ownerInvites.find(x => x.taskId === otherTask.id);
+  await request("invitations/tasks/" + winnerTaskInvite.id, { token: loser.account.token, method: "PUT", body: { status: "Accepted" }, status: 403 });
+  await request("invitations/tasks/" + winnerTaskInvite.id, { token: winner.account.token, method: "PUT", body: { status: "Invalid" }, status: 400 });
+  await request("invitations/tasks/" + winnerTaskInvite.id, { token: winner.account.token, method: "PUT", body: { status: "Accepted" } });
+  await request("invitations/tasks/" + ownerTaskInvite.id, { token: owner.token, method: "PUT", body: { status: "Accepted" } });
+  await request("invitations/tasks/" + ownerOtherInvite.id, { token: owner.token, method: "PUT", body: { status: "Accepted" } });
+  assert.equal((await request("tasks/mine", { token: winner.account.token })).data.length, 1);
+  await request(tasksPath + "/" + task.id + "/completion", { token: loser.account.token, method: "PATCH", body: { completed: true }, status: 403 });
+  await request(tasksPath + "/" + otherTask.id + "/completion", { token: winner.account.token, method: "PATCH", body: { completed: true }, status: 403 });
+  await request(tasksPath + "/" + task.id + "/completion", { token: winner.account.token, method: "PATCH", body: { completed: true } });
+  assert.equal((await request(path, { token: owner.token })).data.progressPercent, 0);
+  await request(tasksPath + "/" + task.id + "/completion", { token: owner.token, method: "PATCH", body: { completed: true } });
   progress = (await request(path, { token: owner.token })).data;
   assert.equal(progress.completedTaskCount, 1);
   assert.equal(progress.progressPercent, 50);
-  await request(tasksPath + "/" + otherTask.id, { token: owner.token, method: "PUT", body: { ...taskBody, title: "Reviewed", assignedStudentId: owner.profile.id, status: "Done" } });
+  await request(tasksPath + "/" + otherTask.id + "/completion", { token: owner.token, method: "PATCH", body: { completed: true } });
   assert.equal((await request(path, { token: owner.token })).data.progressPercent, 100);
+  await request(tasksPath + "/" + otherTask.id, { token: owner.token, method: "PUT", body: {
+    ...taskBody, title: "Reviewed", assignedStudentIds: [owner.profile.id], deadlineDays: 4 } });
   const secondProject = (await request("projects", { token: owner.token, method: "POST", body: projectBody, status: 201 })).data;
   await request("projects/" + secondProject.id + "/tasks/" + task.id, { token: owner.token, method: "PUT", body: taskBody, status: 404 });
   await request("projects/" + secondProject.id, { token: owner.token, method: "DELETE", status: 204 });
@@ -187,10 +203,10 @@ test("complete authenticated team workflow, validation, ownership, capacity and 
   await request("invitations/" + loser.invitation.id, { token: loser.account.token, method: "PUT", body: { status: "Accepted" }, status: 409 });
   await request(path + "/members/" + winner.account.profile.id, { token: winner.account.token, method: "DELETE", status: 204 });
   const preservedTask = (await request(tasksPath, { token: owner.token })).data[0];
-  assert.equal(preservedTask.assignedStudentId, null);
-  assert.equal(preservedTask.status, "Done");
+  assert.equal(preservedTask.assignments.some(x => x.studentId === winner.account.profile.id), false);
+  assert.equal(preservedTask.assignments.some(x => x.studentId === owner.profile.id), true);
   await request(tasksPath, { token: winner.account.token, status: 403 });
-  await request(tasksPath + "/" + task.id + "/status", { token: winner.account.token, method: "PATCH", body: { status: "Todo" }, status: 403 });
+  await request(tasksPath + "/" + task.id + "/completion", { token: winner.account.token, method: "PATCH", body: { completed: false }, status: 403 });
   assert.equal((await request(path, { token: winner.account.token })).data.isMember, false);
   await request(path + "/invitations", { token: owner.token, method: "POST", body: { studentId: winner.account.profile.id }, status: 409 });
   await request(path, { token: owner.token, method: "DELETE", status: 204 });

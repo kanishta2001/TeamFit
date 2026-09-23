@@ -51,8 +51,8 @@ Email verification, forgotten-password email, administrator console, SSO සහ 
 - Frontend ESLint: pass.
 - Frontend production build: pass.
 - Matching regression checks: 9 pass.
-- Isolated SQL Server integration workflow: 78 explicit API/status/algorithm assertions pass.
-- Chrome end-to-end workflow: pass; separate accounts, profile creation, student filtering, project creation, 100/100 recommendation, invitation acceptance, team membership, status, logout/login, session persistence.
+- Isolated SQL Server integration workflow: 134 explicit API/status/algorithm assertions pass.
+- Chrome browser suite: 17 tests pass, including separate accounts, multi-member task assignment, task invitation acceptance, deadlines, completion, logout/login, and session persistence.
 - Desktop සහ 390px mobile screenshot checks: completed; tested screen එකේ horizontal overflow නැහැ.
 - npm dependency audit: 0 reported vulnerabilities after patching.
 - .NET dependency vulnerability scan: no vulnerable packages reported by configured sources.

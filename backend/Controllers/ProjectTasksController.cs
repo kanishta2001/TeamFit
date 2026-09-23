@@ -17,13 +17,9 @@ public class ProjectTasksController(TeamFitDbContext context) : ControllerBase
     {
         var project = await context.Projects.FindAsync(projectId);
         if (project is null) return NotFound();
-        if (project.OwnerId != CurrentUser.Id(User) && !await context.TeamMembers.AnyAsync(
-            x => x.ProjectRequestId == projectId && x.Student.UserId == CurrentUser.Id(User)))
-            return Forbid();
-        return Ok(await Tasks(projectId).AsNoTracking().OrderBy(x => x.CreatedAt)
-            .Select(x => new { x.Id, x.Title, x.Description, x.AssignedStudentId,
-                assignedStudentName = x.AssignedStudent == null ? null : x.AssignedStudent.FullName,
-                x.Status, x.CreatedAt, x.UpdatedAt }).ToListAsync());
+        if (project.OwnerId != CurrentUser.Id(User) && !await IsMember(projectId)) return Forbid();
+        var tasks = await Tasks(projectId).AsNoTracking().OrderBy(x => x.CreatedAt).ToListAsync();
+        return Ok(tasks.Select(TaskResponse));
     }
 
     [HttpPost]
@@ -33,14 +29,17 @@ public class ProjectTasksController(TeamFitDbContext context) : ControllerBase
         var project = await LockProject(projectId);
         if (project is null) return NotFound();
         if (project.OwnerId != CurrentUser.Id(User)) return Forbid();
-        if (!await ValidAssignee(projectId, request.AssignedStudentId))
-            return BadRequest(new { message = "Assign tasks only to current team members." });
+        var studentIds = request.AssignedStudentIds.Distinct().ToArray();
+        if (studentIds.Length == 0 || !await ValidAssignees(projectId, studentIds))
+            return BadRequest(new { message = "Assign each task to one or more current team members." });
         var task = new ProjectTask { ProjectRequestId = projectId };
         Apply(task, request);
+        foreach (var studentId in studentIds)
+            task.Assignments.Add(new ProjectTaskAssignment { StudentId = studentId });
         context.ProjectTasks.Add(task);
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
-        return StatusCode(201, await TaskResponse(projectId, task.Id));
+        return StatusCode(201, await FindTaskResponse(projectId, task.Id));
     }
 
     [HttpPut("{taskId:int}")]
@@ -52,32 +51,39 @@ public class ProjectTasksController(TeamFitDbContext context) : ControllerBase
         if (project.OwnerId != CurrentUser.Id(User)) return Forbid();
         var task = await Tasks(projectId).SingleOrDefaultAsync(x => x.Id == taskId);
         if (task is null) return NotFound();
-        if (!await ValidAssignee(projectId, request.AssignedStudentId))
-            return BadRequest(new { message = "Assign tasks only to current team members." });
+        var studentIds = request.AssignedStudentIds.Distinct().ToHashSet();
+        if (studentIds.Count == 0 || !await ValidAssignees(projectId, studentIds))
+            return BadRequest(new { message = "Assign each task to one or more current team members." });
         Apply(task, request);
+        foreach (var assignment in task.Assignments.Where(x => !studentIds.Contains(x.StudentId)).ToList())
+            context.ProjectTaskAssignments.Remove(assignment);
+        foreach (var studentId in studentIds.Where(id => task.Assignments.All(x => x.StudentId != id)))
+            task.Assignments.Add(new ProjectTaskAssignment { StudentId = studentId });
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
-        return Ok(await TaskResponse(projectId, taskId));
+        return Ok(await FindTaskResponse(projectId, taskId));
     }
 
-    [HttpPatch("{taskId:int}/status")]
-    public async Task<IActionResult> UpdateStatus(int projectId, int taskId, TaskStatusInput request)
+    [HttpPatch("{taskId:int}/completion")]
+    public async Task<IActionResult> UpdateCompletion(int projectId, int taskId, TaskCompletionInput request)
     {
         await using var transaction = await context.Database.BeginTransactionAsync();
         var project = await LockProject(projectId);
         if (project is null) return NotFound();
-        var task = await Tasks(projectId).SingleOrDefaultAsync(x => x.Id == taskId);
-        if (task is null) return NotFound();
-        // A member may change only the status of their own assigned work.
-        if (project.OwnerId != CurrentUser.Id(User) &&
-            (task.AssignedStudent?.UserId != CurrentUser.Id(User) || !await context.TeamMembers.AnyAsync(
-                x => x.ProjectRequestId == projectId && x.StudentId == task.AssignedStudentId)))
-            return Forbid();
-        task.Status = request.Status;
-        task.UpdatedAt = DateTime.UtcNow;
+        var studentId = await context.Students.Where(x => x.UserId == CurrentUser.Id(User))
+            .Select(x => (int?)x.Id).SingleOrDefaultAsync();
+        if (studentId is null || !await context.TeamMembers.AnyAsync(
+            x => x.ProjectRequestId == projectId && x.StudentId == studentId)) return Forbid();
+        var assignment = await context.ProjectTaskAssignments.Include(x => x.ProjectTask)
+            .SingleOrDefaultAsync(x => x.ProjectTaskId == taskId && x.ProjectTask.ProjectRequestId == projectId &&
+                x.StudentId == studentId);
+        if (assignment is null || assignment.Status != "Accepted") return Forbid();
+        assignment.IsCompleted = request.Completed;
+        assignment.CompletedAt = request.Completed ? DateTime.UtcNow : null;
+        assignment.ProjectTask.UpdatedAt = DateTime.UtcNow;
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
-        return Ok(await TaskResponse(projectId, taskId));
+        return Ok(await FindTaskResponse(projectId, taskId));
     }
 
     [HttpDelete("{taskId:int}")]
@@ -87,7 +93,7 @@ public class ProjectTasksController(TeamFitDbContext context) : ControllerBase
         var project = await LockProject(projectId);
         if (project is null) return NotFound();
         if (project.OwnerId != CurrentUser.Id(User)) return Forbid();
-        var task = await Tasks(projectId).SingleOrDefaultAsync(x => x.Id == taskId);
+        var task = await context.ProjectTasks.SingleOrDefaultAsync(x => x.Id == taskId && x.ProjectRequestId == projectId);
         if (task is null) return NotFound();
         context.ProjectTasks.Remove(task);
         await context.SaveChangesAsync();
@@ -96,31 +102,50 @@ public class ProjectTasksController(TeamFitDbContext context) : ControllerBase
     }
 
     private IQueryable<ProjectTask> Tasks(int projectId) => context.ProjectTasks
-        .Include(x => x.AssignedStudent).Where(x => x.ProjectRequestId == projectId);
+        .Include(x => x.Assignments).ThenInclude(x => x.Student)
+        .Where(x => x.ProjectRequestId == projectId);
 
-    // Membership changes and assignments take the same lock to prevent stale assignments.
     private Task<ProjectRequest?> LockProject(int id) => context.Projects
         .FromSqlInterpolated($"SELECT * FROM Projects WITH (UPDLOCK, HOLDLOCK) WHERE Id = {id}")
         .SingleOrDefaultAsync();
 
-    private async Task<bool> ValidAssignee(int projectId, int? studentId) =>
-        studentId is null || await context.TeamMembers.AnyAsync(
-            x => x.ProjectRequestId == projectId && x.StudentId == studentId);
+    private Task<bool> IsMember(int projectId) => context.TeamMembers.AnyAsync(
+        x => x.ProjectRequestId == projectId && x.Student.UserId == CurrentUser.Id(User));
 
-    private async Task<object> TaskResponse(int projectId, int taskId)
+    private async Task<bool> ValidAssignees(int projectId, IEnumerable<int> studentIds)
     {
-        var task = await Tasks(projectId).AsNoTracking().SingleAsync(x => x.Id == taskId);
-        return new { task.Id, task.Title, task.Description, task.AssignedStudentId,
-            assignedStudentName = task.AssignedStudent?.FullName,
-            task.Status, task.CreatedAt, task.UpdatedAt };
+        var ids = studentIds.ToHashSet();
+        return await context.TeamMembers.CountAsync(x => x.ProjectRequestId == projectId && ids.Contains(x.StudentId)) == ids.Count;
+    }
+
+    private async Task<object> FindTaskResponse(int projectId, int taskId)
+    {
+        context.ChangeTracker.Clear();
+        return TaskResponse(await Tasks(projectId).AsNoTracking().SingleAsync(x => x.Id == taskId));
+    }
+
+    private static object TaskResponse(ProjectTask task)
+    {
+        var accepted = task.Assignments.Where(x => x.Status == "Accepted").ToList();
+        var completed = accepted.Count > 0 && task.Assignments.All(x =>
+            x.Status == "Rejected" || x.Status == "Accepted" && x.IsCompleted);
+        return new
+        {
+            task.Id, task.Title, task.Description, task.DeadlineDays,
+            dueAt = task.CreatedAt.AddDays(task.DeadlineDays), isCompleted = completed,
+            assignments = task.Assignments.OrderBy(x => x.Student.FullName).Select(x => new
+            {
+                x.Id, x.StudentId, fullName = x.Student.FullName, x.Status, x.IsCompleted
+            }),
+            task.CreatedAt, task.UpdatedAt
+        };
     }
 
     private static void Apply(ProjectTask task, TaskInput request)
     {
         task.Title = request.Title.Trim();
         task.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
-        task.AssignedStudentId = request.AssignedStudentId;
-        task.Status = request.Status;
+        task.DeadlineDays = request.DeadlineDays;
         task.UpdatedAt = DateTime.UtcNow;
     }
 }
