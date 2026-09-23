@@ -8,7 +8,7 @@ This is a working individual full-stack learning project, not an AI/ML matching 
 
 - Register, sign in, persistent sessions, and sign out with token revocation.
 - Create, update, and delete your own student profile.
-- Upload or replace a profile picture by clicking the circle on My Profile (JPG/PNG, up to 2 MB). Photos are stored in SQL Server; removing a photo restores the name's first letter. The dashboard avatar also displays the saved photo.
+- Upload or replace a profile picture by clicking the circle on My Profile (JPG/PNG, up to 2 MB). Drag and zoom to crop it before saving; hover over the circle to find Remove photo. Photos are stored in SQL Server; profiles without a photo show the name's first letter. The dashboard avatar also displays the saved photo.
 - Predefined, categorized skill catalog with searchable multi-select for profile and project forms.
 - Search/filter students by name, skill, role, and availability.
 - Create, edit, and delete projects; manage Open / InProgress / Completed status.

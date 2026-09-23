@@ -78,7 +78,7 @@ Frontend කියන්නේ ඔබ click/type කරන screen එක. API �
 
 ## Profile picture එකක් එකතු කිරීම
 
-My Profile page එකේ නමේ මුල් අකුර ඇති circle එක click කර JPG හෝ PNG image එකක් තෝරන්න (උපරිම 2 MB). Photo එක SQL Server database එකට save වන නිසා page එක refresh කළත් එය පවතිනවා. Photo එක නැවත click කර වෙනත් image එකක් තෝරන්න පුළුවන්. **Remove photo** click කළොත් නැවත නමේ මුල් අකුර පෙන්වනවා. Dashboard circle එකෙත් save කළ photo එක පෙන්වනවා.
+My Profile page එකේ නමේ මුල් අකුර ඇති circle එක click කර JPG හෝ PNG image එකක් තෝරන්න (උපරිම 2 MB). එවිට crop window එක විවෘත වේ. Image එක drag කර සහ Zoom slider එක සකස් කර circle එකට ගැළපෙන කොටස තෝරා `Save photo` click කරන්න. `Cancel` click කළොත් upload නොවේ. Profile circle එක මත mouse එක තැබූ විට `Change photo` සහ `Remove photo` controls පෙනේ. Photo එක SQL Server database එකට save වන නිසා page එක refresh කළත් එය පවතිනවා. Photo එකක් නැති විට නමේ මුල් අකුර පෙන්වනවා. Dashboard circle එකෙත් save කළ photo එක පෙන්වනවා.
 
 වෙනත් පරිගණකයක setup කරන විට `scripts/setup.ps1` මඟින් `AddStudentPhotos` migration එකත් apply වෙනවා. Git තුළ photo records නොමැති නිසා පවතින photos රැගෙන යාමට database backup/restore අවශ්‍යයි.
 
