@@ -11,7 +11,7 @@ const steps = [
 ];
 
 export default function HowItWorks() {
-  return <PublicExperience>
+  return <PublicExperience hideHeader>
     <main className="how-page">
       <h1>How TeamFit works.</h1>
       <p className="how-intro">Good projects start with people who complement each other. Here is how to find yours.</p>

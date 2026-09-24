@@ -11,7 +11,7 @@ type Session = { status: "loading" | "guest" | "signed-in" | "error"; profile: S
 const PublicSession = createContext<Session>({ status: "loading", profile: null, error: "" });
 export const usePublicSession = () => useContext(PublicSession);
 
-export default function PublicExperience({ children }: { children: ReactNode }) {
+export default function PublicExperience({ children, hideHeader = false }: { children: ReactNode; hideHeader?: boolean }) {
   const pathname = usePathname();
   const [session, setSession] = useState<Session>({ status: "loading", profile: null, error: "" });
   const [busy, setBusy] = useState(false);
@@ -57,8 +57,8 @@ export default function PublicExperience({ children }: { children: ReactNode }) 
   }
   return <PublicSession.Provider value={session}>
     <div className={pathname === "/" ? "public-experience landing-home" : "public-experience"}>
-      <SiteHeader signedIn={session.status === "signed-in"} profileReady={Boolean(session.profile)} username={displayName(session.profile?.fullName)}
-        checking={session.status === "loading"} busy={busy} onLogout={logout} />
+      {!hideHeader && <SiteHeader signedIn={session.status === "signed-in"} profileReady={Boolean(session.profile)} username={displayName(session.profile?.fullName)}
+        checking={session.status === "loading"} busy={busy} onLogout={logout} />}
       {session.error && <div className="public-session-error" role="alert" aria-label="Session connection error">
         <p>{session.error}</p>
         <button onClick={() => setRevision(value => value + 1)}>Retry connection</button>
