@@ -13,7 +13,6 @@ const steps = [
 export default function HowItWorks() {
   return <PublicExperience>
     <main className="how-page">
-      <p className="page-eyebrow">From your first skill to your next team</p>
       <h1>How TeamFit works.</h1>
       <p className="how-intro">Good projects start with people who complement each other. Here is how to find yours.</p>
       <ol className="how-steps">{steps.map((step, index) => <li key={step.title}>

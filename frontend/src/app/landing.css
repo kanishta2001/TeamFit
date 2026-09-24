@@ -102,7 +102,7 @@ button:not(:disabled), a { cursor: pointer; }
 .example-disclaimer { font-size: 10px; color: #7b8594; line-height: 1.65; margin-top: 25px; padding-top: 18px; border-top: 1px dashed #e3e7ef; }
 .how-page { width: min(1000px, calc(100% - 48px)); margin: 28px auto 0; padding-bottom: 80px; }
 .page-eyebrow { font-size: 11px; letter-spacing: .15em; color: var(--brand-navy); font-weight: 700; text-transform: uppercase; }
-.how-page h1 { font-family: var(--font-display), Impact, sans-serif; font-size: clamp(40px, 6vw, 74px); color: var(--brand-navy); line-height: 1.15; margin-top: 13px; }
+.how-page h1 { font-family: var(--font-display), Impact, sans-serif; font-size: clamp(32px, 4vw, 56px); color: var(--brand-navy); line-height: 1.15; margin-top: 13px; }
 .how-intro { max-width: 630px; font-size: 17px; line-height: 1.8; color: #526076; margin-top: 20px; }
 .how-steps { display: grid; gap: 16px; margin-top: 38px; }
 .how-steps li { display: flex; align-items: flex-start; gap: 25px; border-radius: 18px; background: #ffffffd9; border: 1px solid #dce4ef; padding: 27px; }
