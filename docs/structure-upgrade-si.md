@@ -10,7 +10,7 @@
 | Login | /login | දැනට තිබෙන account එකට ඇතුළු වීම |
 | Register | /register | අලුත් account එකක් සෑදීම |
 | Create my profile | /profile/create | නම, bio, role, skills, availability ඇතුළත් කිරීම |
-| Signed-in workspace | /dashboard | Students, My projects, Pending invitations counts, project shortcuts සහ accepted tasks |
+| Signed-in workspace | /dashboard | My active tasks, My projects, Team chats counts සහ activity feed |
 | My profile | /profile | තමන්ගේ profile විස්තර බැලීම |
 | Edit my profile | /profile/edit | විස්තර වෙනස් කර save කිරීම |
 | Students | /students | Name, role, skill, availability අනුව සෙවීම |
@@ -21,6 +21,8 @@
 | Project details | /projects/123 | Team, requirements, status, tasks, progress; 123 වෙනුවට project ID |
 | Edit project | /projects/123/edit | Ownerට project විස්තර සහ status වෙනස් කිරීම |
 | Invitations | /invitations | Project සහ task invitations accept/reject කිරීම |
+| My tasks | /tasks | Accepted active tasks සහ completed tasks වෙන වෙනම බැලීම |
+| Team chats | /chats | එකම project team එකේ members සමඟ messages යැවීම |
 
 Edit/remove member/invite/assign task සඳහා diagram එකේ තිබෙන actions project details page එකේ අදාළ controls ලෙස තිබේ. සෑම button එකකටම අනවශ්‍ය වෙනම page එකක් සාදා නැත.
 
@@ -34,12 +36,13 @@ Home
 
 Dashboard
  ├─ My profile → Edit my profile → Save → My profile
- ├─ Students → Search / filter
+ ├─ My active tasks → Active / completed tasks → Project task
+ ├─ Team chats → Project chat → Send / read messages
  ├─ Projects
  │   ├─ Browse projects → Project details
  │   ├─ Create project → Save → Project details
  │   └─ My projects → Owner/Joined label → Project details → Manage team / tasks හෝ Leave team
- └─ Invitations → Accept / Reject
+ └─ Header bell → Invitation inbox → Accept / Reject
 ```
 
 පැරණි /workspace link එකත් වැඩ කරයි; එය /dashboard වෙත යවයි. Refresh, direct links සහ browser navigation සඳහා එක් එක් screen එකට URL එකක් තිබේ.
@@ -70,15 +73,17 @@ Task progress = සියලු accepted assignees complete කළ tasks / All t
 5. Details page එකේ Recommended teammates වෙතින් දෙවැනි studentට invite කරන්න.
 6. දෙවැනි studentගේ Invitations → Accept.
 7. Ownerගේ project page එකේ Refresh කර Task title, members සහ Deadline (days) දී Create task කරන්න.
-8. Memberගේ Invitations තුළ Task invitation එක Accept කර Workspace → My accepted tasks තුළ පෙනෙන බව බලන්න.
+8. Memberගේ Invitation inbox තුළ Task invitation එක Accept කර Workspace → My active tasks තුළ පෙනෙන බව බලන්න.
 9. Memberගේ Projects → My projects → Joined label ඇති project → View project ගොස් Mark as completed කරන්න. Progress වෙනස් වන බව බලන්න.
 10. Ownerගේ My projects → View project → Edit project මඟින් project status වෙනස් කරන්න.
 
-එකම browser profile එකේ tabs login cookie share කරන නිසා users දෙදෙනා වෙනම browser sessions වලින් පරීක්ෂා කරන්න. වෙනත් user කරන වෙනස්කම් බැලීමට Refresh භාවිත කරන්න; මෙය real-time notification system එකක් නොවේ.
+එකම browser profile එකේ tabs login cookie share කරන නිසා users දෙදෙනා වෙනම browser sessions වලින් පරීක්ෂා කරන්න. Open chat එක තත්පර කිහිපයකට වරක් අලුත් messages පරීක්ෂා කරනවා; WebSocket connection එකක් භාවිතා නොකරයි.
 
 ## Database සහ පවතින දත්ත
 
 AddTaskAssignmentsAndDeadlines migration එක multi-member task assignments, task invitations සහ deadlines එකතු කරයි. Existing users, students සහ projects reset නොවේ. පරණ single assignee එක Accepted assignment එකක් ලෙසත් පරණ Done state එක completion ලෙසත් ආරක්ෂා වේ.
+
+AddTeamChatsAndNotifications migration එක project messages, per-user chat read times සහ notification read time එකතු කරයි. Existing records මකා නොදමයි.
 
 Code update එක වෙනත් machine එකක ලබාගත් විට backend folder එකේ:
 

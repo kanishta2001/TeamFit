@@ -38,3 +38,16 @@ export type MyTask = {
   assignmentId: number; taskId: number; projectId: number; projectTitle: string;
   title: string; description: string | null; deadlineAt: string; isCompleted: boolean;
 };
+export type ActivityFeedItem = {
+  id: string; type: "ProjectCreated" | "TaskCreated" | "TaskAccepted" | "TaskCompleted" | "Invitation" | "MemberJoined" | "Message";
+  title: string; detail: string; createdAt: string; href: string;
+};
+export type NotificationSummary = { unreadCount: number; items: ActivityFeedItem[] };
+export type ChatThread = {
+  projectId: number; projectTitle: string; unreadCount: number;
+  lastMessage: string | null; lastMessageAt: string | null;
+};
+export type ChatMessage = {
+  id: number; projectId: number; senderUserId: number; senderName: string;
+  body: string; createdAt: string; isMine: boolean;
+};

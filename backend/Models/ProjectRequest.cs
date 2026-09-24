@@ -20,4 +20,5 @@ public class ProjectRequest
     public ICollection<ProjectAvailability> Availability { get; set; } = new List<ProjectAvailability>();
     public ICollection<TeamMember> Members { get; set; } = new List<TeamMember>();
     public ICollection<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    public ICollection<ProjectMessage> Messages { get; set; } = new List<ProjectMessage>();
 }

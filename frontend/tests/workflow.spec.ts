@@ -95,7 +95,7 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.goto("/dashboard");
   await expect(owner).toHaveURL(/\/dashboard$/);
   await owner.reload();
-  await owner.getByRole("link", { name: /^Students/ }).click();
+  await owner.goto("/students");
   await expect(owner.getByLabel("Search by name")).toBeVisible();
   await owner.getByLabel("Search by name").fill("Browser Member");
   await expect(owner.getByRole("heading", { name: "Browser Member" })).toBeVisible();
@@ -120,12 +120,43 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.getByRole("button", { name: "Invite student", exact: true }).click();
   await expect(owner.getByRole("button", { name: "Invitation pending" })).toBeDisabled();
   await member.reload();
-  await member.getByRole("link", { name: /Pending invitations/ }).click();
+  await expect(member.getByRole("button", { name: /Notifications, [1-9]\d* unread/ })).toBeVisible();
+  await member.getByRole("button", { name: /Notifications/ }).click();
+  await member.getByRole("region", { name: "Notifications panel" }).getByRole("link", { name: /New project invitation/ }).click();
   await member.getByRole("button", { name: "Accept", exact: true }).click();
   await expect(member.getByText("You joined the team.", { exact: false })).toBeVisible();
   await owner.reload();
   await expect(owner.getByText("Open · 2/2 team members")).toBeVisible();
   await expect(owner.getByRole("heading", { name: "Team members" }).locator("..").getByText("Browser Member", { exact: true })).toBeVisible();
+
+  // Team members can exchange project messages and unread messages appear on the dashboard card.
+  await owner.goto("/dashboard");
+  await owner.getByRole("link", { name: /^chats/ }).click();
+  await expect(owner.getByRole("button", { name: "Go to previous page", exact: true })).toHaveCount(0);
+  await expect(owner.getByText("Message members who are in the same project team.", { exact: true })).toHaveCount(0);
+  const chatLayout = await owner.locator(".chat-layout").evaluate(element => ({
+    pageFits: document.documentElement.scrollHeight <= window.innerHeight,
+    shellOverflow: getComputedStyle(document.querySelector(".chat-view-shell")!).overflow,
+    messagesOverflow: getComputedStyle(element.querySelector(".chat-messages")!).overflowY,
+    bottom: element.getBoundingClientRect().bottom,
+  }));
+  expect(chatLayout.pageFits).toBeTruthy();
+  expect(chatLayout.shellOverflow).toBe("hidden");
+  expect(chatLayout.messagesOverflow).toBe("auto");
+  expect(chatLayout.bottom).toBeLessThanOrEqual(await owner.evaluate(() => window.innerHeight));
+  await owner.getByLabel("Message", { exact: true }).fill("Welcome to our project chat");
+  await owner.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(owner.getByRole("article").filter({ hasText: "Welcome to our project chat" })).toBeVisible();
+  await member.goto("/dashboard");
+  await expect(member.getByRole("link", { name: /^chats/ })).toContainText("01");
+  await member.getByRole("link", { name: /^chats/ }).click();
+  await expect(member.getByRole("article").filter({ hasText: "Welcome to our project chat" })).toBeVisible();
+  await member.getByLabel("Message", { exact: true }).fill("Thanks, I am ready");
+  await member.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(member.getByRole("article").filter({ hasText: "Thanks, I am ready" })).toBeVisible();
+  await owner.goto("/chats");
+  await expect(owner.getByRole("article").filter({ hasText: "Thanks, I am ready" })).toBeVisible();
+  await owner.goto(projectUrl);
 
   // The owner can assign a task to members, who must accept before it appears in their workspace.
   await owner.getByLabel("Task title", { exact: true }).fill("Build homepage");
@@ -135,15 +166,19 @@ test("two students form a team entirely through the browser", async ({ browser }
   await owner.getByRole("button", { name: "Create task", exact: true }).click();
   await expect(owner.getByRole("heading", { name: "Build homepage", exact: true })).toBeVisible();
   await expect(owner.getByText("Browser Member · Pending", { exact: true })).toBeVisible();
-  await member.goto("/dashboard");
-  await expect(member.getByRole("region", { name: "My accepted tasks" }).getByText("Build homepage", { exact: true })).toHaveCount(0);
-  await member.getByRole("link", { name: /Pending invitations/ }).click();
+  await owner.goto("/dashboard");
+  await expect(owner.getByRole("region", { name: "Activity feed" }).getByText("Task created", { exact: true })).toBeVisible();
+  await owner.goto(projectUrl);
+  await member.goto("/tasks");
+  await expect(member.getByRole("region", { name: "Your active tasks" }).getByText("Build homepage", { exact: true })).toHaveCount(0);
+  await member.goto("/invitations");
   const taskInvitation = member.getByRole("article").filter({ hasText: "Task invitation" });
   await expect(taskInvitation.getByRole("heading", { name: "Build homepage" })).toBeVisible();
   await taskInvitation.getByRole("button", { name: "Accept", exact: true }).click();
   await expect(member.getByText("Task accepted.", { exact: false })).toBeVisible();
+  await member.goto("/tasks");
+  await expect(member.getByRole("region", { name: "Your active tasks" }).getByText("Build homepage", { exact: true })).toBeVisible();
   await member.goto("/dashboard");
-  await expect(member.getByRole("region", { name: "My accepted tasks" }).getByText("Build homepage", { exact: true })).toBeVisible();
   await member.getByRole("link", { name: /My projects/ }).click();
   await expect(member.getByRole("article").getByText("Joined", { exact: true })).toBeVisible();
   await member.getByRole("link", { name: "View project", exact: true }).click();

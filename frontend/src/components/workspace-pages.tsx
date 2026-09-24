@@ -10,16 +10,17 @@ import ProjectForm from "./project-form";
 import ProjectDetail from "./project-detail";
 import InvitationInbox from "./invitation-inbox";
 import { buttonStyle, panelStyle, secondaryStyle, Tags } from "./form-controls";
-import PageBack from "./page-back";
 import ProfilePhoto from "./profile-photo";
 import StudentAvatar from "./student-avatar";
 import LogoutConfirm from "./logout-confirm";
+import TeamChat from "./team-chat";
 
 export function DashboardPage() {
-  const { user, profile, students, projects, invitations, myTasks } = useWorkspace();
+  const { user, profile, projects, myTasks, activity, chats } = useWorkspace();
   const owned = projects.filter(project => project.ownerId === user.id);
   const joined = projects.filter(project => project.isMember && project.ownerId !== user.id);
-  const pending = invitations.filter(item => item.status === "Pending").length;
+  const activeTasks = myTasks.filter(task => !task.isCompleted);
+  const unreadMessages = chats.reduce((sum, chat) => sum + chat.unreadCount, 0);
   return <div className="dashboard-page space-y-7">
     <div className="dashboard-intro">
       <Link href="/profile" className="dashboard-avatar" aria-label="Open my profile">
@@ -30,30 +31,57 @@ export function DashboardPage() {
       <p className="mt-3 text-slate-600">Find your people, build your team, and keep your project moving.</p></div></div>
     <div className="dashboard-stats grid gap-4 sm:grid-cols-3">
       {[
-        { label: "Students", count: students.filter(student => student.userId !== null).length, href: "/students" },
+        { label: "Active tasks", count: activeTasks.length, href: "/tasks" },
         { label: "My projects", count: owned.length + joined.length, href: "/projects/mine" },
-        { label: "Pending invitations", count: pending, href: "/invitations" },
+        { label: "chats", count: unreadMessages, href: "/chats" },
       ].map(item => <Link key={item.href} href={item.href} className={panelStyle + " dashboard-stat transition hover:border-[#6f8daf]"}>
         <p className="text-sm">{item.label}</p><p>{String(item.count).padStart(2, "0")}</p>
       </Link>)}
     </div>
-    <section className={panelStyle + " dashboard-active space-y-4"}>
-      <h2 className="text-xl font-bold">Your active work</h2>
-      {[...owned, ...joined].length === 0 ? <p className="text-slate-600">Create a project or accept an invitation to begin.</p> :
-        [...owned, ...joined].slice(0, 6).map(project => <Link className="block rounded-xl border border-slate-200 p-4 hover:border-indigo-300" href={`/projects/${project.id}`} key={project.id}>
-          <div className="flex flex-wrap justify-between gap-2"><span className="font-semibold">{project.title}</span><span className="text-sm text-slate-600">{project.status}</span></div>
-          <p className="mt-2 text-sm text-slate-600">{project.taskCount ? `${project.completedTaskCount}/${project.taskCount} tasks done · ${project.progressPercent}%` : "No tasks assigned yet"}</p>
-        </Link>)}
+    <section className={panelStyle + " dashboard-feed"} aria-label="Activity feed">
+      <div className="dashboard-feed-heading"><div><h2>Activity feed</h2><p>Recent project, task, invitation and chat news.</p></div></div>
+      {activity.length === 0 ? <p className="dashboard-feed-empty">Your team activity will appear here.</p> :
+        <div className="dashboard-feed-list">{activity.slice(0, 12).map(item => <Link href={item.href} key={item.id}>
+          <span className={`activity-icon activity-${item.type.toLowerCase()}`} aria-hidden="true">{item.type === "TaskCompleted" ? "✓" : item.type === "Message" ? "✉" : item.type === "Invitation" ? "!" : "+"}</span>
+          <span><strong>{item.title}</strong><small>{item.detail}</small></span><time>{new Date(item.createdAt).toLocaleString()}</time>
+        </Link>)}</div>}
     </section>
-    <section className={panelStyle + " space-y-4"} aria-label="My accepted tasks">
-      <h2 className="text-xl font-bold">My accepted tasks</h2>
-      {myTasks.length === 0 ? <p className="text-slate-600">Accepted task invitations will appear here.</p> :
-        myTasks.map(task => <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-4" key={task.assignmentId}>
-          <div><p className="font-semibold">{task.title}</p><p className="text-sm text-slate-600">{task.projectTitle} · Due {new Date(task.deadlineAt).toLocaleDateString()}</p></div>
-          <div className="flex items-center gap-3"><span className={"rounded-full px-3 py-1 text-xs font-bold " + (task.isCompleted ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800")}>
-            {task.isCompleted ? "Completed" : "Not completed"}
-          </span><Link className={secondaryStyle} href={`/projects/${task.projectId}`}>View task</Link></div>
-        </article>)}
+  </div>;
+}
+
+export function TasksPage() {
+  const { myTasks } = useWorkspace();
+  const active = myTasks.filter(task => !task.isCompleted);
+  const completed = myTasks.filter(task => task.isCompleted);
+  const list = (tasks: typeof myTasks, empty: string) => tasks.length === 0 ? <p className="text-slate-600">{empty}</p> :
+    tasks.map(task => <article className="task-summary" key={task.assignmentId}>
+      <div><h3>{task.title}</h3><p>{task.projectTitle} · Due {new Date(task.deadlineAt).toLocaleDateString()}</p></div>
+      <div><span className={task.isCompleted ? "complete" : "active"}>{task.isCompleted ? "Completed" : "In progress"}</span>
+        <Link className={secondaryStyle} href={`/projects/${task.projectId}`}>View task</Link></div>
+    </article>);
+  return <div className="tasks-page space-y-6"><div><h1 className="workspace-page-title">My tasks</h1><p className="mt-2 text-slate-600">Tasks you accepted from your project teams.</p></div>
+    <section className={panelStyle + " space-y-4"} aria-label="Your active tasks"><h2 className="text-xl font-bold">Your active tasks</h2>{list(active, "No active tasks right now.")}</section>
+    <section className={panelStyle + " space-y-4"} aria-label="My completed tasks"><h2 className="text-xl font-bold">My completed tasks</h2>{list(completed, "Completed tasks will appear here.")}</section>
+  </div>;
+}
+
+export function ChatsPage() {
+  const { chats } = useWorkspace();
+  return <TeamChat initialThreads={chats} />;
+}
+
+export function NotificationsPage() {
+  const { activity } = useWorkspace();
+  return <div className="notifications-page space-y-5">
+    <div><h1 className="workspace-page-title">Notifications</h1>
+      <p className="mt-2 text-slate-600">Your recent project, task, invitation and chat updates.</p></div>
+    <section className={panelStyle + " notification-page-list"} aria-label="All notifications">
+      {activity.length === 0 ? <p className="notification-page-empty">No notifications yet.</p> :
+        activity.map(item => <Link href={item.href} key={item.id}>
+          <span className={`activity-icon activity-${item.type.toLowerCase()}`} aria-hidden="true">{item.type === "TaskCompleted" ? "✓" : item.type === "Message" ? "✉" : item.type === "Invitation" ? "!" : "+"}</span>
+          <span><strong>{item.title}</strong><small>{item.detail}</small></span>
+          <time>{new Date(item.createdAt).toLocaleString()}</time>
+        </Link>)}
     </section>
   </div>;
 }
@@ -63,13 +91,11 @@ export function ProfilePage({ mode = "view" }: { mode?: "view" | "create" | "edi
   const router = useRouter();
   if (mode === "create" && profile) return <div className={panelStyle}><h1 className="text-2xl font-bold">Your profile is ready</h1><Link href="/profile" className="mt-4 inline-block text-indigo-700">View my profile →</Link></div>;
   if (mode !== "view" || !profile) return <div className="profile-form-page space-y-4">
-    {mode === "edit" && <PageBack href="/profile" />}
     <StudentProfileForm user={user} student={profile} skills={skills} options={options}
       onSaved={async () => { await refresh(); router.push(mode === "create" ? "/dashboard" : "/profile"); }} />
   </div>;
   return <div className="profile-view-page">
     <div className="profile-view-heading">
-      <PageBack />
       <h1 className="workspace-page-title">My profile</h1>
     </div>
     <section className={panelStyle + " profile-view-card"}>

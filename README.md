@@ -13,13 +13,14 @@ This is a working individual full-stack learning project, not an AI/ML matching 
 - Search/filter students by name, skill, role, and availability.
 - Create, edit, and delete projects; manage Open / InProgress / Completed status.
 - Ranked recommendations with matched skills, missing skills, and score explanations.
-- Send, cancel, reject, and accept project and task invitations; invitation inbox with a pending counter.
+- Send, cancel, reject, and accept project and task invitations; the header bell shows unopened activity.
 - Project owners automatically join their team; members can leave; owners can remove members.
 - Capacity checks protected against concurrent invitation acceptance.
-- Team skill-coverage summary and dashboard counts.
+- Team skill-coverage summary, dashboard counts, and a recent activity feed.
 - One My projects list for owned and joined projects, with clear Owner/Joined labels, profile onboarding, and shareable project URLs.
 - Owners create, edit, delete, and assign tasks to one or multiple team members, with deadlines measured in days.
-- Assigned members accept or reject task invitations. Accepted tasks appear on the Workspace, where completion is saved per member.
+- Assigned members accept or reject task invitations. Accepted work is separated into active and completed sections under My tasks.
+- Project owners and accepted team members can use a private project chat; each user has their own unread-message count.
 - Leaving or removing a member removes that member's task assignments without deleting the task.
 - Server-side validation, ownership authorization, error messages, and responsive screens.
 - Reference-based branding, separate guest/member landing controls, fictional example project cards, and a dedicated How It Works page.
@@ -136,10 +137,10 @@ Keep both terminals running. Use **Ctrl+C** to stop them. Do not start a second 
 3. In another browser profile/incognito window, register a second student and create their profile.
 4. As the first student, create a project with required skills, desired roles, and meeting times.
 5. Open the project; inspect the recommendation scores and invite the second student.
-6. As the second student, use **Pending invitations → Accept** on the dashboard after profile setup. The logo opens the landing page.
+6. As the second student, open the header notification bell, choose **Invitation inbox**, and accept the invitation. The logo opens the landing page.
 7. Refresh the owner's workspace; the team now includes both students.
 8. On the project details page, create a task, choose one or more members, and enter its deadline in days.
-9. The second student opens **Pending invitations**, accepts the task invitation, and sees it under **Workspace → My accepted tasks**.
+9. The second student opens **Invitation inbox**, accepts the task invitation, and sees it under **Workspace → My active tasks**.
 10. The assigned student opens the task and uses **Mark as completed**. Task progress updates after all accepted assignees complete their work. The owner changes the overall project status separately.
 
 Different tabs in the **same browser profile share the same login cookie**. Use separate browser profiles/incognito sessions when demonstrating multiple users.
@@ -177,10 +178,12 @@ Except for options, registration, and login, endpoints require authentication.
 | Tasks | GET/POST /api/projects/{id}/tasks; PUT/DELETE /api/projects/{id}/tasks/{taskId}; PATCH /api/projects/{id}/tasks/{taskId}/completion; GET /api/tasks/mine |
 | Owner invitations | GET/POST /api/projects/{id}/invitations |
 | Inbox | GET /api/invitations; PUT /api/invitations/{id}; PUT /api/invitations/tasks/{id}; DELETE /api/invitations/{id} |
+| Team chats | GET /api/chats; GET/POST /api/chats/{projectId}/messages; POST /api/chats/{projectId}/read |
+| Activity and notifications | GET /api/activity; GET /api/notifications; POST /api/notifications/read |
 
 `GET /api/projects?mine=true` returns owned and joined teams. Student list supports `search`, `role`, `skillId`, and `availability` query parameters.
 
-Project responses include isMember, taskCount, completedTaskCount, and progressPercent. Task contents are visible only to the owner/current members. A task must be assigned to one or more current members. Each new assignee receives a task invitation and appears in My accepted tasks only after accepting it. Progress is the rounded percentage of tasks completed by all accepted assignees, while unanswered invitations keep a task incomplete. It is not a measure of effort or overall software quality. Task completion does not automatically change the project's Open / InProgress / Completed status.
+Project responses include isMember, taskCount, completedTaskCount, and progressPercent. Task contents are visible only to the owner/current members. A task must be assigned to one or more current members. Each new assignee receives a task invitation and appears in My tasks only after accepting it. Progress is the rounded percentage of tasks completed by all accepted assignees, while unanswered invitations keep a task incomplete. It is not a measure of effort or overall software quality. Task completion does not automatically change the project's Open / InProgress / Completed status.
 
 Swagger: register/login, copy the response token, click **Authorize**, and paste the token without adding another `Bearer` prefix. Do not commit real tokens in `.http` files.
 

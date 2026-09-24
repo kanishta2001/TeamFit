@@ -23,6 +23,7 @@ builder.Services.AddDbContext<TeamFitDbContext>(options => options.UseSqlServer(
 builder.Services.AddHostedService<SkillCatalogSeeder>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ActivityFeedService>();
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>

@@ -26,6 +26,34 @@ button:not(:disabled), a { cursor: pointer; }
 .account-name-text { max-width: 160px; overflow-wrap: anywhere; }
 .account-avatar { display: grid; place-items: center; height: 29px; width: 29px; flex-shrink: 0; border-radius: 50%; background: #153e720d; color: var(--brand-navy); font-size: 12px; }
 .account-navigation .logout-button { border-left: 1px solid #9096a1; padding-left: 22px; }
+.notification-control { position: relative; flex-shrink: 0; }
+.account-navigation .notification-button {
+  position: relative; display: grid; place-items: center; width: 38px; height: 38px; padding: 6px;
+  border-radius: 50%; color: #203c61; transition: background .15s ease, color .15s ease;
+}
+.account-navigation .notification-button:hover { background: #153e720d; color: #0f315b; }
+.notification-button svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.notification-badge {
+  position: absolute; right: -3px; top: -2px; min-width: 19px; height: 19px; padding-inline: 4px;
+  display: grid; place-items: center; border: 2px solid white; border-radius: 999px;
+  background: #e11d48; color: white; font: 700 10px/1 var(--font-ui);
+}
+.notification-popover {
+  position: absolute; z-index: 50; right: 0; top: calc(100% + 10px); width: min(380px, calc(100vw - 28px));
+  border: 1px solid #dbe3ee; border-radius: 17px; background: white; color: #1d3559;
+  box-shadow: 0 20px 50px #1735572b; overflow: hidden; text-align: left;
+}
+.notification-popover-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 17px 18px 12px; border-bottom: 1px solid #e8edf4; }
+.notification-popover-heading h2 { font-size: 18px; font-weight: 750; }
+.notification-list { max-height: 340px; overflow-y: auto; }
+.account-navigation .notification-list a { display: grid; gap: 3px; padding: 12px 18px; border-bottom: 1px solid #edf1f6; }
+.account-navigation .notification-list a:hover { background: #f6f9fc; }
+.notification-list strong { font-size: 12px; }
+.notification-list span { color: #4e6078; font-size: 11px; line-height: 1.4; }
+.notification-list time { color: #8491a3; font-size: 9px; }
+.notification-empty { padding: 26px 18px; color: #68778b; font-size: 12px; }
+.notification-footer { display: flex; justify-content: flex-end; padding: 11px 18px; background: #f8fafc; }
+.account-navigation .notification-footer a { padding: 4px 0; color: #234d7d; font-size: 11px; font-weight: 750; }
 .session-check { color: #626c7c; font-size: 12px; }
 .public-session-error { width: min(1420px, calc(100% - 48px)); margin: 12px auto; border-radius: 12px; padding: 14px 18px; border: 1px solid #f6d2cb; background: #fff8f5; font-size: 13px; display: flex; flex-wrap: wrap; gap: 16px; }
 .public-session-error button { font-weight: 700; text-decoration: underline; }
@@ -73,9 +101,8 @@ button:not(:disabled), a { cursor: pointer; }
 .example-roles li span { color: #6682a2; font-size: 14px; }
 .example-disclaimer { font-size: 10px; color: #7b8594; line-height: 1.65; margin-top: 25px; padding-top: 18px; border-top: 1px dashed #e3e7ef; }
 .how-page { width: min(1000px, calc(100% - 48px)); margin: 28px auto 0; padding-bottom: 80px; }
-.back-home { display: inline-block; font-size: 13px; color: var(--brand-navy); margin-bottom: 45px; }
 .page-eyebrow { font-size: 11px; letter-spacing: .15em; color: var(--brand-navy); font-weight: 700; text-transform: uppercase; }
-.how-page h1 { font-family: var(--font-display), Impact, sans-serif; font-size: clamp(40px, 6vw, 74px); color: var(--brand-navy); line-height: 1.15; margin-top: 13px; }
+.how-page h1 { font-family: var(--font-display), Impact, sans-serif; font-size: clamp(32px, 4vw, 56px); color: var(--brand-navy); line-height: 1.15; margin-top: 13px; }
 .how-intro { max-width: 630px; font-size: 17px; line-height: 1.8; color: #526076; margin-top: 20px; }
 .how-steps { display: grid; gap: 16px; margin-top: 38px; }
 .how-steps li { display: flex; align-items: flex-start; gap: 25px; border-radius: 18px; background: #ffffffd9; border: 1px solid #dce4ef; padding: 27px; }
@@ -106,6 +133,7 @@ button:not(:disabled), a { cursor: pointer; }
   .account-avatar { display: none; }
   .account-name-text { max-width: 90px; }
   .account-navigation .logout-button { padding-left: 14px; }
+  .notification-popover { position: fixed; top: 68px; left: 14px; right: 14px; width: auto; }
   .landing-hero { width: calc(100% - 52px); grid-template-columns: 1fr; gap: 60px; padding-block: 45px 48px; }
   .hero-build { font-size: clamp(104px, 28vw, 185px); }
   .hero-line { font-size: clamp(35px, 9.4vw, 64px); }
